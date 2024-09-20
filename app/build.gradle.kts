@@ -51,7 +51,11 @@ android {
 
 dependencies {
     // viewmodel
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.kotlinx.coroutines.android)
+    // ViewModel
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    // ViewModel utilities for Compose
+    implementation(libs.androidx.lifecycle.viewmodel.compose.v286)
 
     // network
     implementation(libs.retrofit)

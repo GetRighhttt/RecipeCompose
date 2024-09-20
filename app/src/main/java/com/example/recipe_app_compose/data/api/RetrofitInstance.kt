@@ -1,4 +1,4 @@
-package com.example.recipe_app_compose.core.network
+package com.example.recipe_app_compose.data.api
 
 import com.example.recipe_app_compose.core.util.Constants.BASE_URL
 import okhttp3.OkHttpClient
@@ -29,7 +29,7 @@ object RetrofitInstance {
         .client(provideHttpInterceptor())
         .build()
 
-    val rickAndMortyService: ApiService by lazy {
+    val apiService: ApiService by lazy {
         retrofit.create(ApiService::class.java)
     }
 }
