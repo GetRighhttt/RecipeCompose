@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -23,15 +22,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-import com.example.recipe_app_compose.domain.model.Category
+import com.example.recipe_app_compose.domain.model.SeafoodCategory
 import com.example.recipe_app_compose.presentation.viewmodel.RecipeViewModel
 
 @Composable
-fun RecipeScreen(modifier: Modifier = Modifier) {
+fun SeafoodRecipeScreen(modifier: Modifier = Modifier) {
 
     // declare view model and state variable
     val viewModel: RecipeViewModel = viewModel()
-    val viewState by viewModel.categoriesState
+    val viewState by viewModel.seafoodState
     val context = LocalContext.current
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -42,23 +41,23 @@ fun RecipeScreen(modifier: Modifier = Modifier) {
 
             else -> {
                 // display list of categories
-                CategoryScreen(categories = viewState.list ?: emptyList() )
+                SeafoodCategoryScreen(categories = viewState.list ?: emptyList() )
             }
         }
     }
 }
 
 @Composable
-fun CategoryScreen(categories: List<Category>) {
+fun SeafoodCategoryScreen(categories: List<SeafoodCategory>) {
     LazyVerticalGrid(GridCells.Fixed(2), modifier = Modifier.fillMaxSize()) {
         items(categories) { category ->
-            CategoryItem(category = category)
+            SeafoodCategoryItem(category = category)
         }
     }
 }
 
 @Composable
-fun CategoryItem(category: Category) {
+fun SeafoodCategoryItem(category: SeafoodCategory) {
     Column(
         modifier = Modifier
             .padding(8.dp)
@@ -66,14 +65,14 @@ fun CategoryItem(category: Category) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = rememberAsyncImagePainter(category.strCategoryThumb),
+            painter = rememberAsyncImagePainter(category.strMealThumb),
             contentDescription = "Image",
             modifier = Modifier
                 .fillMaxSize()
                 .aspectRatio(1f)
         )
         Text(
-            text = category.strCategory,
+            text = category.strMeal,
             style = TextStyle(fontWeight = FontWeight.Bold),
             modifier = Modifier.padding(4.dp)
         )

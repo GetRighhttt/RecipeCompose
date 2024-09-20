@@ -61,6 +61,7 @@ class MainActivity : ComponentActivity() {
                             })
                     }) { innerPadding ->
                     RecipeScreen(modifier = Modifier.padding(innerPadding))
+                    SeafoodRecipeScreen(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
