@@ -50,6 +50,21 @@ android {
 }
 
 dependencies {
+    // viewmodel
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+
+    // network
+    implementation(libs.retrofit)
+
+    // Gson
+    implementation(libs.converter.gson)
+
+    // image loading with coil
+    implementation(libs.coil.compose)
+
+    // glide just in case
+    implementation(libs.glide)
+    annotationProcessor(libs.compiler)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
