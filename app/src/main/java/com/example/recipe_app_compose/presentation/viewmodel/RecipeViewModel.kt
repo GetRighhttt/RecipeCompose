@@ -64,13 +64,13 @@ class RecipeViewModel : ViewModel() {
         }
     }
 
-    data class RecipeState (
+    data class RecipeState(
         val loading: Boolean = true,
         val list: List<Category>? = emptyList(),
         val error: String? = null
     )
 
-    data class SeafoodState (
+    data class SeafoodState(
         val loading: Boolean = true,
         val list: List<SeafoodCategory>? = emptyList(),
         val error: String? = null

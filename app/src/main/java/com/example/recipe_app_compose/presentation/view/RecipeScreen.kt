@@ -42,7 +42,7 @@ fun RecipeScreen(modifier: Modifier = Modifier) {
 
             else -> {
                 // display list of categories
-                CategoryScreen(categories = viewState.list ?: emptyList() )
+                CategoryScreen(categories = viewState.list ?: emptyList())
             }
         }
     }
