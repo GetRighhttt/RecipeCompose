@@ -4,7 +4,6 @@
 
 package com.example.recipe_app_compose.presentation.view
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -25,8 +24,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -70,22 +68,28 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
             topBar = {
                 CenterAlignedTopAppBar(
                     title = { Text(randomViewState.item?.first()?.strMeal.toString()) },
-//                    navigationIcon = {
-//                        IconButton(
-//                            onClick = {
-//                                navigateBackState = true
-//                            }) {
-//                            Icon(
-//                                imageVector = Icons.Default.Close,
-//                                contentDescription = "Close"
-//                            )
-//                            if (navigateBackState) {
-//                                BackHandler(onBack = {
-//
-//                                }, enabled = true)
-//                            }
-//                        }
-//                    }
+                    navigationIcon = {
+                        IconButton(
+                            onClick = {
+                                navigateBackState = true
+                            }) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Close"
+                            )
+                        }
+                    },
+                    actions = {
+                        IconButton(
+                            onClick = {
+                                viewModel.fetchRandomMeal()
+                            }) {
+                            Icon(
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = "Refresh"
+                            )
+                        }
+                    }
                 )
             }
         ) { innerPadding ->
