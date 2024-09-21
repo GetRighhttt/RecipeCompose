@@ -24,6 +24,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -70,12 +71,10 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                     title = { Text(randomViewState.item?.first()?.strMeal.toString()) },
                     navigationIcon = {
                         IconButton(
-                            onClick = {
-                                navigateBackState = true
-                            }) {
+                            onClick = {}) {
                             Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Close"
+                                imageVector = Icons.Default.Favorite,
+                                contentDescription = "Favorite"
                             )
                         }
                     },
