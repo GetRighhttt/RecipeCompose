@@ -18,14 +18,14 @@ interface ApiService {
     // ?c=Seafood
     @GET(CATEGORY_MEAL_ENDPOINT)
     suspend fun getCategoriesMeal(
-        @Query("c") c: String = getRandomList()
+        @Query("c") c: String = getRandomCategoryMeals()
     ): Response<CategoryMealResponse>
 
     @GET(RANDOM_MEAL_ENDPOINT)
     suspend fun getRandomMeal(): Response<RandomMealResponse>
 }
 
-fun getRandomList(): String {
+fun getRandomCategoryMeals(): String {
     val listOfFoods = listOf(
         "Beef",
         "Breakfast",
