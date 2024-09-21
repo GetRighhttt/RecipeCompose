@@ -1,6 +1,7 @@
 package com.example.recipe_app_compose.presentation.view
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -10,11 +11,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
@@ -32,6 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.recipe_app_compose.presentation.AlertDialogExample
 import com.example.recipe_app_compose.presentation.FullScreenDialog
+import com.example.recipe_app_compose.presentation.MyBottomAppBar
 import com.example.recipe_app_compose.ui.theme.Recipe_App_ComposeTheme
 import androidx.compose.ui.unit.sp as sp
 
@@ -95,6 +102,69 @@ class MainActivity : ComponentActivity() {
                                     FullScreenDialog { showFullDialogBox = false }
                                 }
                             })
+                    },
+                    bottomBar = {
+                        MyBottomAppBar(
+                            modifier = Modifier.fillMaxWidth(),
+                            content = {
+                                IconButton(
+                                    onClick = {
+                                        Toast.makeText(
+                                            applicationContext,
+                                            "Pressed Share Button",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Share,
+                                        contentDescription = "Share"
+                                    )
+                                }
+                                IconButton(
+                                    onClick = {
+                                        Toast.makeText(
+                                            applicationContext,
+                                            "Pressed Search Button",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Search,
+                                        contentDescription = "Search"
+                                    )
+                                }
+                                IconButton(
+                                    onClick = {
+                                        Toast.makeText(
+                                            applicationContext,
+                                            "Pressed Settings Button",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Settings,
+                                        contentDescription = "Settings"
+                                    )
+                                }
+                                IconButton(
+                                    onClick = {
+                                        Toast.makeText(
+                                            applicationContext,
+                                            "Pressed Add Button",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = "Settings"
+                                    )
+                                }
+                            }
+                        )
                     }) { innerPadding ->
                     if (showBottomSheet) {
                         ModalBottomSheet(
