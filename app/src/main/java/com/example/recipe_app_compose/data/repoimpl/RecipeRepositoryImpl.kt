@@ -8,7 +8,7 @@ import com.example.recipe_app_compose.domain.repository.RecipeRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class RecipeRepositoryImpl() : RecipeRepository {
+class RecipeRepositoryImpl : RecipeRepository {
 
     override suspend fun getCategories(): Resource<CategoryResponse> {
         return withContext(Dispatchers.IO) {
