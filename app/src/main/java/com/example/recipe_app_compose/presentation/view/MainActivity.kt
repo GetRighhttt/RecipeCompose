@@ -55,6 +55,8 @@ class MainActivity : ComponentActivity() {
                         CenterAlignedTopAppBar(
                             title = {
                                 Text("Home")
+                            },
+                            navigationIcon = {
                                 IconButton(onClick = {
                                     showAlertDialogBox = true
                                 }) {
@@ -62,7 +64,6 @@ class MainActivity : ComponentActivity() {
                                         imageVector = Icons.Default.Menu,
                                         contentDescription = "Menu"
                                     )
-
                                 }
                                 if (showAlertDialogBox) {
                                     AlertDialogExample(

@@ -1,6 +1,11 @@
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3Api::class
+)
+
 package com.example.recipe_app_compose.presentation.view
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,7 +22,11 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -46,26 +55,38 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
     var alertDialogState by remember { mutableStateOf(true) }
 
     Box(modifier = modifier.fillMaxSize()) {
-        when {
-            randomViewState.loading -> CircularProgressIndicator(
-                modifier
-                    .align(Alignment.Center)
-                    .aspectRatio(0.5f)
-            )
-
-            randomViewState.error != null ->
-                AlertDialogExample(
-                    dialogTitle = "Error",
-                    dialogText = "Error occurred: ${randomViewState.error}",
-                    onDismissRequest = { alertDialogState = false },
-                    onConfirmation = {
-                        viewModel.fetchRandomMeal()
-                    }
+        Scaffold(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surfaceVariant),
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = { Text(randomViewState.item?.first()?.strMeal.toString()) }
+                )
+            }
+        ) { innerPadding ->
+            when {
+                randomViewState.loading -> CircularProgressIndicator(
+                    modifier
+                        .align(Alignment.Center)
+                        .aspectRatio(0.5f)
+                        .padding(innerPadding)
                 )
 
-            else -> {
-                // display list of categories
-                RandomCategoryScreen(categories = randomViewState.item ?: emptyList())
+                randomViewState.error != null ->
+                    AlertDialogExample(
+                        dialogTitle = "Error",
+                        dialogText = "Error occurred: ${randomViewState.error}",
+                        onDismissRequest = { alertDialogState = false },
+                        onConfirmation = {
+                            viewModel.fetchRandomMeal()
+                        }
+                    )
+
+                else -> {
+                    // display list of categories
+                    RandomCategoryScreen(categories = randomViewState.item ?: emptyList())
+                }
             }
         }
     }
@@ -101,15 +122,6 @@ fun RandomMealItem(category: RandomMeal) {
             .padding(8.dp)
             .fillMaxSize(),
     ) {
-        Text(
-            text = category.strMeal,
-            style = TextStyle(
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                fontSize = 20.sp
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
         Image(
             painter = rememberAsyncImagePainter(category.strMealThumb),
             contentDescription = "Image",
@@ -119,17 +131,17 @@ fun RandomMealItem(category: RandomMeal) {
         )
         Spacer(modifier = Modifier.padding(top = 15.dp))
         Text(
-            text = "Details",
+            text = category.strMeal,
             style = TextStyle(
-                fontWeight = FontWeight.Medium,
+                fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
-                fontSize = 18.sp,
+                fontSize = 20.sp,
             ),
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.padding(top = 5.dp))
+        Spacer(modifier = Modifier.padding(top = 20.dp))
         Text(
-            text = "Food Type : " + category.strCategory,
+            text = "Type : " + category.strCategory,
             style = TextStyle(fontWeight = FontWeight.Medium),
         )
         Spacer(modifier = Modifier.padding(top = 5.dp))
@@ -147,7 +159,7 @@ fun RandomMealItem(category: RandomMeal) {
             text = "YouTube : " + category.strYoutube,
             style = TextStyle(fontWeight = FontWeight.Medium),
         )
-        Spacer(modifier = Modifier.padding(top = 10.dp))
+        Spacer(modifier = Modifier.padding(top = 15.dp))
         Text("Instructions: ", style = TextStyle(fontWeight = FontWeight.Bold))
         Spacer(modifier = Modifier.padding(top = 3.dp))
         VerticalScrollingWithFixedHeightTextDemo(
@@ -155,9 +167,13 @@ fun RandomMealItem(category: RandomMeal) {
         )
         Spacer(modifier = Modifier.padding(bottom = 15.dp))
         Text("Ingredients: ", style = TextStyle(fontWeight = FontWeight.Bold))
-        Spacer(modifier = Modifier.padding(top = 3.dp))
+        Spacer(modifier = Modifier.padding(top = 8.dp, bottom = 2.dp))
         Box {
-            LazyColumn(modifier = Modifier.fillMaxWidth().height(80.dp)) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(80.dp)
+            ) {
                 items(listOfIngredients) { msg ->
                     MessageCard(msg)
                 }
@@ -170,20 +186,21 @@ fun RandomMealItem(category: RandomMeal) {
 fun VerticalScrollingWithFixedHeightTextDemo(randomText: String) {
     Text(
         text = randomText,
-        style = TextStyle(fontWeight = FontWeight.Medium),
+        style = TextStyle(fontWeight = FontWeight.Normal),
         modifier = Modifier
             .height(100.dp)
             .verticalScroll(rememberScrollState())
+            .padding(top = 5.dp)
     )
 }
 
 @Composable
 fun MessageCard(msg: String) {
-    Row(modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)) {
+    Row(modifier = Modifier.padding(top = 2.dp, bottom = 2.dp)) {
         Column {
             Text(
                 text = msg,
-                style = TextStyle(fontWeight = FontWeight.Medium)
+                style = TextStyle(fontWeight = FontWeight.Normal)
             )
         }
     }
