@@ -1,9 +1,11 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
+@file:OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
     ExperimentalMaterial3Api::class
 )
 
 package com.example.recipe_app_compose.presentation.view
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -41,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -60,8 +63,10 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
     val randomViewState by viewModel.randomMealState
     var alertDialogState by remember { mutableStateOf(true) }
     var navigateBackState by remember { mutableStateOf(false) }
+    var favoriteDialogState by remember { mutableStateOf(false) }
 
     Box(modifier = modifier.fillMaxSize()) {
+        val context = LocalContext.current
         Scaffold(
             modifier = Modifier
                 .fillMaxSize()
@@ -71,10 +76,27 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                     title = { Text(randomViewState.item?.first()?.strMeal.toString()) },
                     navigationIcon = {
                         IconButton(
-                            onClick = {}) {
+                            onClick = {
+                                favoriteDialogState = true
+                            }) {
                             Icon(
                                 imageVector = Icons.Default.Favorite,
                                 contentDescription = "Favorite"
+                            )
+                        }
+                        if (favoriteDialogState) {
+                            AlertDialogExample(
+                                dialogTitle = "Favorite",
+                                dialogText = "Would you like to add this to your favorites?",
+                                onDismissRequest = { favoriteDialogState = false },
+                                onConfirmation = {
+                                    favoriteDialogState = false
+                                    Toast.makeText(
+                                        context,
+                                        "${randomViewState.item?.first()?.strMeal.toString()} to favorites",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
                             )
                         }
                     },
