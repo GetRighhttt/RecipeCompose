@@ -77,7 +77,8 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                     title = {
                         Text(
                             randomViewState.item?.first()?.strMeal.toString(),
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 2
                         )
                     },
                     navigationIcon = {
