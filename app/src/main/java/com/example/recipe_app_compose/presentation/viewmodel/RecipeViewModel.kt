@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.recipe_app_compose.data.repoimpl.RecipeRepositoryImpl
 import com.example.recipe_app_compose.domain.states.RandomMealState
 import com.example.recipe_app_compose.domain.states.RecipeState
-import com.example.recipe_app_compose.domain.states.SeafoodState
+import com.example.recipe_app_compose.domain.states.CategoryMealState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -17,8 +17,8 @@ class RecipeViewModel : ViewModel() {
     private val _categoriesState = mutableStateOf(RecipeState())
     val categoriesState: State<RecipeState> = _categoriesState
 
-    private val _seafoodState = mutableStateOf(SeafoodState())
-    val seafoodState: State<SeafoodState> = _seafoodState
+    private val _categoryMealState = mutableStateOf(CategoryMealState())
+    val categoryMealState: State<CategoryMealState> = _categoryMealState
 
     private val _randomMealState = mutableStateOf(RandomMealState())
     val randomMealState: State<RandomMealState> = _randomMealState
@@ -27,7 +27,7 @@ class RecipeViewModel : ViewModel() {
 
     init {
         fetchCategories()
-        fetchSeafoodCategories()
+        fetchCategorieMeals()
         fetchRandomMeal()
     }
 
@@ -53,17 +53,17 @@ class RecipeViewModel : ViewModel() {
         }
     }
 
-    internal fun fetchSeafoodCategories() = viewModelScope.launch(Dispatchers.Main) {
-        _seafoodState.value = _seafoodState.value.copy(loading = true)
+    internal fun fetchCategorieMeals() = viewModelScope.launch(Dispatchers.Main) {
+        _categoryMealState.value = _categoryMealState.value.copy(loading = true)
         try {
-            val response = repository.getSeafoodCategories()
-            _seafoodState.value = _seafoodState.value.copy(
+            val response = repository.getCategoriesMeal()
+            _categoryMealState.value = _categoryMealState.value.copy(
                 loading = false,
                 list = response.data!!.meals,
                 error = null
             )
         } catch (e: Exception) {
-            _seafoodState.value = _seafoodState.value.copy(
+            _categoryMealState.value = _categoryMealState.value.copy(
                 loading = false,
                 error = "Error fetching data: ${e.message}"
             )

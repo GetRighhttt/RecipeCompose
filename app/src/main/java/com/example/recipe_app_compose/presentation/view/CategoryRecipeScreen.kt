@@ -23,16 +23,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-import com.example.recipe_app_compose.domain.model.SeafoodCategory
+import com.example.recipe_app_compose.domain.model.CategoryMeal
 import com.example.recipe_app_compose.presentation.AlertDialogExample
 import com.example.recipe_app_compose.presentation.viewmodel.RecipeViewModel
 
 @Composable
-fun SeafoodRecipeScreen(modifier: Modifier = Modifier) {
+fun CategoryRecipeScreen(modifier: Modifier = Modifier) {
 
     // declare view model and state variable
     val viewModel: RecipeViewModel = viewModel()
-    val viewState by viewModel.seafoodState
+    val viewState by viewModel.categoryMealState
     var alertDialogState by remember { mutableStateOf(true) }
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -43,30 +43,30 @@ fun SeafoodRecipeScreen(modifier: Modifier = Modifier) {
                 dialogText = "Error occurred: ${viewState.error}",
                 onDismissRequest = { alertDialogState = false },
                 onConfirmation = {
-                    viewModel.fetchSeafoodCategories()
+                    viewModel.fetchCategorieMeals()
                     alertDialogState = false
                 }
             )
 
             else -> {
                 // display list of categories
-                SeafoodCategoryScreen(categories = viewState.list ?: emptyList())
+                CategoryMealScreen(categories = viewState.list ?: emptyList())
             }
         }
     }
 }
 
 @Composable
-fun SeafoodCategoryScreen(categories: List<SeafoodCategory>) {
+fun CategoryMealScreen(categories: List<CategoryMeal>) {
     LazyVerticalGrid(GridCells.Fixed(2), modifier = Modifier.fillMaxSize()) {
         items(categories) { category ->
-            SeafoodCategoryItem(category = category)
+            CategoryMealItem(category = category)
         }
     }
 }
 
 @Composable
-fun SeafoodCategoryItem(category: SeafoodCategory) {
+fun CategoryMealItem(category: CategoryMeal) {
     Column(
         modifier = Modifier
             .padding(8.dp)
