@@ -1,10 +1,12 @@
 package com.example.recipe_app_compose.presentation.view
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -25,6 +27,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.domain.model.CategoryMeal
 import com.example.recipe_app_compose.presentation.AlertDialogExample
+import com.example.recipe_app_compose.presentation.DialogWithImage
 import com.example.recipe_app_compose.presentation.viewmodel.RecipeViewModel
 
 @Composable
@@ -37,7 +40,12 @@ fun CategoryRecipeScreen(modifier: Modifier = Modifier) {
 
     Box(modifier = modifier.fillMaxSize()) {
         when {
-            viewState.loading -> CircularProgressIndicator(modifier.align(Alignment.Center).aspectRatio(0.3f))
+            viewState.loading -> CircularProgressIndicator(
+                modifier
+                    .align(Alignment.Center)
+                    .aspectRatio(0.3f)
+            )
+
             viewState.error != null -> AlertDialogExample(
                 dialogTitle = "Error",
                 dialogText = "Error occurred: ${viewState.error}",
@@ -45,7 +53,7 @@ fun CategoryRecipeScreen(modifier: Modifier = Modifier) {
                 onConfirmation = {
                     viewModel.fetchCategorieMeals()
                     alertDialogState = false
-                }
+                },
             )
 
             else -> {
@@ -67,6 +75,7 @@ fun CategoryMealScreen(categories: List<CategoryMeal>) {
 
 @Composable
 fun CategoryMealItem(category: CategoryMeal) {
+    var alertState by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .padding(8.dp)
@@ -79,7 +88,20 @@ fun CategoryMealItem(category: CategoryMeal) {
             modifier = Modifier
                 .fillMaxSize()
                 .aspectRatio(1f)
+                .clickable(enabled = true, onClick = {
+                    alertState = true
+                })
         )
+        if (alertState) {
+            DialogWithImage(
+                text = category.strMeal,
+                painter = rememberAsyncImagePainter(category.strMealThumb),
+                imageDescription = "Image",
+                onDismissRequest = { alertState = false },
+                onConfirmation = { alertState = false },
+                modifier = Modifier
+            )
+        }
         Text(
             text = category.strMeal,
             style = TextStyle(fontWeight = FontWeight.Bold),
