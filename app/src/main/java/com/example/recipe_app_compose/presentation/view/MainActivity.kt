@@ -198,7 +198,7 @@ class MainActivity : ComponentActivity() {
                                         if (showCategoryMealDialogBox) {
                                             showCategoryMealDialogBox = false
                                             val viewModel: RecipeViewModel = viewModel()
-                                            viewModel.fetchCategorieMeals()
+                                            viewModel.fetchCategoryMeals()
                                         }
                                     }
                                 )

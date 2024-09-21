@@ -50,7 +50,7 @@ fun CategoryRecipeScreen(modifier: Modifier = Modifier) {
                 dialogText = "Error occurred: ${viewState.error}",
                 onDismissRequest = { alertDialogState = false },
                 onConfirmation = {
-                    viewModel.fetchCategorieMeals()
+                    viewModel.fetchCategoryMeals()
                     alertDialogState = false
                 },
             )

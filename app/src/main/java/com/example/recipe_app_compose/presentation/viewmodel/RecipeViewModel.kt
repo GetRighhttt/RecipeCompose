@@ -27,7 +27,7 @@ class RecipeViewModel : ViewModel() {
 
     init {
         fetchCategories()
-        fetchCategorieMeals()
+        fetchCategoryMeals()
         fetchRandomMeal()
     }
 
@@ -53,7 +53,7 @@ class RecipeViewModel : ViewModel() {
         }
     }
 
-    internal fun fetchCategorieMeals() = viewModelScope.launch(Dispatchers.Main) {
+    internal fun fetchCategoryMeals() = viewModelScope.launch(Dispatchers.Main) {
         _categoryMealState.value = _categoryMealState.value.copy(loading = true)
         try {
             val response = repository.getCategoriesMeal()
