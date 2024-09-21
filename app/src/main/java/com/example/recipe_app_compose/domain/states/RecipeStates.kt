@@ -18,6 +18,6 @@ data class SeafoodState(
 
 data class RandomMealState(
     val loading: Boolean = true,
-    val item: RandomMeal? = null,
+    val item: List<RandomMeal>? = null,
     val error: String? = null
 )

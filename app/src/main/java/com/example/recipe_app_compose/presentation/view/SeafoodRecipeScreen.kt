@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -38,7 +37,7 @@ fun SeafoodRecipeScreen(modifier: Modifier = Modifier) {
 
     Box(modifier = modifier.fillMaxSize()) {
         when {
-            viewState.loading -> CircularProgressIndicator(modifier.align(Alignment.Center).size(10.dp))
+            viewState.loading -> CircularProgressIndicator(modifier.align(Alignment.Center).aspectRatio(1f))
             viewState.error != null -> AlertDialogExample(
                 dialogTitle = "Error",
                 dialogText = "Error occurred: ${viewState.error}",

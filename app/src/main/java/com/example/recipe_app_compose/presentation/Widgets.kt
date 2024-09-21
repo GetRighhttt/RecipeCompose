@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.recipe_app_compose.presentation.view.RandomMealPage
 
 @Composable
 fun FullScreenDialog(onDismissRequest: () -> Unit) {
@@ -30,20 +31,7 @@ fun FullScreenDialog(onDismissRequest: () -> Unit) {
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surfaceVariant),
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    text = "Be sure to share some of your content with others soon!",
-                    textAlign = TextAlign.Center,
-                )
-                TextButton(onClick = { onDismissRequest() }) {
-                    Text("Dismiss")
-                }
-            }
+           RandomMealPage(modifier = Modifier.fillMaxSize())
         }
     }
 }
