@@ -1,7 +1,6 @@
 package com.example.recipe_app_compose.presentation.view
 
 import android.os.Bundle
-import android.widget.SearchView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,6 +15,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
@@ -32,11 +32,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipe_app_compose.presentation.AlertDialogExample
 import com.example.recipe_app_compose.presentation.FullScreenDialog
 import com.example.recipe_app_compose.presentation.MyBottomAppBar
@@ -55,6 +52,7 @@ class MainActivity : ComponentActivity() {
             var showBottomSheet by remember { mutableStateOf(false) }
             var showFullDialogBox by remember { mutableStateOf(false) }
             var showAlertDialogBox by remember { mutableStateOf(false) }
+            var showCategoryMealDialogBox by remember { mutableStateOf(false) }
 
             Recipe_App_ComposeTheme {
                 Scaffold(
@@ -185,18 +183,30 @@ class MainActivity : ComponentActivity() {
                             sheetState = sheetState,
                             tonalElevation = 20.dp
                         ) {
-                            Column {
-                                Text(
-                                    "Our Best Seafood Dishes!",
-                                    style = TextStyle(
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 20.sp
-                                    ),
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier.fillMaxWidth()
+                            Scaffold(topBar = {
+                                CenterAlignedTopAppBar(
+                                    title = { Text("Explore Our Best Dishes!") },
+                                    actions = {
+                                        IconButton(onClick = {
+                                            showCategoryMealDialogBox = true
+                                        }) {
+                                            Icon(
+                                                imageVector = Icons.Default.Refresh,
+                                                contentDescription = "Refresh"
+                                            )
+                                        }
+                                        if (showCategoryMealDialogBox) {
+                                            showCategoryMealDialogBox = false
+                                            val viewModel: RecipeViewModel = viewModel()
+                                            viewModel.fetchCategoryMeals()
+                                        }
+                                    }
                                 )
+                            }) { innerPadding ->
                                 Spacer(modifier = Modifier.padding(top = 20.dp))
-                                SeafoodRecipeScreen(modifier = Modifier.fillMaxSize())
+                                Column(modifier = Modifier.padding(innerPadding)) {
+                                    CategoryRecipeScreen(modifier = Modifier.fillMaxSize())
+                                }
                             }
                         }
                     }

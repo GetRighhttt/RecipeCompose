@@ -1,7 +1,9 @@
 package com.example.recipe_app_compose.presentation
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -14,6 +16,10 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBarDefaults
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -23,6 +29,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -43,7 +52,7 @@ fun FullScreenDialog(onDismissRequest: () -> Unit) {
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surfaceVariant),
         ) {
-           RandomMealPage(modifier = Modifier.fillMaxSize())
+            RandomMealPage(modifier = Modifier.fillMaxSize())
         }
     }
 }
@@ -84,6 +93,67 @@ fun AlertDialogExample(
             }
         }
     )
+}
+
+@Composable
+fun DialogWithImage(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    painter: Painter,
+    imageDescription: String,
+    text: String,
+    modifier: Modifier
+) {
+    Dialog(onDismissRequest = { onDismissRequest() }) {
+        // Draw a rectangle shape with rounded corners inside the dialog
+        Card(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(450.dp)
+                .padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(10.dp)
+        ) {
+            Column(
+                modifier = modifier
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Image(
+                    painter = painter,
+                    contentDescription = imageDescription,
+                    contentScale = ContentScale.Crop,
+                    modifier = modifier
+                        .height(300.dp)
+                )
+                Text(
+                    text = text, fontWeight = FontWeight.Medium,
+                    modifier = modifier.padding(10.dp),
+                )
+                Row(
+                    modifier = modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    ElevatedButton(
+                        onClick = { onDismissRequest() },
+                        modifier = modifier.padding(5.dp),
+                        elevation = ButtonDefaults.buttonElevation(15.dp)
+                    ) {
+                        Text("Dismiss")
+                    }
+                    ElevatedButton(
+                        onClick = { onConfirmation() },
+                        modifier = modifier.padding(5.dp),
+                        elevation = ButtonDefaults.buttonElevation(15.dp)
+                    ) {
+                        Text("Confirm")
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable

@@ -1,6 +1,7 @@
 package com.example.recipe_app_compose.presentation.view
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -23,50 +24,57 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-import com.example.recipe_app_compose.domain.model.SeafoodCategory
+import com.example.recipe_app_compose.domain.model.CategoryMeal
 import com.example.recipe_app_compose.presentation.AlertDialogExample
+import com.example.recipe_app_compose.presentation.DialogWithImage
 import com.example.recipe_app_compose.presentation.viewmodel.RecipeViewModel
 
 @Composable
-fun SeafoodRecipeScreen(modifier: Modifier = Modifier) {
+fun CategoryRecipeScreen(modifier: Modifier = Modifier) {
 
     // declare view model and state variable
     val viewModel: RecipeViewModel = viewModel()
-    val viewState by viewModel.seafoodState
+    val viewState by viewModel.categoryMealState
     var alertDialogState by remember { mutableStateOf(true) }
 
     Box(modifier = modifier.fillMaxSize()) {
         when {
-            viewState.loading -> CircularProgressIndicator(modifier.align(Alignment.Center).aspectRatio(0.3f))
+            viewState.loading -> CircularProgressIndicator(
+                modifier
+                    .align(Alignment.Center)
+                    .aspectRatio(0.3f)
+            )
+
             viewState.error != null -> AlertDialogExample(
                 dialogTitle = "Error",
                 dialogText = "Error occurred: ${viewState.error}",
                 onDismissRequest = { alertDialogState = false },
                 onConfirmation = {
-                    viewModel.fetchSeafoodCategories()
+                    viewModel.fetchCategoryMeals()
                     alertDialogState = false
-                }
+                },
             )
 
             else -> {
                 // display list of categories
-                SeafoodCategoryScreen(categories = viewState.list ?: emptyList())
+                CategoryMealScreen(categories = viewState.list ?: emptyList())
             }
         }
     }
 }
 
 @Composable
-fun SeafoodCategoryScreen(categories: List<SeafoodCategory>) {
+fun CategoryMealScreen(categories: List<CategoryMeal>) {
     LazyVerticalGrid(GridCells.Fixed(2), modifier = Modifier.fillMaxSize()) {
         items(categories) { category ->
-            SeafoodCategoryItem(category = category)
+            CategoryMealItem(category = category)
         }
     }
 }
 
 @Composable
-fun SeafoodCategoryItem(category: SeafoodCategory) {
+fun CategoryMealItem(category: CategoryMeal) {
+    var alertState by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .padding(8.dp)
@@ -79,7 +87,20 @@ fun SeafoodCategoryItem(category: SeafoodCategory) {
             modifier = Modifier
                 .fillMaxSize()
                 .aspectRatio(1f)
+                .clickable(enabled = true, onClick = {
+                    alertState = true
+                })
         )
+        if (alertState) {
+            DialogWithImage(
+                text = category.strMeal,
+                painter = rememberAsyncImagePainter(category.strMealThumb),
+                imageDescription = "Image",
+                onDismissRequest = { alertState = false },
+                onConfirmation = { alertState = false },
+                modifier = Modifier
+            )
+        }
         Text(
             text = category.strMeal,
             style = TextStyle(fontWeight = FontWeight.Bold),

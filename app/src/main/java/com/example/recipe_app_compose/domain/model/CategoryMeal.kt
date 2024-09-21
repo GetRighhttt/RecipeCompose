@@ -1,6 +1,6 @@
 package com.example.recipe_app_compose.domain.model
 
-data class SeafoodCategory(
+data class CategoryMeal(
     val strMeal: String,
     val strMealThumb: String,
     val idMeal: String

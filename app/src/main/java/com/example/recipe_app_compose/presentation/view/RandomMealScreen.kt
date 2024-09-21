@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -62,7 +63,7 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
     val viewModel: RecipeViewModel = viewModel()
     val randomViewState by viewModel.randomMealState
     var alertDialogState by remember { mutableStateOf(true) }
-    var navigateBackState by remember { mutableStateOf(false) }
+//    var navigateBackState by remember { mutableStateOf(false) }
     var favoriteDialogState by remember { mutableStateOf(false) }
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -76,7 +77,8 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                     title = {
                         Text(
                             randomViewState.item?.first()?.strMeal.toString(),
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 2
                         )
                     },
                     navigationIcon = {
@@ -185,7 +187,7 @@ fun RandomMealItem(category: RandomMeal) {
                 .aspectRatio(0.9f)
         )
 
-        Spacer(modifier = Modifier.padding(top = 15.dp))
+        Spacer(modifier = Modifier.padding(top = 5.dp))
         Text(
             text = "Details",
             style = TextStyle(
@@ -195,8 +197,9 @@ fun RandomMealItem(category: RandomMeal) {
             ),
             modifier = Modifier.fillMaxWidth()
         )
-
+        HorizontalDivider(thickness = 2.dp)
         Spacer(modifier = Modifier.padding(top = 20.dp))
+
         Text(
             text = "Type : " + category.strCategory,
             style = TextStyle(fontWeight = FontWeight.Medium),
@@ -219,8 +222,10 @@ fun RandomMealItem(category: RandomMeal) {
             text = "YouTube : " + category.strYoutube,
             style = TextStyle(fontWeight = FontWeight.Medium),
         )
+        Spacer(modifier = Modifier.padding(top = 5.dp))
+        HorizontalDivider(thickness = 2.dp)
+        Spacer(modifier = Modifier.padding(top = 5.dp, bottom = 5.dp))
 
-        Spacer(modifier = Modifier.padding(top = 15.dp))
         Text("Instructions: ", style = TextStyle(fontWeight = FontWeight.Bold))
 
         Spacer(modifier = Modifier.padding(top = 3.dp))
@@ -228,7 +233,9 @@ fun RandomMealItem(category: RandomMeal) {
             category.strInstructions
         )
 
-        Spacer(modifier = Modifier.padding(bottom = 15.dp))
+        Spacer(modifier = Modifier.padding(bottom = 5.dp))
+        HorizontalDivider(thickness = 2.dp)
+        Spacer(modifier = Modifier.padding(bottom = 5.dp))
         Text("Ingredients: ", style = TextStyle(fontWeight = FontWeight.Bold))
 
         Spacer(modifier = Modifier.padding(top = 8.dp, bottom = 2.dp))

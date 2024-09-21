@@ -4,7 +4,7 @@ import com.example.recipe_app_compose.core.util.Resource
 import com.example.recipe_app_compose.data.api.RetrofitInstance.apiService
 import com.example.recipe_app_compose.domain.model.CategoryResponse
 import com.example.recipe_app_compose.domain.model.RandomMealResponse
-import com.example.recipe_app_compose.domain.model.SeafoodCategoryResponse
+import com.example.recipe_app_compose.domain.model.CategoryMealResponse
 import com.example.recipe_app_compose.domain.repository.RecipeRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -27,10 +27,10 @@ class RecipeRepositoryImpl : RecipeRepository {
         }
     }
 
-    override suspend fun getSeafoodCategories(): Resource<SeafoodCategoryResponse> {
+    override suspend fun getCategoriesMeal(): Resource<CategoryMealResponse> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = apiService.getSeafoodMeal()
+                val response = apiService.getCategoriesMeal()
                 val result = response.body()
                 if ((response.isSuccessful) && (result != null)) {
                     Resource.Success(result)
@@ -38,7 +38,7 @@ class RecipeRepositoryImpl : RecipeRepository {
                     Resource.Error(response.message())
                 }
             } catch (e: Exception) {
-                Resource.Error(e.message ?: "Unable to retrieve Seafood.")
+                Resource.Error(e.message ?: "Unable to retrieve Category Meals.")
             }
         }
     }
