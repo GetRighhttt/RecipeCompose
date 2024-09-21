@@ -20,7 +20,6 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
@@ -36,11 +35,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.recipe_app_compose.presentation.AlertDialogExample
 import com.example.recipe_app_compose.presentation.FullScreenDialog
 import com.example.recipe_app_compose.presentation.MyBottomAppBar
 import com.example.recipe_app_compose.ui.theme.Recipe_App_ComposeTheme
-import androidx.compose.ui.unit.sp as sp
 
 class MainActivity : ComponentActivity() {
 
@@ -171,11 +170,12 @@ class MainActivity : ComponentActivity() {
                             onDismissRequest = {
                                 showBottomSheet = false
                             },
-                            sheetState = sheetState
+                            sheetState = sheetState,
+                            tonalElevation = 20.dp
                         ) {
                             Column {
                                 Text(
-                                    "Seafood Sheet",
+                                    "Our Best Seafood Dishes!",
                                     style = TextStyle(
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 20.sp

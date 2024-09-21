@@ -37,7 +37,7 @@ fun SeafoodRecipeScreen(modifier: Modifier = Modifier) {
 
     Box(modifier = modifier.fillMaxSize()) {
         when {
-            viewState.loading -> CircularProgressIndicator(modifier.align(Alignment.Center).aspectRatio(1f))
+            viewState.loading -> CircularProgressIndicator(modifier.align(Alignment.Center).aspectRatio(0.3f))
             viewState.error != null -> AlertDialogExample(
                 dialogTitle = "Error",
                 dialogText = "Error occurred: ${viewState.error}",
