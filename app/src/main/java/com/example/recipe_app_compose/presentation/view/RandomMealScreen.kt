@@ -25,7 +25,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -178,6 +177,7 @@ fun RandomMealItem(category: RandomMeal) {
                 .fillMaxSize()
                 .aspectRatio(0.9f)
         )
+
         Spacer(modifier = Modifier.padding(top = 15.dp))
         Text(
             text = "Details",
@@ -188,34 +188,42 @@ fun RandomMealItem(category: RandomMeal) {
             ),
             modifier = Modifier.fillMaxWidth()
         )
+
         Spacer(modifier = Modifier.padding(top = 20.dp))
         Text(
             text = "Type : " + category.strCategory,
             style = TextStyle(fontWeight = FontWeight.Medium),
         )
+
         Spacer(modifier = Modifier.padding(top = 5.dp))
         Text(
             text = "Originated : " + category.strArea,
             style = TextStyle(fontWeight = FontWeight.Medium),
         )
+
         Spacer(modifier = Modifier.padding(top = 5.dp))
         Text(
             text = "Source : " + category.strSource,
             style = TextStyle(fontWeight = FontWeight.Medium),
         )
+
         Spacer(modifier = Modifier.padding(top = 5.dp))
         Text(
             text = "YouTube : " + category.strYoutube,
             style = TextStyle(fontWeight = FontWeight.Medium),
         )
+
         Spacer(modifier = Modifier.padding(top = 15.dp))
         Text("Instructions: ", style = TextStyle(fontWeight = FontWeight.Bold))
+
         Spacer(modifier = Modifier.padding(top = 3.dp))
         VerticalScrollingWithFixedHeightTextDemo(
             category.strInstructions
         )
+
         Spacer(modifier = Modifier.padding(bottom = 15.dp))
         Text("Ingredients: ", style = TextStyle(fontWeight = FontWeight.Bold))
+
         Spacer(modifier = Modifier.padding(top = 8.dp, bottom = 2.dp))
         Box {
             LazyColumn(
