@@ -92,7 +92,8 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                                     favoriteDialogState = false
                                     Toast.makeText(
                                         context,
-                                        "${randomViewState.item?.first()?.strMeal.toString()} to favorites",
+                                        "${randomViewState.item?.first()?.strMeal.toString()} " +
+                                                "added to favorites",
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }
