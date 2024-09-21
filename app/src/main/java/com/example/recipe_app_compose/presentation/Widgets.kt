@@ -48,7 +48,7 @@ fun FullScreenDialog(onDismissRequest: () -> Unit) {
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surfaceVariant),
         ) {
-           RandomMealPage(modifier = Modifier.fillMaxSize())
+            RandomMealPage(modifier = Modifier.fillMaxSize())
         }
     }
 }
@@ -105,7 +105,7 @@ fun DialogWithImage(
         Card(
             modifier = modifier
                 .fillMaxWidth()
-                .height(375.dp)
+                .height(450.dp)
                 .padding(16.dp),
             shape = RoundedCornerShape(16.dp),
         ) {
@@ -120,7 +120,7 @@ fun DialogWithImage(
                     contentDescription = imageDescription,
                     contentScale = ContentScale.Crop,
                     modifier = modifier
-                        .height(160.dp)
+                        .height(300.dp)
                 )
                 Text(
                     text = text,
