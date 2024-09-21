@@ -1,6 +1,7 @@
 package com.example.recipe_app_compose.presentation.view
 
 import android.os.Bundle
+import android.widget.SearchView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -39,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import com.example.recipe_app_compose.presentation.AlertDialogExample
 import com.example.recipe_app_compose.presentation.FullScreenDialog
 import com.example.recipe_app_compose.presentation.MyBottomAppBar
+import com.example.recipe_app_compose.presentation.viewmodel.RecipeViewModel
 import com.example.recipe_app_compose.ui.theme.Recipe_App_ComposeTheme
 
 class MainActivity : ComponentActivity() {
@@ -87,6 +89,16 @@ class MainActivity : ComponentActivity() {
                                     Icon(
                                         imageVector = Icons.Default.KeyboardArrowUp,
                                         contentDescription = "Add"
+                                    )
+                                }
+                                IconButton(onClick = {
+                                    /*
+                                    TODO: Add in search view on modal bottom sheet.
+                                     */
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Search,
+                                        contentDescription = "Search"
                                     )
                                 }
                                 IconButton(onClick = {
