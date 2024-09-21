@@ -6,10 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,16 +21,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-import com.example.recipe_app_compose.domain.model.Category
+import com.example.recipe_app_compose.domain.model.RandomMeal
 import com.example.recipe_app_compose.presentation.AlertDialogExample
 import com.example.recipe_app_compose.presentation.viewmodel.RecipeViewModel
 
 @Composable
-fun RecipeScreen(modifier: Modifier = Modifier) {
+fun RandomMealScreen(modifier: Modifier = Modifier) {
 
     // declare view model and state variable
     val viewModel: RecipeViewModel = viewModel()
-    val viewState by viewModel.categoriesState
+    val viewState by viewModel.randomMealState
     var alertDialogState by remember { mutableStateOf(true) }
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -40,34 +38,33 @@ fun RecipeScreen(modifier: Modifier = Modifier) {
             viewState.loading -> CircularProgressIndicator(modifier.align(Alignment.Center))
             viewState.error != null ->
                 AlertDialogExample(
-                dialogTitle = "Error",
-                dialogText = "Error occurred: ${viewState.error}",
-                onDismissRequest = { alertDialogState = false },
-                onConfirmation = {
-                    viewModel.fetchCategories()
-                    alertDialogState = false
-                }
-            )
-
+                    dialogTitle = "Error",
+                    dialogText = "Error occurred: ${viewState.error}",
+                    onDismissRequest = { alertDialogState = false },
+                    onConfirmation = {
+                        viewModel.fetchRandomMeal()
+                        alertDialogState = false
+                    }
+                )
             else -> {
                 // display list of categories
-                CategoryScreen(categories = viewState.list ?: emptyList())
+                RandomMealScreen(categories = viewState.item!!)
             }
         }
     }
 }
 
 @Composable
-fun CategoryScreen(categories: List<Category>) {
-    LazyVerticalGrid(GridCells.Fixed(2), modifier = Modifier.fillMaxSize()) {
-        items(categories) { category ->
-            CategoryItem(category = category)
+fun RandomMealScreen(categories: RandomMeal) {
+    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+        Column(modifier = Modifier.padding(innerPadding)) {
+            RandomMealItem(categories)
         }
     }
 }
 
 @Composable
-fun CategoryItem(category: Category) {
+fun RandomMealItem(category: RandomMeal) {
     Column(
         modifier = Modifier
             .padding(8.dp)
@@ -75,14 +72,39 @@ fun CategoryItem(category: Category) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = rememberAsyncImagePainter(category.strCategoryThumb),
+            painter = rememberAsyncImagePainter(category.strMealThumb),
             contentDescription = "Image",
             modifier = Modifier
                 .fillMaxSize()
                 .aspectRatio(1f)
         )
         Text(
-            text = category.strCategory,
+            text = category.strMeal,
+            style = TextStyle(fontWeight = FontWeight.Bold),
+            modifier = Modifier.padding(4.dp)
+        )
+        Text(
+            text = category.strMeal,
+            style = TextStyle(fontWeight = FontWeight.Bold),
+            modifier = Modifier.padding(4.dp)
+        )
+        Text(
+            text = category.strMeal,
+            style = TextStyle(fontWeight = FontWeight.Bold),
+            modifier = Modifier.padding(4.dp)
+        )
+        Text(
+            text = category.strMeal,
+            style = TextStyle(fontWeight = FontWeight.Bold),
+            modifier = Modifier.padding(4.dp)
+        )
+        Text(
+            text = category.strMeal,
+            style = TextStyle(fontWeight = FontWeight.Bold),
+            modifier = Modifier.padding(4.dp)
+        )
+        Text(
+            text = category.strMeal,
             style = TextStyle(fontWeight = FontWeight.Bold),
             modifier = Modifier.padding(4.dp)
         )
