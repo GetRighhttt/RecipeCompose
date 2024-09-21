@@ -3,6 +3,7 @@ package com.example.recipe_app_compose.data.repoimpl
 import com.example.recipe_app_compose.core.util.Resource
 import com.example.recipe_app_compose.data.api.RetrofitInstance.apiService
 import com.example.recipe_app_compose.domain.model.CategoryResponse
+import com.example.recipe_app_compose.domain.model.RandomMealResponse
 import com.example.recipe_app_compose.domain.model.SeafoodCategoryResponse
 import com.example.recipe_app_compose.domain.repository.RecipeRepository
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +22,7 @@ class RecipeRepositoryImpl : RecipeRepository {
                     Resource.Error(response.message())
                 }
             } catch (e: Exception) {
-                Resource.Error(e.message ?: "Unable to retrieve categories.")
+                Resource.Error(e.message ?: "Unable to retrieve Categories.")
             }
         }
     }
@@ -37,7 +38,23 @@ class RecipeRepositoryImpl : RecipeRepository {
                     Resource.Error(response.message())
                 }
             } catch (e: Exception) {
-                Resource.Error(e.message ?: "Unable to retrieve seafood.")
+                Resource.Error(e.message ?: "Unable to retrieve Seafood.")
+            }
+        }
+    }
+
+    override suspend fun getRandomMeal(): Resource<RandomMealResponse> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = apiService.getRandomMeal()
+                val result = response.body()
+                if ((response.isSuccessful) && (result != null)) {
+                    Resource.Success(result)
+                } else {
+                    Resource.Error(response.message())
+                }
+            } catch (e: Exception) {
+                Resource.Error(e.message ?: "Unable to retrieve Random Meal.")
             }
         }
     }

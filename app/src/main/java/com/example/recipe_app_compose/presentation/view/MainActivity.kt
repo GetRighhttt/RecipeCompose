@@ -1,17 +1,23 @@
 package com.example.recipe_app_compose.presentation.view
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -25,10 +31,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.recipe_app_compose.presentation.AlertDialogExample
 import com.example.recipe_app_compose.presentation.FullScreenDialog
+import com.example.recipe_app_compose.presentation.MyBottomAppBar
 import com.example.recipe_app_compose.ui.theme.Recipe_App_ComposeTheme
 
 class MainActivity : ComponentActivity() {
@@ -53,7 +63,6 @@ class MainActivity : ComponentActivity() {
                                 Text("Home")
                             },
                             navigationIcon = {
-                                val context = LocalContext.current
                                 IconButton(onClick = {
                                     showAlertDialogBox = true
                                 }) {
@@ -61,7 +70,6 @@ class MainActivity : ComponentActivity() {
                                         imageVector = Icons.Default.Menu,
                                         contentDescription = "Menu"
                                     )
-
                                 }
                                 if (showAlertDialogBox) {
                                     AlertDialogExample(
@@ -93,20 +101,89 @@ class MainActivity : ComponentActivity() {
                                     FullScreenDialog { showFullDialogBox = false }
                                 }
                             })
+                    },
+                    bottomBar = {
+                        MyBottomAppBar(
+                            modifier = Modifier.fillMaxWidth(),
+                            content = {
+                                IconButton(
+                                    onClick = {
+                                        Toast.makeText(
+                                            applicationContext,
+                                            "Pressed Share Button",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Share,
+                                        contentDescription = "Share"
+                                    )
+                                }
+                                IconButton(
+                                    onClick = {
+                                        Toast.makeText(
+                                            applicationContext,
+                                            "Pressed Search Button",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Search,
+                                        contentDescription = "Search"
+                                    )
+                                }
+                                IconButton(
+                                    onClick = {
+                                        Toast.makeText(
+                                            applicationContext,
+                                            "Pressed Settings Button",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Settings,
+                                        contentDescription = "Settings"
+                                    )
+                                }
+                                IconButton(
+                                    onClick = {
+                                        Toast.makeText(
+                                            applicationContext,
+                                            "Pressed Add Button",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = "Settings"
+                                    )
+                                }
+                            }
+                        )
                     }) { innerPadding ->
                     if (showBottomSheet) {
                         ModalBottomSheet(
                             onDismissRequest = {
                                 showBottomSheet = false
                             },
-                            sheetState = sheetState
+                            sheetState = sheetState,
+                            tonalElevation = 20.dp
                         ) {
                             Column {
                                 Text(
-                                    "Seafood Sheet",
+                                    "Our Best Seafood Dishes!",
+                                    style = TextStyle(
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 20.sp
+                                    ),
                                     textAlign = TextAlign.Center,
                                     modifier = Modifier.fillMaxWidth()
                                 )
+                                Spacer(modifier = Modifier.padding(top = 20.dp))
                                 SeafoodRecipeScreen(modifier = Modifier.fillMaxSize())
                             }
                         }
