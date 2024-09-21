@@ -1,7 +1,6 @@
 package com.example.recipe_app_compose.data.repoimpl
 
 import com.example.recipe_app_compose.core.util.Resource
-import com.example.recipe_app_compose.data.api.ApiService
 import com.example.recipe_app_compose.data.api.RetrofitInstance.apiService
 import com.example.recipe_app_compose.domain.model.CategoryResponse
 import com.example.recipe_app_compose.domain.model.SeafoodCategoryResponse

@@ -41,7 +41,7 @@ fun SeafoodRecipeScreen(modifier: Modifier = Modifier) {
 
             else -> {
                 // display list of categories
-                SeafoodCategoryScreen(categories = viewState.list ?: emptyList() )
+                SeafoodCategoryScreen(categories = viewState.list ?: emptyList())
             }
         }
     }

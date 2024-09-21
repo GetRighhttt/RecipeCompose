@@ -5,8 +5,6 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bumptech.glide.Glide.init
-import com.example.recipe_app_compose.data.api.RetrofitInstance.apiService
 import com.example.recipe_app_compose.data.repoimpl.RecipeRepositoryImpl
 import com.example.recipe_app_compose.domain.model.Category
 import com.example.recipe_app_compose.domain.model.SeafoodCategory
@@ -14,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class RecipeViewModel : ViewModel() {
+    //
     private val _categoriesState = mutableStateOf(RecipeState())
     val categoriesState: State<RecipeState> = _categoriesState
 
