@@ -16,8 +16,10 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBarDefaults
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -134,15 +136,17 @@ fun DialogWithImage(
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
                 ) {
-                    TextButton(
+                    ElevatedButton(
                         onClick = { onDismissRequest() },
                         modifier = modifier.padding(5.dp),
+                        elevation = ButtonDefaults.buttonElevation(15.dp)
                     ) {
                         Text("Dismiss")
                     }
-                    TextButton(
+                    ElevatedButton(
                         onClick = { onConfirmation() },
                         modifier = modifier.padding(5.dp),
+                        elevation = ButtonDefaults.buttonElevation(15.dp)
                     ) {
                         Text("Confirm")
                     }
