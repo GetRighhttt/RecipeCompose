@@ -62,7 +62,7 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
     val viewModel: RecipeViewModel = viewModel()
     val randomViewState by viewModel.randomMealState
     var alertDialogState by remember { mutableStateOf(true) }
-    var navigateBackState by remember { mutableStateOf(false) }
+//    var navigateBackState by remember { mutableStateOf(false) }
     var favoriteDialogState by remember { mutableStateOf(false) }
 
     Box(modifier = modifier.fillMaxSize()) {
