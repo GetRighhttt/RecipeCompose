@@ -60,10 +60,10 @@ class RecipeRepositoryImpl : RecipeRepository {
         }
     }
 
-    override suspend fun getIngredient(ingredient: String): Resource<IngredientResponse> {
+    override suspend fun getIngredient(query: String): Resource<IngredientResponse> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = apiService.getIngredient(ingredient)
+                val response = apiService.getIngredient(query)
                 val result = response.body()
                 if ((response.isSuccessful) && (result != null)) {
                     Resource.Success(result)

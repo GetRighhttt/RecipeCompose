@@ -27,13 +27,32 @@ class RecipeViewModel : ViewModel() {
     private val _ingredientMealState = MutableStateFlow(IngredientMealState())
     val ingredientMealState = _ingredientMealState.asStateFlow()
 
+    //first state whether the search is happening or not
+    private val _isSearching = MutableStateFlow(false)
+    val isSearching = _isSearching.asStateFlow()
+
+    //second state the text typed by the user
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery = _searchQuery.asStateFlow()
+
     private val repository = RecipeRepositoryImpl()
+
+    fun onSearchTextChange(text: String) {
+        _searchQuery.value = text
+    }
+
+    fun onToggleSearch() {
+        _isSearching.value = !_isSearching.value
+        if (!_isSearching.value) {
+            onSearchTextChange("")
+        }
+    }
 
     init {
         fetchCategories()
         fetchCategoryMeals()
         fetchRandomMeal()
-        fetchIngredients(STARTER_INGREDIENT)
+        fetchIngredients("")
     }
 
     /*
@@ -92,25 +111,23 @@ class RecipeViewModel : ViewModel() {
         }
     }
 
-    internal fun fetchIngredients(ingredient: String) = viewModelScope.launch(Dispatchers.IO) {
-        _ingredientMealState.value = _ingredientMealState.value.copy(loading = true)
-        try {
-            val response = repository.getIngredient(ingredient)
-            _ingredientMealState.value = _ingredientMealState.value.copy(
-                loading = false,
-                item = response.data!!.meals,
-                error = null
-            )
-        } catch (e: Exception) {
-            _ingredientMealState.value = _ingredientMealState.value.copy(
-                loading = false,
-                error = "Error fetching data: ${e.message}"
-            )
+    internal fun fetchIngredients(query: String) {
+        viewModelScope.launch(Dispatchers.Main) {
+            _ingredientMealState.value = _ingredientMealState.value.copy(loading = true)
+            try {
+                val response = repository.getIngredient(query)
+                _ingredientMealState.value = _ingredientMealState.value.copy(
+                    loading = false,
+                    list = response.data!!.meals,
+                    error = null
+                )
+            } catch (e: Exception) {
+                _ingredientMealState.value = _ingredientMealState.value.copy(
+                    loading = false,
+                    error = "Error fetching data: ${e.message}"
+                )
+            }
         }
-    }
-
-    companion object {
-        const val STARTER_INGREDIENT = "Beef"
     }
 }
 
