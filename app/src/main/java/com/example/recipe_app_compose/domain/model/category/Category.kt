@@ -1,4 +1,4 @@
-package com.example.recipe_app_compose.domain.model
+package com.example.recipe_app_compose.domain.model.category
 
 data class Category(
     val idCategory: String,

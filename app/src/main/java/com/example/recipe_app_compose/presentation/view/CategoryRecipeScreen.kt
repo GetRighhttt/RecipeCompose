@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-import com.example.recipe_app_compose.domain.model.CategoryMeal
+import com.example.recipe_app_compose.domain.model.categorymeal.CategoryMeal
 import com.example.recipe_app_compose.presentation.AlertDialogExample
 import com.example.recipe_app_compose.presentation.DialogWithImage
 import com.example.recipe_app_compose.presentation.viewmodel.RecipeViewModel

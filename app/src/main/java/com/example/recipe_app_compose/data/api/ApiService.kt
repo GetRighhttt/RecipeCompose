@@ -3,9 +3,11 @@ package com.example.recipe_app_compose.data.api
 import com.example.recipe_app_compose.core.util.Constants.CATEGORY_ENDPOINT
 import com.example.recipe_app_compose.core.util.Constants.RANDOM_MEAL_ENDPOINT
 import com.example.recipe_app_compose.core.util.Constants.CATEGORY_MEAL_ENDPOINT
-import com.example.recipe_app_compose.domain.model.CategoryResponse
-import com.example.recipe_app_compose.domain.model.RandomMealResponse
-import com.example.recipe_app_compose.domain.model.CategoryMealResponse
+import com.example.recipe_app_compose.core.util.Constants.INGREDIENT_ENDPOINT
+import com.example.recipe_app_compose.domain.model.category.CategoryResponse
+import com.example.recipe_app_compose.domain.model.randommeal.RandomMealResponse
+import com.example.recipe_app_compose.domain.model.categorymeal.CategoryMealResponse
+import com.example.recipe_app_compose.domain.model.ingredient.IngredientResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -23,6 +25,12 @@ interface ApiService {
 
     @GET(RANDOM_MEAL_ENDPOINT)
     suspend fun getRandomMeal(): Response<RandomMealResponse>
+
+    // ?i=chicken_breast
+    @GET(INGREDIENT_ENDPOINT)
+    suspend fun getMealByIngredient(
+        @Query("i") i: String
+    ): Response<IngredientResponse>
 }
 
 fun getRandomCategoryMeals(): String {

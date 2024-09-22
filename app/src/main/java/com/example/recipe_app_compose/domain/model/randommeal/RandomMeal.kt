@@ -1,4 +1,4 @@
-package com.example.recipe_app_compose.domain.model
+package com.example.recipe_app_compose.domain.model.randommeal
 
 data class RandomMeal(
     val idMeal: String,

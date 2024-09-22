@@ -5,4 +5,5 @@ object Constants {
     const val CATEGORY_ENDPOINT = "categories.php"
     const val CATEGORY_MEAL_ENDPOINT = "filter.php"
     const val RANDOM_MEAL_ENDPOINT = "random.php"
+    const val INGREDIENT_ENDPOINT = "filter.php"
 }

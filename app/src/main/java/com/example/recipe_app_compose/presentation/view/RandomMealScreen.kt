@@ -53,7 +53,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-import com.example.recipe_app_compose.domain.model.RandomMeal
+import com.example.recipe_app_compose.domain.model.randommeal.RandomMeal
 import com.example.recipe_app_compose.presentation.AlertDialogExample
 import com.example.recipe_app_compose.presentation.viewmodel.RecipeViewModel
 

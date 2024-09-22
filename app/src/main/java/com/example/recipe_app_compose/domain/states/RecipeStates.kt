@@ -1,8 +1,8 @@
 package com.example.recipe_app_compose.domain.states
 
-import com.example.recipe_app_compose.domain.model.Category
-import com.example.recipe_app_compose.domain.model.RandomMeal
-import com.example.recipe_app_compose.domain.model.CategoryMeal
+import com.example.recipe_app_compose.domain.model.category.Category
+import com.example.recipe_app_compose.domain.model.randommeal.RandomMeal
+import com.example.recipe_app_compose.domain.model.categorymeal.CategoryMeal
 
 data class RecipeState(
     val loading: Boolean = true,
