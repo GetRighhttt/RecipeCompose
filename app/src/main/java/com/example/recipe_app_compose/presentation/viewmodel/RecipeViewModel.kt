@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipe_app_compose.data.repoimpl.RecipeRepositoryImpl
 import com.example.recipe_app_compose.domain.states.CategoryMealState
+import com.example.recipe_app_compose.domain.states.IngredientMealState
 import com.example.recipe_app_compose.domain.states.RandomMealState
 import com.example.recipe_app_compose.domain.states.RecipeState
 import kotlinx.coroutines.Dispatchers
@@ -23,12 +24,16 @@ class RecipeViewModel : ViewModel() {
     private val _randomMealState = MutableStateFlow(RandomMealState())
     val randomMealState = _randomMealState.asStateFlow()
 
+    private val _ingredientMealState = MutableStateFlow(IngredientMealState())
+    val ingredientMealState = _ingredientMealState.asStateFlow()
+
     private val repository = RecipeRepositoryImpl()
 
     init {
         fetchCategories()
         fetchCategoryMeals()
         fetchRandomMeal()
+        fetchIngredients(STARTER_INGREDIENT)
     }
 
     /*
@@ -86,4 +91,26 @@ class RecipeViewModel : ViewModel() {
             )
         }
     }
+
+    internal fun fetchIngredients(ingredient: String) = viewModelScope.launch(Dispatchers.IO) {
+        _ingredientMealState.value = _ingredientMealState.value.copy(loading = true)
+        try {
+            val response = repository.getIngredient(ingredient)
+            _ingredientMealState.value = _ingredientMealState.value.copy(
+                loading = false,
+                item = response.data!!.meals,
+                error = null
+            )
+        } catch (e: Exception) {
+            _ingredientMealState.value = _ingredientMealState.value.copy(
+                loading = false,
+                error = "Error fetching data: ${e.message}"
+            )
+        }
+    }
+
+    companion object {
+        const val STARTER_INGREDIENT = "Beef"
+    }
 }
+
