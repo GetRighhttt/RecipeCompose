@@ -11,13 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
@@ -57,31 +52,20 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxSize()) {
         Scaffold(
             topBar = {
-                CenterAlignedTopAppBar(
-                    title = {
-                        Text("Ingredients")
-                    },
-                    actions = {
-                        IconButton(onClick = {
-                            searchDialogState = true
-                        }) {
-                            Icon(Icons.Filled.Search, contentDescription = "Search")
-                        }
-                        if (searchDialogState) {
-                            SearchBar(
-                                query = searchText,
-                                onQueryChange = viewModel::onSearchTextChange,
-                                onSearch = viewModel::onSearchTextChange,
-                                onActiveChange = { viewModel.onToggleSearch() },
-                                active = isSearching,
-                                placeholder = { Text("Searching...") },
-                                modifier = Modifier.fillMaxWidth().padding(16.dp)
-                            ) {
-
-                            }
-                        }
-                    }
-                )
+                SearchBar(
+                    query = searchText,
+                    onQueryChange = viewModel::onSearchTextChange,
+                    onSearch = viewModel::onSearchTextChange,
+                    onActiveChange = { viewModel.onToggleSearch() },
+                    active = isSearching,
+                    placeholder = { Text("Searching...") },
+                    enabled = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    IngredientMealScreen(searchResults ?: viewState.list ?: emptyList())
+                }
             },
             modifier = Modifier.fillMaxWidth()
         ) { innerPadding ->
@@ -102,21 +86,15 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
                     },
                 )
 
-                else -> {
-                    // display list of categories
-                    if(!searchDialogState) {
-                        IngredientMealScreen(viewState.list ?: emptyList())
-                    }
-                }
+                else -> {}
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IngredientMealScreen(categories: List<Ingredient>) {
-    LazyVerticalGrid(GridCells.Fixed(2), modifier = Modifier.fillMaxSize()) {
+    LazyVerticalGrid(GridCells.Fixed(1), modifier = Modifier.fillMaxSize()) {
         items(categories) { category ->
             IngredientMealItem(category = category)
         }

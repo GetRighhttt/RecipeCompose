@@ -3,7 +3,6 @@ package com.example.recipe_app_compose.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipe_app_compose.data.repoimpl.RecipeRepositoryImpl
-import com.example.recipe_app_compose.domain.model.ingredient.Ingredient
 import com.example.recipe_app_compose.domain.states.CategoryMealState
 import com.example.recipe_app_compose.domain.states.IngredientMealState
 import com.example.recipe_app_compose.domain.states.RandomMealState
@@ -49,7 +48,7 @@ class RecipeViewModel : ViewModel() {
     val isSearching = _isSearching.asStateFlow()
 
     //third state the list to be filtered
-    private val _ingredientsList = MutableStateFlow(listOf<Ingredient>())
+    private val _ingredientsList = MutableStateFlow(_ingredientMealState.value.list)
     @OptIn(FlowPreview::class)
     val ingredientsList = searchQuery // set list to searchQuery
         .debounce(500L)
@@ -58,9 +57,9 @@ class RecipeViewModel : ViewModel() {
             if (text.isBlank()) {
                 ingredients
             } else {
-                ingredients.filter { ingredient ->
+                ingredients?.filter { ingredient ->
                     ingredient.doesMatchSearchQuery(text)
-                }
+                }.also { fetchIngredients(text) }
             }
             // convert to State FLow
         }   .onEach { _isSearching.update { false } }

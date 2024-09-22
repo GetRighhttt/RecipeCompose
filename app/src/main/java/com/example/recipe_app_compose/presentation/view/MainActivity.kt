@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipe_app_compose.presentation.AlertDialogExample
 import com.example.recipe_app_compose.presentation.FullScreenDialog
+import com.example.recipe_app_compose.presentation.IngredientFullScreenDialog
 import com.example.recipe_app_compose.presentation.MyBottomAppBar
 import com.example.recipe_app_compose.presentation.viewmodel.RecipeViewModel
 import com.example.recipe_app_compose.ui.theme.Recipe_App_ComposeTheme
@@ -90,17 +91,17 @@ class MainActivity : ComponentActivity() {
                                         contentDescription = "Add"
                                     )
                                 }
-//                                IconButton(onClick = {
-//                                    showSearchDialog = true
-//                                }) {
-//                                    Icon(
-//                                        imageVector = Icons.Default.Search,
-//                                        contentDescription = "Search"
-//                                    )
-//                                    if(showSearchDialog) {
-//                                        IngredientFullScreenDialog { showSearchDialog = false }
-//                                    }
-//                                }
+                                IconButton(onClick = {
+                                    showSearchDialog = true
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Search,
+                                        contentDescription = "Search"
+                                    )
+                                    if(showSearchDialog) {
+                                        IngredientFullScreenDialog { showSearchDialog = false }
+                                    }
+                                }
                                 IconButton(onClick = {
                                     showFullDialogBox = true
                                 }) {
