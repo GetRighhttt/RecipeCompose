@@ -2,6 +2,7 @@ package com.example.recipe_app_compose.presentation.view
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -42,7 +43,6 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
     val viewModel: RecipeViewModel = viewModel()
     val viewState by viewModel.ingredientMealState.collectAsStateWithLifecycle()
     var alertDialogState by remember { mutableStateOf(true) }
-    var searchDialogState by remember { mutableStateOf(false) }
 
     // search stuff
     val searchText by viewModel.searchQuery.collectAsStateWithLifecycle()
@@ -63,6 +63,7 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
+                        .focusable(true)
                 ) {
                     IngredientMealScreen(searchResults ?: viewState.list ?: emptyList())
                 }

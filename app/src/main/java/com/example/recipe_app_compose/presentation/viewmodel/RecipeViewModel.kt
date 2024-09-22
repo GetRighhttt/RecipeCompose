@@ -143,7 +143,7 @@ class RecipeViewModel : ViewModel() {
         }
     }
 
-    internal fun fetchIngredients(query: String) {
+    private fun fetchIngredients(query: String) {
         viewModelScope.launch(Dispatchers.Main) {
             _ingredientMealState.value = _ingredientMealState.value.copy(loading = true)
             try {

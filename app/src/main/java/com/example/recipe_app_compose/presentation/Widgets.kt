@@ -69,7 +69,8 @@ fun IngredientFullScreenDialog(onDismissRequest: () -> Unit) {
     ) {
         Surface(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
+                .height(800.dp)
                 .background(MaterialTheme.colorScheme.surfaceVariant),
         ) {
             IngredientScreen(modifier = Modifier.fillMaxSize())
