@@ -12,10 +12,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,7 +25,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -35,7 +40,7 @@ import com.example.recipe_app_compose.presentation.AlertDialogExample
 import com.example.recipe_app_compose.presentation.DialogWithImage
 import com.example.recipe_app_compose.presentation.viewmodel.RecipeViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun IngredientScreen(modifier: Modifier = Modifier) {
 
@@ -50,25 +55,9 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
     val searchResults by viewModel.ingredientsList.collectAsStateWithLifecycle()
 
     Box(modifier = modifier.fillMaxSize()) {
+        val focusManager = LocalFocusManager.current
         Scaffold(
-            topBar = {
-                SearchBar(
-                    query = searchText,
-                    onQueryChange = viewModel::onSearchTextChange,
-                    onSearch = viewModel::onSearchTextChange,
-                    onActiveChange = { viewModel.onToggleSearch() },
-                    active = isSearching,
-                    placeholder = { Text("Searching...") },
-                    enabled = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .focusable(true)
-                ) {
-                    IngredientMealScreen(searchResults ?: viewState.list ?: emptyList())
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxSize()
         ) { innerPadding ->
             when {
                 viewState.loading -> CircularProgressIndicator(
@@ -87,7 +76,32 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
                     },
                 )
 
-                else -> {}
+                else -> {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        OutlinedTextField(
+                            value = searchText,
+                            onValueChange = viewModel::onSearchTextChange,
+                            keyboardActions = KeyboardActions(
+                                onNext = {
+                                    focusManager.moveFocus(FocusDirection.Enter)
+                                },
+                                onSearch = {
+                                    focusManager.clearFocus(true)
+
+                                }
+                            ),
+                            maxLines = 1,
+                            placeholder = { Text("Search") },
+                            enabled = true,
+                            shape = RoundedCornerShape(30.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                                .focusable(true)
+                        )
+                        IngredientMealScreen(searchResults ?: viewState.list ?: emptyList())
+                    }
+                }
             }
         }
     }
