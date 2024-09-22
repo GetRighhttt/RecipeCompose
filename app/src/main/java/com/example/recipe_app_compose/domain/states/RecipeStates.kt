@@ -3,6 +3,7 @@ package com.example.recipe_app_compose.domain.states
 import com.example.recipe_app_compose.domain.model.category.Category
 import com.example.recipe_app_compose.domain.model.randommeal.RandomMeal
 import com.example.recipe_app_compose.domain.model.categorymeal.CategoryMeal
+import com.example.recipe_app_compose.domain.model.ingredient.Ingredient
 
 data class RecipeState(
     val loading: Boolean = true,
@@ -19,5 +20,11 @@ data class CategoryMealState(
 data class RandomMealState(
     val loading: Boolean = true,
     val item: List<RandomMeal>? = null,
+    val error: String? = null
+)
+
+data class IngredientMealState(
+    val loading: Boolean = true,
+    val item: List<Ingredient>? = null,
     val error: String? = null
 )
