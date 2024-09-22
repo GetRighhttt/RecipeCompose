@@ -47,9 +47,9 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
     var alertDialogState by remember { mutableStateOf(true) }
 
     //Collecting states from ViewModel
-    val searchText by viewModel.searchQuery.collectAsState()
-    val isSearching by viewModel.isSearching.collectAsState()
-    val ingredientsList by viewModel.ingredientsList.collectAsState()
+//    val searchText by viewModel.searchQuery.collectAsState()
+//    val isSearching by viewModel.isSearching.collectAsState()
+//    val ingredientsList by viewModel.ingredientsList.collectAsState()
 
     Box(modifier = modifier.fillMaxSize()) {
         Scaffold(
@@ -80,33 +80,49 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
 
                 else -> {
                     // display list of categories
-                    SearchBar(
-                        query = searchText,
-                        onQueryChange = viewModel::onSearchTextChange,
-                        onSearch = viewModel::onSearchTextChange,
-                        placeholder = { Text("Search for an ingredient") },
-                        active = isSearching,
-                        onActiveChange = { viewModel.onToggleSearch() },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    ) {
-                        IngredientMealScreen(viewState.list ?: emptyList())
-                    }
+                    IngredientMealScreen(viewState.list ?: emptyList())
                 }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun IngredientMealScreen(categories: List<Ingredient>) {
-    LazyVerticalGrid(GridCells.Fixed(2), modifier = Modifier.fillMaxSize()) {
-        items(categories) { category ->
-            IngredientMealItem(category = category)
+fun IngredientMealScreen(categories: List<Ingredient>?) {
+
+    val viewModel: RecipeViewModel = viewModel()
+
+    //Collecting states from ViewModel
+    val searchText by viewModel.searchQuery.collectAsState()
+    val isSearching by viewModel.isSearching.collectAsState()
+    val ingredientsList by viewModel.ingredientsList.collectAsState()
+
+    SearchBar(
+        query = searchText,
+        onQueryChange = viewModel::onSearchTextChange,
+        onSearch = viewModel::onSearchTextChange,
+        placeholder = { Text("Search for an ingredient") },
+        active = isSearching,
+        onActiveChange = { viewModel.onToggleSearch() },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        LazyColumn {
+            items(categories?.size ?: 0) { ingredient ->
+                Text(
+                    text = categories?.get(ingredient)?.strMeal.toString(),
+                    modifier = Modifier.padding(
+                        start = 8.dp,
+                        top = 4.dp,
+                        end = 8.dp,
+                        bottom = 4.dp
+                    )
+                )
+            }
         }
     }
-
 }
 
 @Composable
