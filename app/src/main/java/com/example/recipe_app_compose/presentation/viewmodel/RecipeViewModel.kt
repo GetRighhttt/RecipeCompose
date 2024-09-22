@@ -4,13 +4,17 @@ package com.example.recipe_app_compose.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipe_app_compose.data.repoimpl.RecipeRepositoryImpl
+import com.example.recipe_app_compose.domain.model.ingredient.Ingredient
 import com.example.recipe_app_compose.domain.states.CategoryMealState
 import com.example.recipe_app_compose.domain.states.IngredientMealState
 import com.example.recipe_app_compose.domain.states.RandomMealState
 import com.example.recipe_app_compose.domain.states.RecipeState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class RecipeViewModel : ViewModel() {
@@ -27,15 +31,35 @@ class RecipeViewModel : ViewModel() {
     private val _ingredientMealState = MutableStateFlow(IngredientMealState())
     val ingredientMealState = _ingredientMealState.asStateFlow()
 
+    private val repository = RecipeRepositoryImpl()
+
+    /*
+    Implementing search bar logic
+     */
+
     //first state whether the search is happening or not
     private val _isSearching = MutableStateFlow(false)
-    val isSearching = _isSearching.asStateFlow()
 
+    val isSearching = _isSearching.asStateFlow()
     //second state the text typed by the user
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
 
-    private val repository = RecipeRepositoryImpl()
+    //third state the list to be filtered
+    private val _ingredientsList = MutableStateFlow(IngredientMealState().list)
+    val ingredientsList = _searchQuery
+        .combine(_ingredientsList) { text, ingredients ->//combine searchText with _ingredientsList
+            if (text.isBlank()) { //return the entire list of countries if not is typed
+                ingredients?.toList()
+            }
+            ingredients?.filter { ingredient ->// filter and return a list of countries based on the text the user typed
+                ingredient.strMeal.uppercase().contains(text.trim().uppercase())
+            }
+        }.stateIn(//basically convert the Flow returned from combine operator to StateFlow
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),//it will allow the StateFlow survive 5 seconds before it been canceled
+            initialValue = _ingredientsList.value
+        )
 
     fun onSearchTextChange(text: String) {
         _searchQuery.value = text

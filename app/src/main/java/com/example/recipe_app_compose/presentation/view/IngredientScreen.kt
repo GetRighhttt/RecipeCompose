@@ -49,6 +49,7 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
     //Collecting states from ViewModel
     val searchText by viewModel.searchQuery.collectAsState()
     val isSearching by viewModel.isSearching.collectAsState()
+    val ingredientsList by viewModel.ingredientsList.collectAsState()
 
     Box(modifier = modifier.fillMaxSize()) {
         Scaffold(
@@ -90,18 +91,7 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
                             .fillMaxWidth()
                             .padding(16.dp)
                     ) {
-                        LazyColumn {
-                            items(viewState.list?.size ?: 0) { _ ->
-                                Text(
-                                    text = viewState.list?.forEach { it.takeIf { it.strMeal.contains(searchText) } }.toString(),
-                                    modifier = Modifier.padding(
-                                        start = 8.dp,
-                                        top = 4.dp,
-                                        end = 8.dp,
-                                        bottom = 4.dp)
-                                )
-                            }
-                        }
+                        IngredientMealScreen(viewState.list ?: emptyList())
                     }
                 }
             }
