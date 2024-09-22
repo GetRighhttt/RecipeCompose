@@ -3,16 +3,21 @@ package com.example.recipe_app_compose.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipe_app_compose.data.repoimpl.RecipeRepositoryImpl
+import com.example.recipe_app_compose.domain.model.ingredient.Ingredient
 import com.example.recipe_app_compose.domain.states.CategoryMealState
 import com.example.recipe_app_compose.domain.states.IngredientMealState
 import com.example.recipe_app_compose.domain.states.RandomMealState
 import com.example.recipe_app_compose.domain.states.RecipeState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class RecipeViewModel : ViewModel() {
@@ -44,20 +49,22 @@ class RecipeViewModel : ViewModel() {
     val isSearching = _isSearching.asStateFlow()
 
     //third state the list to be filtered
-    private val _ingredientsList = MutableStateFlow(ingredientMealState.value.list)
+    private val _ingredientsList = MutableStateFlow(listOf<Ingredient>())
+    @OptIn(FlowPreview::class)
     val ingredientsList = searchQuery // set list to searchQuery
-        // combine list with search query
+        .debounce(500L)
+        .onEach { _isSearching.update { true } }
         .combine(_ingredientsList) { text, ingredients ->
             if (text.isBlank()) {
                 ingredients
             } else {
-                ingredients?.filter { ingredient ->
+                ingredients.filter { ingredient ->
                     ingredient.doesMatchSearchQuery(text)
                 }
-                fetchIngredients(text)
             }
             // convert to State FLow
-        }.stateIn(
+        }   .onEach { _isSearching.update { false } }
+            .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),//it will allow the StateFlow survive 5 seconds before it been canceled
             initialValue = _ingredientsList.value
@@ -78,7 +85,7 @@ class RecipeViewModel : ViewModel() {
         fetchCategories()
         fetchCategoryMeals()
         fetchRandomMeal()
-        fetchIngredients(searchQuery.toString())
+        fetchIngredients(SEARCH_DEFAULT)
     }
 
     /*
@@ -154,6 +161,10 @@ class RecipeViewModel : ViewModel() {
                 )
             }
         }
+    }
+
+    companion object {
+        const val SEARCH_DEFAULT = "Beef"
     }
 }
 
