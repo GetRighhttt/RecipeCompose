@@ -4,14 +4,13 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -80,7 +79,7 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
 
                 else -> {
                     // display list of categories
-                    IngredientMealScreen(viewState.list ?: emptyList())
+                    IngredientMealScreen()
                 }
             }
         }
@@ -89,7 +88,7 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun IngredientMealScreen(categories: List<Ingredient>?) {
+fun IngredientMealScreen() {
 
     val viewModel: RecipeViewModel = viewModel()
 
@@ -98,32 +97,31 @@ fun IngredientMealScreen(categories: List<Ingredient>?) {
     val isSearching by viewModel.isSearching.collectAsState()
     val ingredientsList by viewModel.ingredientsList.collectAsState()
 
-    SearchBar(
-        query = searchText,
-        onQueryChange = viewModel::onSearchTextChange,
-        onSearch = viewModel::onSearchTextChange,
-        placeholder = { Text("Search for an ingredient") },
-        active = isSearching,
-        onActiveChange = { viewModel.onToggleSearch() },
+    Column(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .padding(16.dp)
     ) {
-        LazyColumn {
-            items(categories?.size ?: 0) { ingredient ->
-                Text(
-                    text = categories?.get(ingredient)?.strMeal.toString(),
-                    modifier = Modifier.padding(
-                        start = 8.dp,
-                        top = 4.dp,
-                        end = 8.dp,
-                        bottom = 4.dp
-                    )
-                )
+        SearchBar(
+            query = searchText,
+            onQueryChange = viewModel::onSearchTextChange,
+            placeholder = { Text(text = "Search") },
+            active = isSearching,
+            onActiveChange = { viewModel.onToggleSearch() },
+            onSearch = viewModel::onSearchTextChange,
+            enabled = true,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Spacer(modifier = Modifier.height(16.dp))
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth().weight(1F)
+            ) {
+
             }
         }
     }
 }
+
 
 @Composable
 fun IngredientMealItem(category: Ingredient) {
