@@ -50,6 +50,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.domain.model.RandomMeal
@@ -61,7 +62,7 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
 
     // declare view model and state variable
     val viewModel: RecipeViewModel = viewModel()
-    val randomViewState by viewModel.randomMealState
+    val randomViewState by viewModel.randomMealState.collectAsStateWithLifecycle()
     var alertDialogState by remember { mutableStateOf(true) }
 //    var navigateBackState by remember { mutableStateOf(false) }
     var favoriteDialogState by remember { mutableStateOf(false) }

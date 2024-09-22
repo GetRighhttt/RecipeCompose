@@ -1,27 +1,27 @@
 package com.example.recipe_app_compose.presentation.viewmodel
 
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipe_app_compose.data.repoimpl.RecipeRepositoryImpl
+import com.example.recipe_app_compose.domain.states.CategoryMealState
 import com.example.recipe_app_compose.domain.states.RandomMealState
 import com.example.recipe_app_compose.domain.states.RecipeState
-import com.example.recipe_app_compose.domain.states.CategoryMealState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class RecipeViewModel : ViewModel() {
     //
-    private val _categoriesState = mutableStateOf(RecipeState())
-    val categoriesState: State<RecipeState> = _categoriesState
+    private val _categoriesState = MutableStateFlow(RecipeState())
+    val categoriesState = _categoriesState.asStateFlow()
 
-    private val _categoryMealState = mutableStateOf(CategoryMealState())
-    val categoryMealState: State<CategoryMealState> = _categoryMealState
+    private val _categoryMealState = MutableStateFlow(CategoryMealState())
+    val categoryMealState = _categoryMealState.asStateFlow()
 
-    private val _randomMealState = mutableStateOf(RandomMealState())
-    val randomMealState: State<RandomMealState> = _randomMealState
+    private val _randomMealState = MutableStateFlow(RandomMealState())
+    val randomMealState = _randomMealState.asStateFlow()
 
     private val repository = RecipeRepositoryImpl()
 
