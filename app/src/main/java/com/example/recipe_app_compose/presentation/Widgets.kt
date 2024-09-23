@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.recipe_app_compose.presentation.view.IngredientScreen
 import com.example.recipe_app_compose.presentation.view.RandomMealPage
 
 @Composable
@@ -53,6 +54,26 @@ fun FullScreenDialog(onDismissRequest: () -> Unit) {
                 .background(MaterialTheme.colorScheme.surfaceVariant),
         ) {
             RandomMealPage(modifier = Modifier.fillMaxSize())
+        }
+    }
+}
+
+@Composable
+fun IngredientFullScreenDialog(onDismissRequest: () -> Unit) {
+    Dialog(
+        onDismissRequest = { onDismissRequest() },
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnBackPress = true,
+        ),
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(800.dp)
+                .background(MaterialTheme.colorScheme.surfaceVariant),
+        ) {
+            IngredientScreen(modifier = Modifier.fillMaxSize())
         }
     }
 }

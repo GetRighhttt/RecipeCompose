@@ -1,6 +1,5 @@
 package com.example.recipe_app_compose.presentation.viewmodel
 
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipe_app_compose.data.repoimpl.RecipeRepositoryImpl
@@ -9,8 +8,16 @@ import com.example.recipe_app_compose.domain.states.IngredientMealState
 import com.example.recipe_app_compose.domain.states.RandomMealState
 import com.example.recipe_app_compose.domain.states.RecipeState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class RecipeViewModel : ViewModel() {
@@ -29,11 +36,50 @@ class RecipeViewModel : ViewModel() {
 
     private val repository = RecipeRepositoryImpl()
 
+    /*
+    Implementing search bar logic
+     */
+
+    //first state the text typed by the user
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery = _searchQuery.asStateFlow()
+
+    //second state whether the search is happening or not
+    private val _isSearching = MutableStateFlow(false)
+    val isSearching = _isSearching.asStateFlow()
+
+    //third state the list to be filtered
+    private val _ingredientsList = MutableStateFlow(_ingredientMealState.value.list)
+    @OptIn(FlowPreview::class)
+    val ingredientsList = searchQuery // set list to searchQuery
+        .debounce(1000L)
+        .onEach { _isSearching.update { true } }
+        .combine(_ingredientsList) { text, ingredients ->
+            if (text.isBlank()) {
+                ingredients
+            } else {
+                delay(500L)
+                ingredients?.filter { ingredient ->
+                    ingredient.doesMatchSearchQuery(text)
+                }.also { fetchIngredients(text) }
+            }
+            // convert to State FLow
+        }   .onEach { _isSearching.update { false } }
+            .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),//it will allow the StateFlow survive 5 seconds before it been canceled
+            initialValue = _ingredientsList.value
+        )
+
+    fun onSearchTextChange(text: String) {
+        _searchQuery.value = text
+    }
+
     init {
         fetchCategories()
         fetchCategoryMeals()
         fetchRandomMeal()
-        fetchIngredients(STARTER_INGREDIENT)
+        fetchIngredients(SEARCH_DEFAULT)
     }
 
     /*
@@ -92,25 +138,28 @@ class RecipeViewModel : ViewModel() {
         }
     }
 
-    internal fun fetchIngredients(ingredient: String) = viewModelScope.launch(Dispatchers.IO) {
-        _ingredientMealState.value = _ingredientMealState.value.copy(loading = true)
-        try {
-            val response = repository.getIngredient(ingredient)
-            _ingredientMealState.value = _ingredientMealState.value.copy(
-                loading = false,
-                item = response.data!!.meals,
-                error = null
-            )
-        } catch (e: Exception) {
-            _ingredientMealState.value = _ingredientMealState.value.copy(
-                loading = false,
-                error = "Error fetching data: ${e.message}"
-            )
+    private fun fetchIngredients(query: String) {
+        viewModelScope.launch(Dispatchers.Main) {
+            _ingredientMealState.value = _ingredientMealState.value.copy(loading = true)
+            try {
+                val response = repository.getIngredient(query)
+                _ingredientMealState.value = _ingredientMealState.value.copy(
+                    loading = false,
+                    list = response.data!!.meals,
+                    error = null
+                )
+            } catch (e: Exception) {
+                _ingredientMealState.value = _ingredientMealState.value.copy(
+                    loading = false,
+                    error = "Error fetching data: ${e.message}"
+                )
+            }
         }
     }
 
     companion object {
-        const val STARTER_INGREDIENT = "Beef"
+        const val SEARCH_DEFAULT = ""
     }
 }
+
 

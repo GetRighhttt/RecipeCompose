@@ -25,6 +25,6 @@ data class RandomMealState(
 
 data class IngredientMealState(
     val loading: Boolean = true,
-    val item: List<Ingredient>? = null,
+    val list: List<Ingredient>? = null,
     val error: String? = null
 )

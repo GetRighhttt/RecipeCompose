@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipe_app_compose.presentation.AlertDialogExample
 import com.example.recipe_app_compose.presentation.FullScreenDialog
+import com.example.recipe_app_compose.presentation.IngredientFullScreenDialog
 import com.example.recipe_app_compose.presentation.MyBottomAppBar
 import com.example.recipe_app_compose.presentation.viewmodel.RecipeViewModel
 import com.example.recipe_app_compose.ui.theme.Recipe_App_ComposeTheme
@@ -51,6 +52,7 @@ class MainActivity : ComponentActivity() {
             val sheetState = rememberModalBottomSheetState()
             var showBottomSheet by remember { mutableStateOf(false) }
             var showFullDialogBox by remember { mutableStateOf(false) }
+            var showSearchDialog by remember { mutableStateOf(false) }
             var showAlertDialogBox by remember { mutableStateOf(false) }
             var showCategoryMealDialogBox by remember { mutableStateOf(false) }
 
@@ -90,14 +92,15 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
                                 IconButton(onClick = {
-                                    /*
-                                    TODO: Add in search view on modal bottom sheet.
-                                     */
+                                    showSearchDialog = true
                                 }) {
                                     Icon(
                                         imageVector = Icons.Default.Search,
                                         contentDescription = "Search"
                                     )
+                                    if(showSearchDialog) {
+                                        IngredientFullScreenDialog { showSearchDialog = false }
+                                    }
                                 }
                                 IconButton(onClick = {
                                     showFullDialogBox = true
