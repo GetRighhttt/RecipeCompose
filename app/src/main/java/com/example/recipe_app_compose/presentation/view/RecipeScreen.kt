@@ -22,19 +22,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.domain.model.category.Category
+import com.example.recipe_app_compose.domain.states.RecipeState
 import com.example.recipe_app_compose.presentation.AlertDialogExample
 import com.example.recipe_app_compose.presentation.viewmodel.RecipeViewModel
 
 @Composable
-fun RecipeScreen(modifier: Modifier = Modifier, navigateToDetail: (Category) -> Unit) {
+fun RecipeScreen(
+    modifier: Modifier = Modifier,
+    viewState: RecipeState,
+    navigateToDetail: (Category) -> Unit
+) {
 
     // declare view model and state variable
     val viewModel: RecipeViewModel = viewModel()
-    val viewState by viewModel.categoriesState.collectAsStateWithLifecycle()
     var alertDialogState by remember { mutableStateOf(true) }
 
     Box(modifier = modifier.fillMaxSize()) {
