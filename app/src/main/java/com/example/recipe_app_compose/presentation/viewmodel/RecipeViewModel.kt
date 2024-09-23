@@ -75,7 +75,7 @@ class RecipeViewModel : ViewModel() {
         )
 
     // method to set new search value
-    fun onSearchTextChange(text: String) {
+    val onSearchTextChange : (String) -> Unit = { text ->
         _searchQuery.value = text
     }
 
@@ -89,6 +89,8 @@ class RecipeViewModel : ViewModel() {
     /*
     viewModelScope.launch{} executes on the main thread by default; added in the Dispatcher to
     explicitly illustrate this.
+    We use functions instead of variable function types here because we set these methods in the
+    init block of the viewModel.
     */
 
     internal fun fetchCategories() = viewModelScope.launch(Dispatchers.Main) {

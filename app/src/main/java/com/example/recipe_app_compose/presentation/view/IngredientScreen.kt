@@ -84,7 +84,7 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
                     Column(modifier = Modifier.fillMaxSize()) {
                         OutlinedTextField(
                             value = searchText,
-                            onValueChange = viewModel::onSearchTextChange,
+                            onValueChange = viewModel.onSearchTextChange,
                             keyboardOptions = KeyboardOptions(
                                 imeAction = ImeAction.Search,
                                 keyboardType = KeyboardType.Email,

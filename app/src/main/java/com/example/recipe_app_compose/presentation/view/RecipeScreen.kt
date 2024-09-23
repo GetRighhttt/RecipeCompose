@@ -45,7 +45,7 @@ fun RecipeScreen(modifier: Modifier = Modifier) {
                 dialogText = "Error occurred: ${viewState.error}",
                 onDismissRequest = { alertDialogState = false },
                 onConfirmation = {
-                    viewModel.fetchCategories()
+                    viewModel.fetchCategories
                     alertDialogState = false
                 }
             )
