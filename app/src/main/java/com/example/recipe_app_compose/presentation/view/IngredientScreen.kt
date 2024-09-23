@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -30,6 +31,8 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -76,7 +79,7 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
                 )
 
                 else -> {
-                    if(isSearching) {
+                    if (isSearching) {
                         Box(modifier = Modifier.fillMaxSize()) {
                             CircularProgressIndicator(
                                 modifier = Modifier.align(Alignment.Center)
@@ -87,6 +90,11 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
                             OutlinedTextField(
                                 value = searchText,
                                 onValueChange = viewModel::onSearchTextChange,
+                                keyboardOptions = KeyboardOptions(
+                                    imeAction = ImeAction.Search,
+                                    keyboardType = KeyboardType.Email,
+                                    showKeyboardOnFocus = true
+                                ),
                                 keyboardActions = KeyboardActions(
                                     onNext = {
                                         focusManager.moveFocus(FocusDirection.Enter)
