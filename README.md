@@ -49,8 +49,7 @@ If you'd like to contribute to Project Title, here are some guidelines:
 8. Submit a pull request.
 
 ## **Demo**
-
-https://github.com/user-attachments/assets/7e2374d9-1658-409c-af32-3f321010e26c
+https://github.com/user-attachments/assets/cb75f24f-15fd-4ec4-ab2c-f3ac6291c40e
 
 ## **Contact**
 
