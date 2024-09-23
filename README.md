@@ -51,4 +51,7 @@ If you'd like to contribute to Project Title, here are some guidelines:
 ## **Demo**
 
 
+## **Contact**
+
+If you have any questions or comments about Project Title, please contact **stefanbusiness95@gmail.com**.
 
