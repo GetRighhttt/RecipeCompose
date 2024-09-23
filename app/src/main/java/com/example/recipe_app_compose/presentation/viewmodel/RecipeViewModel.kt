@@ -158,7 +158,7 @@ class RecipeViewModel : ViewModel() {
     }
 
     companion object {
-        const val SEARCH_DEFAULT = "Beef"
+        const val SEARCH_DEFAULT = ""
     }
 }
 
