@@ -33,7 +33,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
@@ -116,10 +118,19 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
                                     modifier = Modifier.align(Alignment.Center)
                                 )
                             }
+                        } else if (viewState.list.isNullOrEmpty() || searchResults?.isNotEmpty() == true) {
+                            Box(modifier = Modifier.fillMaxSize()) {
+                                Text(
+                                    text = "No results found",
+                                    textAlign = TextAlign.Center,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 30.sp,
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
+                            }
+                        } else {
+                            IngredientMealScreen(categories = viewState.list ?: emptyList())
                         }
-                        IngredientMealScreen(
-                            searchResults ?: viewState.list ?: emptyList()
-                        )
                     }
                 }
             }
