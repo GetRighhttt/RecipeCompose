@@ -26,6 +26,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -64,8 +65,8 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
     val viewModel: RecipeViewModel = viewModel()
     val randomViewState by viewModel.randomMealState.collectAsStateWithLifecycle()
     var alertDialogState by remember { mutableStateOf(true) }
-//    var navigateBackState by remember { mutableStateOf(false) }
     var favoriteDialogState by remember { mutableStateOf(false) }
+    var favoriteViewState by remember { mutableStateOf(false) }
 
     Box(modifier = modifier.fillMaxSize()) {
         val context = LocalContext.current
@@ -86,9 +87,10 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                         IconButton(
                             onClick = {
                                 favoriteDialogState = true
+                                favoriteViewState = true
                             }) {
                             Icon(
-                                imageVector = Icons.Default.Favorite,
+                                imageVector = if (favoriteViewState) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                                 contentDescription = "Favorite"
                             )
                         }
@@ -96,9 +98,13 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                             AlertDialogExample(
                                 dialogTitle = "Favorite",
                                 dialogText = "Would you like to add this to your favorites?",
-                                onDismissRequest = { favoriteDialogState = false },
+                                onDismissRequest = {
+                                    favoriteDialogState = false
+                                    favoriteViewState = false
+                                },
                                 onConfirmation = {
                                     favoriteDialogState = false
+                                    favoriteViewState = true
                                     Toast.makeText(
                                         context,
                                         "${randomViewState.item?.first()?.strMeal.toString()} " +
@@ -113,6 +119,7 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                         IconButton(
                             onClick = {
                                 viewModel.fetchRandomMeal()
+                                favoriteViewState = false
                             }) {
                             Icon(
                                 imageVector = Icons.Default.Refresh,
