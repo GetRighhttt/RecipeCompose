@@ -188,7 +188,8 @@ class MainActivity : ComponentActivity() {
                                 showBottomSheet = false
                             },
                             sheetState = sheetState,
-                            tonalElevation = 20.dp
+                            tonalElevation = 20.dp,
+                            modifier = Modifier.padding(innerPadding)
                         ) {
                             Scaffold(topBar = {
                                 CenterAlignedTopAppBar(
@@ -217,7 +218,7 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
-                    RecipeApp(modifier = Modifier.padding(innerPadding), navController = navController)
+                    RecipeApp(navController = navController)
                 }
             }
         }

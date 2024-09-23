@@ -3,7 +3,6 @@ package com.example.recipe_app_compose.core.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -17,7 +16,7 @@ import com.example.recipe_app_compose.presentation.viewmodel.RecipeViewModel
 File for Navigation.
  */
 @Composable
-fun RecipeApp(navController: NavHostController, modifier: Modifier) {
+fun RecipeApp(navController: NavHostController) {
 
     // necessary to know what category the user has clicked on
     val recipeViewModel: RecipeViewModel = viewModel()
