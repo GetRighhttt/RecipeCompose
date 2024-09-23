@@ -59,10 +59,12 @@ class RecipeViewModel : ViewModel() {
             if (text.isBlank()) {
                 ingredients
             } else {
-                delay(500L)
                 ingredients?.filter { ingredient ->
                     ingredient.doesMatchSearchQuery(text)
-                }.also { fetchIngredients(text) }
+                }.also {
+                    fetchIngredients(text)
+                    delay(200L)
+                }
             }
             // convert to State FLow
         }.onEach { _isSearching.update { false } }
