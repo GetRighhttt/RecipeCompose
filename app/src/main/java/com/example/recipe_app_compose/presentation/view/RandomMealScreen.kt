@@ -274,6 +274,17 @@ fun VerticalScrollingWithFixedHeightTextDemo(randomText: String) {
 }
 
 @Composable
+fun VerticalScrollingWithFixedHeightDetail(randomText: String) {
+    Text(
+        text = randomText,
+        style = TextStyle(fontWeight = FontWeight.Normal),
+        textAlign = TextAlign.Justify,
+        modifier = Modifier
+            .verticalScroll(rememberScrollState())
+    )
+}
+
+@Composable
 fun MessageCard(msg: String) {
     Row(modifier = Modifier.padding(top = 2.dp, bottom = 2.dp)) {
         Column {
