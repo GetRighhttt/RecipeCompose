@@ -21,10 +21,15 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/*
+Explaining various states and reasoning as this can be somewhat confusing at first..
+ */
 class RecipeViewModel : ViewModel() {
 
+    // necessary repo composition
     private val repository = RecipeRepositoryImpl()
 
+    // states for each api call from `RecipeStates.kt`
     private val _categoriesState = MutableStateFlow(RecipeState())
     val categoriesState = _categoriesState.asStateFlow()
 
@@ -37,17 +42,15 @@ class RecipeViewModel : ViewModel() {
     private val _ingredientMealState = MutableStateFlow(IngredientMealState())
     val ingredientMealState = _ingredientMealState.asStateFlow()
 
-    //first state the text typed by the user
+    // states for search view
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
 
-    //second state whether the search is happening or not
     private val _isSearching = MutableStateFlow(false)
     val isSearching = _isSearching.asStateFlow()
 
-    //third state the list to be filtered
+    // ingredient list to be populated by way of Flow operators
     private val _ingredientsList = MutableStateFlow(_ingredientMealState.value.list)
-
     @OptIn(FlowPreview::class)
     val ingredientsList = searchQuery
         .debounce(1000L)
@@ -69,6 +72,7 @@ class RecipeViewModel : ViewModel() {
             initialValue = _ingredientsList.value
         )
 
+    // method to set new search value
     fun onSearchTextChange(text: String) {
         _searchQuery.value = text
     }
@@ -81,8 +85,8 @@ class RecipeViewModel : ViewModel() {
     }
 
     /*
-    Must launch all init methods with Dispatchers.Main as these will be called from the main
-    thread as soon as the lifecycle starts.
+    viewModelScope.launch{} executes on the main thread by default; added in the Dispatcher to
+    explicitly illustrate this.
     */
 
     internal fun fetchCategories() = viewModelScope.launch(Dispatchers.Main) {
@@ -159,6 +163,7 @@ class RecipeViewModel : ViewModel() {
     }
 
     companion object {
+        // initial search value
         const val SEARCH_DEFAULT = ""
     }
 }
