@@ -278,9 +278,11 @@ fun VerticalScrollingWithFixedHeightDetail(randomText: String) {
     Text(
         text = randomText,
         style = TextStyle(fontWeight = FontWeight.Normal),
-        textAlign = TextAlign.Justify,
+        fontSize = 18.sp,
         modifier = Modifier
+            .height(300.dp)
             .verticalScroll(rememberScrollState())
+            .padding(top = 5.dp)
     )
 }
 
