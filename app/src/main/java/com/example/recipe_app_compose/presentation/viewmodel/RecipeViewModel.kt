@@ -9,6 +9,7 @@ import com.example.recipe_app_compose.domain.states.RandomMealState
 import com.example.recipe_app_compose.domain.states.RecipeState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -51,12 +52,13 @@ class RecipeViewModel : ViewModel() {
     private val _ingredientsList = MutableStateFlow(_ingredientMealState.value.list)
     @OptIn(FlowPreview::class)
     val ingredientsList = searchQuery // set list to searchQuery
-        .debounce(500L)
+        .debounce(1000L)
         .onEach { _isSearching.update { true } }
         .combine(_ingredientsList) { text, ingredients ->
             if (text.isBlank()) {
                 ingredients
             } else {
+                delay(500L)
                 ingredients?.filter { ingredient ->
                     ingredient.doesMatchSearchQuery(text)
                 }.also { fetchIngredients(text) }
@@ -71,13 +73,6 @@ class RecipeViewModel : ViewModel() {
 
     fun onSearchTextChange(text: String) {
         _searchQuery.value = text
-    }
-
-    fun onToggleSearch() {
-        _isSearching.value = !_isSearching.value
-        if (!_isSearching.value) {
-            onSearchTextChange("")
-        }
     }
 
     init {

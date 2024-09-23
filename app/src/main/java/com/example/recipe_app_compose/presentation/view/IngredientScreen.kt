@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -40,7 +39,7 @@ import com.example.recipe_app_compose.presentation.AlertDialogExample
 import com.example.recipe_app_compose.presentation.DialogWithImage
 import com.example.recipe_app_compose.presentation.viewmodel.RecipeViewModel
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun IngredientScreen(modifier: Modifier = Modifier) {
 
@@ -77,29 +76,41 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
                 )
 
                 else -> {
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        OutlinedTextField(
-                            value = searchText,
-                            onValueChange = viewModel::onSearchTextChange,
-                            keyboardActions = KeyboardActions(
-                                onNext = {
-                                    focusManager.moveFocus(FocusDirection.Enter)
-                                },
-                                onSearch = {
-                                    focusManager.clearFocus(true)
-
-                                }
-                            ),
-                            maxLines = 1,
-                            placeholder = { Text("Search") },
-                            enabled = true,
-                            shape = RoundedCornerShape(30.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp)
-                                .focusable(true)
-                        )
-                        IngredientMealScreen(searchResults ?: viewState.list ?: emptyList())
+                    if(isSearching) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
+                    } else {
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            OutlinedTextField(
+                                value = searchText,
+                                onValueChange = viewModel::onSearchTextChange,
+                                keyboardActions = KeyboardActions(
+                                    onNext = {
+                                        focusManager.moveFocus(FocusDirection.Enter)
+                                    },
+                                    onSearch = {
+                                        focusManager.clearFocus(true)
+                                        focusManager.moveFocus(FocusDirection.Enter)
+                                    },
+                                    onDone = {
+                                        focusManager.clearFocus(force = false)
+                                        focusManager.moveFocus(FocusDirection.Enter)
+                                    }
+                                ),
+                                maxLines = 1,
+                                placeholder = { Text("Search") },
+                                enabled = true,
+                                shape = RoundedCornerShape(30.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                                    .focusable(true)
+                            )
+                            IngredientMealScreen(searchResults ?: viewState.list ?: emptyList())
+                        }
                     }
                 }
             }
@@ -109,7 +120,7 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
 
 @Composable
 fun IngredientMealScreen(categories: List<Ingredient>) {
-    LazyVerticalGrid(GridCells.Fixed(1), modifier = Modifier.fillMaxSize()) {
+    LazyVerticalGrid(GridCells.Fixed(3), modifier = Modifier.fillMaxSize()) {
         items(categories) { category ->
             IngredientMealItem(category = category)
         }
