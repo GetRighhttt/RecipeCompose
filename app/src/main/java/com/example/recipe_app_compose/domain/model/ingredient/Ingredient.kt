@@ -1,10 +1,14 @@
 package com.example.recipe_app_compose.domain.model.ingredient
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class Ingredient(
     val strMeal: String,
     val strMealThumb: String,
     val idMeal: String
-) {
+) : Parcelable {
     fun doesMatchSearchQuery(query: String): Boolean {
         val matchingCombinations = listOf(
             strMeal,
