@@ -34,6 +34,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
+import com.example.recipe_app_compose.core.navigation.RecipeApp
 import com.example.recipe_app_compose.presentation.AlertDialogExample
 import com.example.recipe_app_compose.presentation.FullScreenDialog
 import com.example.recipe_app_compose.presentation.IngredientFullScreenDialog
@@ -55,6 +57,8 @@ class MainActivity : ComponentActivity() {
             var showSearchDialog by remember { mutableStateOf(false) }
             var showAlertDialogBox by remember { mutableStateOf(false) }
             var showCategoryMealDialogBox by remember { mutableStateOf(false) }
+
+            val navController = rememberNavController()
 
             Recipe_App_ComposeTheme {
                 Scaffold(
@@ -98,7 +102,7 @@ class MainActivity : ComponentActivity() {
                                         imageVector = Icons.Default.Search,
                                         contentDescription = "Search"
                                     )
-                                    if(showSearchDialog) {
+                                    if (showSearchDialog) {
                                         IngredientFullScreenDialog { showSearchDialog = false }
                                     }
                                 }
@@ -184,7 +188,8 @@ class MainActivity : ComponentActivity() {
                                 showBottomSheet = false
                             },
                             sheetState = sheetState,
-                            tonalElevation = 20.dp
+                            tonalElevation = 20.dp,
+                            modifier = Modifier.padding(8.dp)
                         ) {
                             Scaffold(topBar = {
                                 CenterAlignedTopAppBar(
@@ -213,7 +218,7 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
-                    RecipeScreen(modifier = Modifier.padding(innerPadding))
+                    RecipeApp(navController = navController, modifier = Modifier.padding(innerPadding))
                 }
             }
         }

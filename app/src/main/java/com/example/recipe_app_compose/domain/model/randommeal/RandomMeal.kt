@@ -1,5 +1,9 @@
 package com.example.recipe_app_compose.domain.model.randommeal
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class RandomMeal(
     val idMeal: String,
     val strMeal: String,
@@ -18,7 +22,7 @@ data class RandomMeal(
     val strIngredient8: String,
     val strIngredient9: String,
     val strSource: String
-)
+) : Parcelable
 
 /*
 {

@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,35 +23,45 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.domain.model.category.Category
+import com.example.recipe_app_compose.domain.states.RecipeState
 import com.example.recipe_app_compose.presentation.AlertDialogExample
 import com.example.recipe_app_compose.presentation.viewmodel.RecipeViewModel
 
 @Composable
-fun RecipeScreen(modifier: Modifier = Modifier, navigateToDetail: (Category) -> Unit) {
-
+fun RecipeScreen(
+    modifier: Modifier = Modifier,
+    viewState: RecipeState,
+    navigateToDetail: (Category) -> Unit
+) {
     // declare view model and state variable
     val viewModel: RecipeViewModel = viewModel()
-    val viewState by viewModel.categoriesState.collectAsStateWithLifecycle()
     var alertDialogState by remember { mutableStateOf(true) }
 
-    Box(modifier = modifier.fillMaxSize()) {
-        when {
-            viewState.loading -> CircularProgressIndicator(modifier.align(Alignment.Center))
-            viewState.error != null -> AlertDialogExample(dialogTitle = "Error",
-                dialogText = "Error occurred: ${viewState.error}",
-                onDismissRequest = { alertDialogState = false },
-                onConfirmation = {
-                    viewModel.fetchCategories()
-                    alertDialogState = false
-                })
+    Scaffold(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(top = 30.dp, bottom = 80.dp),
+    ) { innerPadding ->
+        Box(modifier = modifier
+            .fillMaxSize()
+            .padding(innerPadding)) {
+            when {
+                viewState.loading -> CircularProgressIndicator(modifier.align(Alignment.Center))
+                viewState.error != null -> AlertDialogExample(dialogTitle = "Error",
+                    dialogText = "Error occurred: ${viewState.error}",
+                    onDismissRequest = { alertDialogState = false },
+                    onConfirmation = {
+                        viewModel.fetchCategories()
+                        alertDialogState = false
+                    })
 
-            else -> {
-                // display list of categories
-                CategoryScreen(categories = viewState.list ?: emptyList(), navigateToDetail)
+                else -> {
+                    // display list of categories
+                    CategoryScreen(categories = viewState.list ?: emptyList(), navigateToDetail)
+                }
             }
         }
     }

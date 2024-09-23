@@ -11,7 +11,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
@@ -29,8 +28,7 @@ fun DetailScreen(category: Category) {
         Text(text = category.strCategory, textAlign = TextAlign.Center)
         Image(
             painter = rememberAsyncImagePainter(
-                category.strCategoryThumb,
-                contentScale = ContentScale.Fit,
+                category.strCategoryThumb
             ), modifier = Modifier
                 .wrapContentSize() // wrap in layout
                 .padding(8.dp)
