@@ -63,7 +63,7 @@ class RecipeViewModel : ViewModel() {
                     ingredient.doesMatchSearchQuery(text)
                 }.also {
                     fetchIngredients(text)
-                    delay(200L)
+                    delay(400L)
                 }
             }
             // convert to State FLow
