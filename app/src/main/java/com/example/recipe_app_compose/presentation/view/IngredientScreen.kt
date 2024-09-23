@@ -79,46 +79,47 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
                 )
 
                 else -> {
-                    if (isSearching) {
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.align(Alignment.Center)
-                            )
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        OutlinedTextField(
+                            value = searchText,
+                            onValueChange = viewModel::onSearchTextChange,
+                            keyboardOptions = KeyboardOptions(
+                                imeAction = ImeAction.Search,
+                                keyboardType = KeyboardType.Email,
+                                showKeyboardOnFocus = true
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onNext = {
+                                    focusManager.moveFocus(FocusDirection.Enter)
+                                },
+                                onSearch = {
+                                    focusManager.clearFocus(true)
+                                    focusManager.moveFocus(FocusDirection.Enter)
+                                },
+                                onDone = {
+                                    focusManager.clearFocus(force = false)
+                                    focusManager.moveFocus(FocusDirection.Enter)
+                                }
+                            ),
+                            maxLines = 1,
+                            placeholder = { Text("Search") },
+                            enabled = true,
+                            shape = RoundedCornerShape(30.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                                .focusable(true)
+                        )
+                        if (isSearching) {
+                            Box(modifier = Modifier.fillMaxSize()) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
+                            }
                         }
-                    } else {
-                        Column(modifier = Modifier.fillMaxSize()) {
-                            OutlinedTextField(
-                                value = searchText,
-                                onValueChange = viewModel::onSearchTextChange,
-                                keyboardOptions = KeyboardOptions(
-                                    imeAction = ImeAction.Search,
-                                    keyboardType = KeyboardType.Email,
-                                    showKeyboardOnFocus = true
-                                ),
-                                keyboardActions = KeyboardActions(
-                                    onNext = {
-                                        focusManager.moveFocus(FocusDirection.Enter)
-                                    },
-                                    onSearch = {
-                                        focusManager.clearFocus(true)
-                                        focusManager.moveFocus(FocusDirection.Enter)
-                                    },
-                                    onDone = {
-                                        focusManager.clearFocus(force = false)
-                                        focusManager.moveFocus(FocusDirection.Enter)
-                                    }
-                                ),
-                                maxLines = 1,
-                                placeholder = { Text("Search") },
-                                enabled = true,
-                                shape = RoundedCornerShape(30.dp),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                                    .focusable(true)
-                            )
-                            IngredientMealScreen(searchResults ?: viewState.list ?: emptyList())
-                        }
+                        IngredientMealScreen(
+                            searchResults ?: viewState.list ?: emptyList()
+                        )
                     }
                 }
             }
@@ -134,7 +135,6 @@ fun IngredientMealScreen(categories: List<Ingredient>) {
         }
     }
 }
-
 
 @Composable
 fun IngredientMealItem(category: Ingredient) {

@@ -21,7 +21,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class RecipeViewModel : ViewModel() {
-    //
+
+    private val repository = RecipeRepositoryImpl()
+
     private val _categoriesState = MutableStateFlow(RecipeState())
     val categoriesState = _categoriesState.asStateFlow()
 
@@ -34,12 +36,6 @@ class RecipeViewModel : ViewModel() {
     private val _ingredientMealState = MutableStateFlow(IngredientMealState())
     val ingredientMealState = _ingredientMealState.asStateFlow()
 
-    private val repository = RecipeRepositoryImpl()
-
-    /*
-    Implementing search bar logic
-     */
-
     //first state the text typed by the user
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
@@ -50,8 +46,9 @@ class RecipeViewModel : ViewModel() {
 
     //third state the list to be filtered
     private val _ingredientsList = MutableStateFlow(_ingredientMealState.value.list)
+
     @OptIn(FlowPreview::class)
-    val ingredientsList = searchQuery // set list to searchQuery
+    val ingredientsList = searchQuery
         .debounce(1000L)
         .onEach { _isSearching.update { true } }
         .combine(_ingredientsList) { text, ingredients ->
@@ -64,10 +61,10 @@ class RecipeViewModel : ViewModel() {
                 }.also { fetchIngredients(text) }
             }
             // convert to State FLow
-        }   .onEach { _isSearching.update { false } }
-            .stateIn(
+        }.onEach { _isSearching.update { false } }
+        .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),//it will allow the StateFlow survive 5 seconds before it been canceled
+            started = SharingStarted.WhileSubscribed(5000),
             initialValue = _ingredientsList.value
         )
 
@@ -138,22 +135,20 @@ class RecipeViewModel : ViewModel() {
         }
     }
 
-    private fun fetchIngredients(query: String) {
-        viewModelScope.launch(Dispatchers.Main) {
-            _ingredientMealState.value = _ingredientMealState.value.copy(loading = true)
-            try {
-                val response = repository.getIngredient(query)
-                _ingredientMealState.value = _ingredientMealState.value.copy(
-                    loading = false,
-                    list = response.data!!.meals,
-                    error = null
-                )
-            } catch (e: Exception) {
-                _ingredientMealState.value = _ingredientMealState.value.copy(
-                    loading = false,
-                    error = "Error fetching data: ${e.message}"
-                )
-            }
+    private fun fetchIngredients(query: String) = viewModelScope.launch(Dispatchers.Main) {
+        _ingredientMealState.value = _ingredientMealState.value.copy(loading = true)
+        try {
+            val response = repository.getIngredient(query)
+            _ingredientMealState.value = _ingredientMealState.value.copy(
+                loading = false,
+                list = response.data!!.meals,
+                error = null
+            )
+        } catch (e: Exception) {
+            _ingredientMealState.value = _ingredientMealState.value.copy(
+                loading = false,
+                error = "Error fetching data: ${e.message}"
+            )
         }
     }
 
