@@ -15,9 +15,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
@@ -26,7 +26,7 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerValue
@@ -53,12 +53,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
-import com.example.recipe_app_compose.core.navigation.CategoryScreen
-import com.example.recipe_app_compose.core.navigation.NavigationItem
-import com.example.recipe_app_compose.core.navigation.RecipeApp
 import com.example.recipe_app_compose.core.components.FullScreenDialog
 import com.example.recipe_app_compose.core.components.IngredientFullScreenDialog
 import com.example.recipe_app_compose.core.components.MyBottomAppBar
+import com.example.recipe_app_compose.core.navigation.CategoryScreen
+import com.example.recipe_app_compose.core.navigation.NavigationItem
+import com.example.recipe_app_compose.core.navigation.RecipeApp
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 import com.example.recipe_app_compose.ui.theme.Recipe_App_ComposeTheme
 import kotlinx.coroutines.Job
@@ -110,9 +110,9 @@ class MainActivity : ComponentActivity() {
                         unselectedIcon = Icons.Outlined.AccountCircle
                     ),
                     NavigationItem(
-                        title = "Info",
-                        selectedIcon = Icons.Filled.Info,
-                        unselectedIcon = Icons.Outlined.Info,
+                        title = "Address",
+                        selectedIcon = Icons.Filled.Place,
+                        unselectedIcon = Icons.Outlined.Place,
                     )
                 )
 
@@ -154,7 +154,7 @@ class MainActivity : ComponentActivity() {
                                             }
 
                                             4 -> {
-                                                navController.navigate(CategoryScreen.InfoScreen.route)
+                                                navController.navigate(CategoryScreen.AddressScreen.route)
                                                 closeDrawer.isActive
                                             }
                                         }
@@ -299,14 +299,14 @@ class MainActivity : ComponentActivity() {
                                     }
                                     IconButton(
                                         onClick = {
-                                            navController.navigate(CategoryScreen.InfoScreen.route) {
+                                            navController.navigate(CategoryScreen.AddressScreen.route) {
                                                 launchSingleTop = true
                                             }
                                         }
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Default.Info,
-                                            contentDescription = "Info"
+                                            imageVector = Icons.Default.Place,
+                                            contentDescription = "Place"
                                         )
                                     }
                                 }

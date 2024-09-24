@@ -1,4 +1,4 @@
-package com.example.recipe_app_compose.features.location.presentation
+package com.example.recipe_app_compose.features.location.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.example.recipe_app_compose.features.location.domain.model.LocationData
