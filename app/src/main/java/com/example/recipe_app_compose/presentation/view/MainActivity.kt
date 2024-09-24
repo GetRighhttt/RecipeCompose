@@ -1,7 +1,7 @@
 package com.example.recipe_app_compose.presentation.view
 
+import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlayArrow
@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import com.example.recipe_app_compose.core.navigation.CategoryScreen
 import com.example.recipe_app_compose.core.navigation.RecipeApp
 import com.example.recipe_app_compose.presentation.AlertDialogExample
 import com.example.recipe_app_compose.presentation.FullScreenDialog
@@ -92,7 +93,7 @@ class MainActivity : ComponentActivity() {
                                 }) {
                                     Icon(
                                         imageVector = Icons.Default.KeyboardArrowUp,
-                                        contentDescription = "Add"
+                                        contentDescription = "Up"
                                     )
                                 }
                                 IconButton(onClick = {
@@ -125,11 +126,24 @@ class MainActivity : ComponentActivity() {
                             content = {
                                 IconButton(
                                     onClick = {
-                                        Toast.makeText(
-                                            applicationContext,
-                                            "Pressed Share Button",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                        // share an email about the application or other things
+                                        val intent = Intent(Intent.ACTION_SEND).apply {
+                                            type = "text/plain"
+                                            putExtra(
+                                                Intent.EXTRA_EMAIL, arrayOf(
+                                                    "stefanbayne@gmail.com"
+                                                )
+                                            )
+                                            putExtra(Intent.EXTRA_SUBJECT, "Sharing application")
+                                            putExtra(
+                                                Intent.EXTRA_TEXT,
+                                                "Please checkout my Rick and Morty application that I have created!"
+                                            )
+                                        }
+                                        // another approach to error handling with resolve activity
+                                        if (intent.resolveActivity(packageManager) != null) {
+                                            startActivity(intent)
+                                        }
                                     }
                                 ) {
                                     Icon(
@@ -139,25 +153,9 @@ class MainActivity : ComponentActivity() {
                                 }
                                 IconButton(
                                     onClick = {
-                                        Toast.makeText(
-                                            applicationContext,
-                                            "Pressed Search Button",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Search,
-                                        contentDescription = "Search"
-                                    )
-                                }
-                                IconButton(
-                                    onClick = {
-                                        Toast.makeText(
-                                            applicationContext,
-                                            "Pressed Settings Button",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                        navController.navigate(CategoryScreen.SettingsScreen.route) {
+                                            launchSingleTop = true
+                                        }
                                     }
                                 ) {
                                     Icon(
@@ -167,16 +165,14 @@ class MainActivity : ComponentActivity() {
                                 }
                                 IconButton(
                                     onClick = {
-                                        Toast.makeText(
-                                            applicationContext,
-                                            "Pressed Add Button",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                        navController.navigate(CategoryScreen.FavoriteScreen.route) {
+                                            launchSingleTop = true
+                                        }
                                     }
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.Add,
-                                        contentDescription = "Settings"
+                                        imageVector = Icons.Default.Favorite,
+                                        contentDescription = "Favorites"
                                     )
                                 }
                             }
@@ -218,7 +214,10 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
-                    RecipeApp(navController = navController, modifier = Modifier.padding(innerPadding))
+                    RecipeApp(
+                        navController = navController,
+                        modifier = Modifier.padding(innerPadding)
+                    )
                 }
             }
         }

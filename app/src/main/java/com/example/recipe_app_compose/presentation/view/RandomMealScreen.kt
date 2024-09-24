@@ -10,7 +10,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,8 +21,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -56,6 +53,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.domain.model.randommeal.RandomMeal
 import com.example.recipe_app_compose.presentation.AlertDialogExample
+import com.example.recipe_app_compose.presentation.MessageCard
+import com.example.recipe_app_compose.presentation.VerticalScrollingWithFixedHeightTextDemo
 import com.example.recipe_app_compose.presentation.viewmodel.RecipeViewModel
 
 @Composable
@@ -257,43 +256,6 @@ fun RandomMealItem(category: RandomMeal) {
                     MessageCard(msg)
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun VerticalScrollingWithFixedHeightTextDemo(randomText: String) {
-    Text(
-        text = randomText,
-        style = TextStyle(fontWeight = FontWeight.Normal),
-        modifier = Modifier
-            .height(100.dp)
-            .verticalScroll(rememberScrollState())
-            .padding(top = 5.dp)
-    )
-}
-
-@Composable
-fun VerticalScrollingWithFixedHeightDetail(randomText: String) {
-    Text(
-        text = randomText,
-        style = TextStyle(fontWeight = FontWeight.Normal),
-        fontSize = 18.sp,
-        modifier = Modifier
-            .height(300.dp)
-            .verticalScroll(rememberScrollState())
-            .padding(top = 5.dp)
-    )
-}
-
-@Composable
-fun MessageCard(msg: String) {
-    Row(modifier = Modifier.padding(top = 2.dp, bottom = 2.dp)) {
-        Column {
-            Text(
-                text = msg,
-                style = TextStyle(fontWeight = FontWeight.Normal)
-            )
         }
     }
 }

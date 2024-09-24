@@ -10,7 +10,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.recipe_app_compose.domain.model.category.Category
 import com.example.recipe_app_compose.presentation.view.DetailScreen
+import com.example.recipe_app_compose.presentation.view.FavoritesScreen
+import com.example.recipe_app_compose.presentation.view.IngredientScreen
+import com.example.recipe_app_compose.presentation.view.RandomMealPage
 import com.example.recipe_app_compose.presentation.view.RecipeScreen
+import com.example.recipe_app_compose.presentation.view.SettingsScreen
 import com.example.recipe_app_compose.presentation.viewmodel.RecipeViewModel
 
 /*
@@ -23,18 +27,57 @@ fun RecipeApp(navController: NavHostController, modifier: Modifier) {
     val recipeViewModel: RecipeViewModel = viewModel()
     val navState by recipeViewModel.categoriesState.collectAsState()
 
-    NavHost(navController = navController, startDestination = CategoryScreen.RecipeScreen.route) {
-        composable(route = CategoryScreen.RecipeScreen.route) {
-            RecipeScreen(viewState = navState, navigateToDetail = {
-                navController.currentBackStackEntry?.savedStateHandle?.set("nav", it)
-                navController.navigate(CategoryScreen.DetailScreen.route)
-            })
+    NavHost(
+        navController = navController,
+        startDestination = CategoryScreen.RecipeScreen.route,
+    ) {
+        composable(
+            route = CategoryScreen.RecipeScreen.route
+        ) {
+            RecipeScreen(
+                viewState = navState,
+                navigateToDetail = {
+                    navController.currentBackStackEntry?.savedStateHandle?.set("nav", it)
+                    navController.navigate(
+                        CategoryScreen.DetailScreen.route
+                    ) {
+                        launchSingleTop = true
+                    }
+                })
         }
-        composable(route = CategoryScreen.DetailScreen.route) {
+        composable(
+            route = CategoryScreen.DetailScreen.route
+        ) {
             val category =
-                navController.previousBackStackEntry?.savedStateHandle?.get<Category>("nav")
-                    ?: Category("", "", "", "")
+                navController
+                    .previousBackStackEntry?.savedStateHandle?.get<Category>("nav")
+                    ?: Category(
+                        "",
+                        "",
+                        "",
+                        ""
+                    )
             DetailScreen(category = category)
+        }
+        composable(
+            route = CategoryScreen.IngredientScreen.route
+        ) {
+            IngredientScreen(modifier = modifier)
+        }
+        composable(
+            route = CategoryScreen.RandomMealScreen.route
+        ) {
+            RandomMealPage(modifier = modifier)
+        }
+        composable(
+            route = CategoryScreen.SettingsScreen.route
+        ) {
+            SettingsScreen(modifier = modifier)
+        }
+        composable(
+            route = CategoryScreen.FavoriteScreen.route
+        ) {
+            FavoritesScreen(modifier = modifier)
         }
     }
 }
