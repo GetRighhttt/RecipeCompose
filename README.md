@@ -51,6 +51,8 @@ If you'd like to contribute to Project Title, here are some guidelines:
 ## **Demo**
 https://github.com/user-attachments/assets/cb75f24f-15fd-4ec4-ab2c-f3ac6291c40e
 
+[Navigation.webm](https://github.com/user-attachments/assets/83d7fe5a-be56-451f-a17f-c25c7d12225d)
+
 ## **Contact**
 
 If you have any questions or comments about Project Title, please contact **stefanbusiness95@gmail.com**.
