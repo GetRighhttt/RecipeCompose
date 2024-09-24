@@ -7,8 +7,8 @@ import android.location.Address
 import android.location.Geocoder
 import android.os.Looper
 import androidx.core.content.ContextCompat
-import com.example.recipe_app_compose.features.location.presentation.LocationViewModel
 import com.example.recipe_app_compose.features.location.domain.model.LocationData
+import com.example.recipe_app_compose.features.location.presentation.LocationViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -22,6 +22,11 @@ class PermissionUtils(private val context: Context) {
 
     /*
     Location Data
+
+    1. Check if permissions exists
+    2. Request permissions
+    3. Get location updates
+    4. Convert to lat long to address
     */
     val hasLocationPermissions: (context: Context) -> Boolean = {
         ContextCompat.checkSelfPermission(
