@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.ButtonDefaults
@@ -31,8 +33,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -70,7 +74,7 @@ fun IngredientFullScreenDialog(onDismissRequest: () -> Unit) {
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(800.dp)
+                .height(600.dp)
                 .background(MaterialTheme.colorScheme.surfaceVariant),
         ) {
             IngredientScreen(modifier = Modifier.fillMaxSize())
@@ -204,5 +208,42 @@ fun MyBottomAppBar(
             verticalAlignment = Alignment.CenterVertically,
             content = content
         )
+    }
+}
+
+@Composable
+fun VerticalScrollingWithFixedHeightTextDemo(randomText: String) {
+    Text(
+        text = randomText,
+        style = TextStyle(fontWeight = FontWeight.Normal),
+        modifier = Modifier
+            .height(100.dp)
+            .verticalScroll(rememberScrollState())
+            .padding(top = 5.dp)
+    )
+}
+
+@Composable
+fun VerticalScrollingWithFixedHeightDetail(randomText: String, size: TextUnit) {
+    Text(
+        text = randomText,
+        style = TextStyle(fontWeight = FontWeight.Normal),
+        fontSize = size,
+        modifier = Modifier
+            .height(300.dp)
+            .verticalScroll(rememberScrollState())
+            .padding(top = 5.dp)
+    )
+}
+
+@Composable
+fun MessageCard(msg: String) {
+    Row(modifier = Modifier.padding(top = 2.dp, bottom = 2.dp)) {
+        Column {
+            Text(
+                text = msg,
+                style = TextStyle(fontWeight = FontWeight.Normal)
+            )
+        }
     }
 }
