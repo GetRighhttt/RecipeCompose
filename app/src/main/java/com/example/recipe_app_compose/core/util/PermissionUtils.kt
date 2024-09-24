@@ -3,14 +3,18 @@ package com.example.recipe_app_compose.core.util
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
+import com.example.recipe_app_compose.domain.model.location.LocationData
+import com.example.recipe_app_compose.presentation.viewmodel.LocationViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 
 class PermissionUtils(private val context: Context) {
 
-    private val _fusedLocationClient: FusedLocationProviderClient =
-        LocationServices.getFusedLocationProviderClient(context)
-
+    /*
+    Location Data
+    */
     val hasLocationPermissions: (context: Context) -> Boolean = {
         ContextCompat.checkSelfPermission(
             context,
@@ -22,6 +26,24 @@ class PermissionUtils(private val context: Context) {
                 ) == PackageManager.PERMISSION_GRANTED
     }
 
+    private val _fusedLocationClient: FusedLocationProviderClient =
+        LocationServices.getFusedLocationProviderClient(context)
+
+    val requestLocationUpdates: (LocationViewModel) -> Unit = { viewModel ->
+        val locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                super.onLocationResult(locationResult)
+                locationResult.lastLocation?.let { location ->
+                    val locationData = LocationData(location.latitude, location.longitude)
+                    viewModel.updateLocation(locationData)
+                }
+            }
+        }
+    }
+
+    /*
+    NetWork Data
+     */
     val hasNetworkPermissions: (context: Context) -> Boolean = {
         ContextCompat.checkSelfPermission(
             context,
