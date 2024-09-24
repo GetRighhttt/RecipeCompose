@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.recipe_app_compose.features.categories.domain.model.category.Category
 import com.example.recipe_app_compose.features.categories.presentation.view.AccountScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.DetailScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.FavoritesScreen
@@ -51,8 +52,8 @@ fun RecipeApp(navController: NavHostController, modifier: Modifier) {
         ) {
             val category =
                 navController
-                    .previousBackStackEntry?.savedStateHandle?.get<com.example.recipe_app_compose.features.categories.domain.model.category.Category>("nav")
-                    ?: com.example.recipe_app_compose.features.categories.domain.model.category.Category(
+                    .previousBackStackEntry?.savedStateHandle?.get<Category>("nav")
+                    ?: Category(
                         "",
                         "",
                         "",
