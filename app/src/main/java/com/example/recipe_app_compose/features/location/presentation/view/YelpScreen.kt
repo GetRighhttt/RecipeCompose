@@ -53,6 +53,7 @@ fun YelpScreen(modifier: Modifier = Modifier) {
     val viewModel: YelpViewModel = viewModel()
     val viewState by viewModel.yelpState.collectAsStateWithLifecycle()
     var alertDialogState by remember { mutableStateOf(true) }
+    var navigateState by remember { mutableStateOf(false) }
 
     // search stuff
     val searchText by viewModel.searchQuery.collectAsStateWithLifecycle()
@@ -62,7 +63,9 @@ fun YelpScreen(modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxSize()) {
         val focusManager = LocalFocusManager.current
         Scaffold(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
         ) { innerPadding ->
             when {
                 viewState.loading -> CircularProgressIndicator(
@@ -106,7 +109,7 @@ fun YelpScreen(modifier: Modifier = Modifier) {
                                 }
                             ),
                             maxLines = 1,
-                            placeholder = { Text("Search Nearby Restaurants") },
+                            placeholder = { Text("Search Restaurants and Businesses In Tampa") },
                             enabled = true,
                             shape = RoundedCornerShape(30.dp),
                             modifier = Modifier
@@ -170,40 +173,38 @@ fun YelpItem(category: YelpBusinesses) {
         )
         // navigate to new activity for maps here
         if (alertState) {
+            // start intent to go to yelp maps activity
             DialogWithImage(
                 text = category.name,
-                painter = rememberAsyncImagePainter(category.imageUrl),
+                painter = rememberAsyncImagePainter(
+                    category.imageUrl
+                ),
                 imageDescription = "Image",
                 onDismissRequest = { alertState = false },
                 onConfirmation = { alertState = false },
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
             )
         }
         Text(
-            text = category.name,
+            text = "${category.name} - ${category.rating} \uD83C\uDF1F",
             style = TextStyle(fontWeight = FontWeight.Bold),
-            modifier = Modifier.padding(4.dp)
+            textAlign = TextAlign.Center,
+            fontSize = 13.sp,
+            modifier = Modifier.padding(5.dp)
         )
         Text(
-            text = category.location.address1,
-            style = TextStyle(fontWeight = FontWeight.Bold),
-            modifier = Modifier.padding(4.dp)
+            text = "${category.location.address1},\n ${category.location.city}, ${category.location.state} \n" +
+                    " ${category.location.country}",
+            style = TextStyle(fontWeight = FontWeight.Normal),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(3.dp)
         )
         Text(
-            text = category.location.city,
-            style = TextStyle(fontWeight = FontWeight.Bold),
-            modifier = Modifier.padding(4.dp)
+            text = category.phone ?: "No Phone Number",
+            style = TextStyle(fontWeight = FontWeight.Normal),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(2.dp)
         )
-        Text(
-            text = category.location.state,
-            style = TextStyle(fontWeight = FontWeight.Bold),
-            modifier = Modifier.padding(4.dp)
-        )
-        Text(
-            text = category.phone,
-            style = TextStyle(fontWeight = FontWeight.Bold),
-            modifier = Modifier.padding(4.dp)
-        )
-
     }
 }

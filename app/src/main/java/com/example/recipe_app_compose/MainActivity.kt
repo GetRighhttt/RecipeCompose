@@ -54,13 +54,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.recipe_app_compose.core.components.FullScreenDialog
-import com.example.recipe_app_compose.core.components.IngredientFullScreenDialog
 import com.example.recipe_app_compose.core.components.MyBottomAppBar
+import com.example.recipe_app_compose.core.components.ReusableFullScreenDialog
 import com.example.recipe_app_compose.core.navigation.CategoryScreen
 import com.example.recipe_app_compose.core.navigation.NavigationItem
 import com.example.recipe_app_compose.core.navigation.RecipeApp
 import com.example.recipe_app_compose.features.categories.presentation.view.CategoryRecipeScreen
+import com.example.recipe_app_compose.features.categories.presentation.view.IngredientScreen
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
+import com.example.recipe_app_compose.features.location.presentation.view.YelpScreen
 import com.example.recipe_app_compose.ui.theme.Recipe_App_ComposeTheme
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -76,6 +78,7 @@ class MainActivity : ComponentActivity() {
             val sheetState = rememberModalBottomSheetState()
             var showBottomSheet by remember { mutableStateOf(false) }
             var showFullDialogBox by remember { mutableStateOf(false) }
+            var showYelpDialogBox by remember { mutableStateOf(false) }
             var showSearchDialog by remember { mutableStateOf(false) }
             var showCategoryMealDialogBox by remember { mutableStateOf(false) }
             val navController = rememberNavController()
@@ -94,23 +97,19 @@ class MainActivity : ComponentActivity() {
                         title = "Home",
                         selectedIcon = Icons.Filled.Home,
                         unselectedIcon = Icons.Outlined.Home,
-                    ),
-                    NavigationItem(
+                    ), NavigationItem(
                         title = "Favorites",
                         selectedIcon = Icons.Filled.Favorite,
                         unselectedIcon = Icons.Outlined.Favorite,
-                    ),
-                    NavigationItem(
+                    ), NavigationItem(
                         title = "Settings",
                         selectedIcon = Icons.Filled.Settings,
                         unselectedIcon = Icons.Outlined.Settings,
-                    ),
-                    NavigationItem(
+                    ), NavigationItem(
                         title = "About Me",
                         selectedIcon = Icons.Filled.AccountCircle,
                         unselectedIcon = Icons.Outlined.AccountCircle
-                    ),
-                    NavigationItem(
+                    ), NavigationItem(
                         title = "Address",
                         selectedIcon = Icons.Filled.Place,
                         unselectedIcon = Icons.Outlined.Place,
@@ -122,10 +121,9 @@ class MainActivity : ComponentActivity() {
                         ModalDrawerSheet {
                             Spacer(modifier = Modifier.height(16.dp))
                             items.forEachIndexed { index, item ->
-                                NavigationDrawerItem(
-                                    label = {
-                                        Text(text = item.title)
-                                    },
+                                NavigationDrawerItem(label = {
+                                    Text(text = item.title)
+                                },
                                     selected = index == selectedItemIndex,
                                     onClick = {
                                         val closeDrawer: Job = scope.launch {
@@ -168,151 +166,136 @@ class MainActivity : ComponentActivity() {
                                             contentDescription = item.title
                                         )
                                     },
-                                    modifier = Modifier
-                                        .padding(NavigationDrawerItemDefaults.ItemPadding)
+                                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                                 )
                             }
                         }
-                    },
-                    drawerState = drawerState
+                    }, drawerState = drawerState
                 ) {
-                    Scaffold(
-                        modifier = Modifier.fillMaxSize(),
-                        topBar = {
-                            CenterAlignedTopAppBar(
-                                title = {
-                                    Text("Favorite Cuisines")
-                                },
-                                navigationIcon = {
-                                    IconButton(onClick = {
-                                        scope.launch {
-                                            drawerState.open()
-                                        }
+                    Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
+                        CenterAlignedTopAppBar(title = {
+                            Text("Favorite Cuisines")
+                        }, navigationIcon = {
+                            IconButton(onClick = {
+                                scope.launch {
+                                    drawerState.open()
+                                }
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Menu,
+                                    contentDescription = "Menu"
+                                )
+                            }
+                        }, actions = {
+                            IconButton(onClick = {
+                                showBottomSheet = true
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.KeyboardArrowUp,
+                                    contentDescription = "Up"
+                                )
+                            }
+                            IconButton(onClick = {
+                                showSearchDialog = true
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Search,
+                                    contentDescription = "Search"
+                                )
+                                if (showSearchDialog) {
+                                    ReusableFullScreenDialog({
+                                        IngredientScreen(modifier = Modifier.fillMaxSize())
                                     }) {
-                                        Icon(
-                                            imageVector = Icons.Default.Menu,
-                                            contentDescription = "Menu"
-                                        )
-                                    }
-                                },
-                                actions = {
-                                    IconButton(onClick = {
-                                        showBottomSheet = true
-                                    }) {
-                                        Icon(
-                                            imageVector = Icons.Default.KeyboardArrowUp,
-                                            contentDescription = "Up"
-                                        )
-                                    }
-                                    IconButton(onClick = {
-                                        showSearchDialog = true
-                                    }) {
-                                        Icon(
-                                            imageVector = Icons.Default.Search,
-                                            contentDescription = "Search"
-                                        )
-                                        if (showSearchDialog) {
-                                            IngredientFullScreenDialog { showSearchDialog = false }
-                                        }
-                                    }
-                                    IconButton(onClick = {
-                                        showFullDialogBox = true
-                                    }) {
-                                        Icon(
-                                            imageVector = Icons.Default.PlayArrow,
-                                            contentDescription = "Play"
-                                        )
-                                    }
-                                    if (showFullDialogBox) {
-                                        FullScreenDialog { showFullDialogBox = false }
-                                    }
-                                })
-                        },
-                        bottomBar = {
-                            MyBottomAppBar(
-                                modifier = Modifier.fillMaxWidth(),
-                                content = {
-                                    IconButton(
-                                        onClick = {
-                                            // share an email about the application or other things
-                                            val intent = Intent(Intent.ACTION_SEND).apply {
-                                                type = "text/plain"
-                                                putExtra(
-                                                    Intent.EXTRA_EMAIL, arrayOf(
-                                                        "stefanbayne@gmail.com"
-                                                    )
-                                                )
-                                                putExtra(
-                                                    Intent.EXTRA_SUBJECT,
-                                                    "Sharing application"
-                                                )
-                                                putExtra(
-                                                    Intent.EXTRA_TEXT,
-                                                    "Please checkout my Rick and Morty application that I have created!"
-                                                )
-                                            }
-                                            // another approach to error handling with resolve activity
-                                            if (intent.resolveActivity(packageManager) != null) {
-                                                startActivity(intent)
-                                            }
-                                        }
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Share,
-                                            contentDescription = "Share"
-                                        )
-                                    }
-                                    IconButton(
-                                        onClick = {
-                                            navController.navigate(CategoryScreen.FavoriteScreen.route) {
-                                                launchSingleTop = true
-                                            }
-                                        }
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Favorite,
-                                            contentDescription = "Favorites"
-                                        )
-                                    }
-                                    IconButton(
-                                        onClick = {
-                                            navController.navigate(CategoryScreen.AccountScreen.route) {
-                                                launchSingleTop = true
-                                            }
-                                        }
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.AccountCircle,
-                                            contentDescription = "Account"
-                                        )
-                                    }
-                                    IconButton(
-                                        onClick = {
-                                            navController.navigate(CategoryScreen.SettingsScreen.route) {
-                                                launchSingleTop = true
-                                            }
-                                        }
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Settings,
-                                            contentDescription = "Settings"
-                                        )
-                                    }
-                                    IconButton(
-                                        onClick = {
-                                            navController.navigate(CategoryScreen.YelpScreen.route) {
-                                                launchSingleTop = true
-                                            }
-                                        }
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Place,
-                                            contentDescription = "Place"
-                                        )
+                                        showSearchDialog = false
                                     }
                                 }
-                            )
-                        }) { innerPadding ->
+                            }
+                            IconButton(onClick = {
+                                showFullDialogBox = true
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.PlayArrow,
+                                    contentDescription = "Play"
+                                )
+                            }
+                            if (showFullDialogBox) {
+                               FullScreenDialog { showFullDialogBox = false }
+                            }
+                        })
+                    }, bottomBar = {
+                        MyBottomAppBar(modifier = Modifier.fillMaxWidth(), content = {
+                            IconButton(onClick = {
+                                // share an email about the application or other things
+                                val intent = Intent(Intent.ACTION_SEND).apply {
+                                    type = "text/plain"
+                                    putExtra(
+                                        Intent.EXTRA_EMAIL, arrayOf(
+                                            "stefanbayne@gmail.com"
+                                        )
+                                    )
+                                    putExtra(
+                                        Intent.EXTRA_SUBJECT, "Sharing application"
+                                    )
+                                    putExtra(
+                                        Intent.EXTRA_TEXT,
+                                        "Please checkout my Rick and Morty application that I have created!"
+                                    )
+                                }
+                                // another approach to error handling with resolve activity
+                                if (intent.resolveActivity(packageManager) != null) {
+                                    startActivity(intent)
+                                }
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Share,
+                                    contentDescription = "Share"
+                                )
+                            }
+                            IconButton(onClick = {
+                                navController.navigate(CategoryScreen.FavoriteScreen.route) {
+                                    launchSingleTop = true
+                                }
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Favorite,
+                                    contentDescription = "Favorites"
+                                )
+                            }
+                            IconButton(onClick = {
+                                navController.navigate(CategoryScreen.AccountScreen.route) {
+                                    launchSingleTop = true
+                                }
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.AccountCircle,
+                                    contentDescription = "Account"
+                                )
+                            }
+                            IconButton(onClick = {
+                                navController.navigate(CategoryScreen.SettingsScreen.route) {
+                                    launchSingleTop = true
+                                }
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Settings,
+                                    contentDescription = "Settings"
+                                )
+                            }
+                            IconButton(onClick = {
+                                showYelpDialogBox = true
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Place,
+                                    contentDescription = "Place"
+                                )
+                                if (showYelpDialogBox) {
+                                    ReusableFullScreenDialog({ YelpScreen(modifier = Modifier) }) {
+                                        showYelpDialogBox = false
+                                    }
+                                }
+                            }
+                        })
+                    }) { innerPadding ->
                         if (showBottomSheet) {
                             ModalBottomSheet(
                                 onDismissRequest = {
@@ -323,8 +306,7 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier.padding(8.dp)
                             ) {
                                 Scaffold(topBar = {
-                                    CenterAlignedTopAppBar(
-                                        title = { Text("Explore Our Best Dishes!") },
+                                    CenterAlignedTopAppBar(title = { Text("Explore Our Best Dishes!") },
                                         actions = {
                                             IconButton(onClick = {
                                                 showCategoryMealDialogBox = true
@@ -339,8 +321,7 @@ class MainActivity : ComponentActivity() {
                                                 val viewModel: RecipeViewModel = viewModel()
                                                 viewModel.fetchCategoryMeals()
                                             }
-                                        }
-                                    )
+                                        })
                                 }) { innerPadding ->
                                     Spacer(modifier = Modifier.padding(top = 20.dp))
                                     Column(modifier = Modifier.padding(innerPadding)) {
@@ -350,8 +331,7 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         RecipeApp(
-                            navController = navController,
-                            modifier = Modifier.padding(innerPadding)
+                            navController = navController, modifier = Modifier.padding(innerPadding)
                         )
                     }
                 }
