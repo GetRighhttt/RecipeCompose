@@ -50,11 +50,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.recipe_app_compose.core.navigation.CategoryScreen
+import com.example.recipe_app_compose.core.navigation.NavigationItem
 import com.example.recipe_app_compose.core.navigation.RecipeApp
 import com.example.recipe_app_compose.presentation.AlertDialogExample
 import com.example.recipe_app_compose.presentation.FullScreenDialog
@@ -65,13 +65,6 @@ import com.example.recipe_app_compose.ui.theme.Recipe_App_ComposeTheme
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-data class NavigationItem(
-    val title: String,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector,
-    val badgeCount: Int? = null
-)
-
 class MainActivity : ComponentActivity() {
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -80,51 +73,50 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
 
-            val items = listOf(
-                NavigationItem(
-                    title = "Home",
-                    selectedIcon = Icons.Filled.Home,
-                    unselectedIcon = Icons.Outlined.Home,
-                ),
-                NavigationItem(
-                    title = "Favorites",
-                    selectedIcon = Icons.Filled.Favorite,
-                    unselectedIcon = Icons.Outlined.Favorite,
-                ),
-                NavigationItem(
-                    title = "Settings",
-                    selectedIcon = Icons.Filled.Settings,
-                    unselectedIcon = Icons.Outlined.Settings,
-                ),
-                NavigationItem(
-                    title = "About Me",
-                    selectedIcon = Icons.Filled.AccountCircle,
-                    unselectedIcon = Icons.Outlined.AccountCircle,
-                    badgeCount = 45
-                ),
-                NavigationItem(
-                    title = "Info",
-                    selectedIcon = Icons.Filled.Info,
-                    unselectedIcon = Icons.Outlined.Info,
-                )
-            )
-
             val sheetState = rememberModalBottomSheetState()
             var showBottomSheet by remember { mutableStateOf(false) }
             var showFullDialogBox by remember { mutableStateOf(false) }
             var showSearchDialog by remember { mutableStateOf(false) }
             var showAlertDialogBox by remember { mutableStateOf(false) }
             var showCategoryMealDialogBox by remember { mutableStateOf(false) }
-
             val navController = rememberNavController()
 
             Recipe_App_ComposeTheme {
 
+                /*
+                Navigation Drawer Code
+                 */
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                 val scope = rememberCoroutineScope()
-                var selectedItemIndex by rememberSaveable {
-                    mutableIntStateOf(0)
-                }
+                var selectedItemIndex by rememberSaveable { mutableIntStateOf(0) }
+
+                val items = listOf(
+                    NavigationItem(
+                        title = "Home",
+                        selectedIcon = Icons.Filled.Home,
+                        unselectedIcon = Icons.Outlined.Home,
+                    ),
+                    NavigationItem(
+                        title = "Favorites",
+                        selectedIcon = Icons.Filled.Favorite,
+                        unselectedIcon = Icons.Outlined.Favorite,
+                    ),
+                    NavigationItem(
+                        title = "Settings",
+                        selectedIcon = Icons.Filled.Settings,
+                        unselectedIcon = Icons.Outlined.Settings,
+                    ),
+                    NavigationItem(
+                        title = "About Me",
+                        selectedIcon = Icons.Filled.AccountCircle,
+                        unselectedIcon = Icons.Outlined.AccountCircle
+                    ),
+                    NavigationItem(
+                        title = "Info",
+                        selectedIcon = Icons.Filled.Info,
+                        unselectedIcon = Icons.Outlined.Info,
+                    )
+                )
 
                 ModalNavigationDrawer(
                     drawerContent = {
@@ -141,7 +133,7 @@ class MainActivity : ComponentActivity() {
                                             drawerState.close()
                                         }
                                         selectedItemIndex = index
-                                        // Home, Favorites, Settings, About Me, Info
+
                                         when (index) {
                                             0 -> {
                                                 navController.navigate(CategoryScreen.RecipeScreen.route)
@@ -176,11 +168,6 @@ class MainActivity : ComponentActivity() {
                                             } else item.unselectedIcon,
                                             contentDescription = item.title
                                         )
-                                    },
-                                    badge = {
-                                        item.badgeCount?.let {
-                                            Text(text = item.badgeCount.toString())
-                                        }
                                     },
                                     modifier = Modifier
                                         .padding(NavigationDrawerItemDefaults.ItemPadding)
