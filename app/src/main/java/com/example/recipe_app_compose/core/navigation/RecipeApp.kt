@@ -9,8 +9,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.recipe_app_compose.domain.model.category.Category
+import com.example.recipe_app_compose.presentation.view.AccountScreen
 import com.example.recipe_app_compose.presentation.view.DetailScreen
 import com.example.recipe_app_compose.presentation.view.FavoritesScreen
+import com.example.recipe_app_compose.presentation.view.InfoScreen
 import com.example.recipe_app_compose.presentation.view.IngredientScreen
 import com.example.recipe_app_compose.presentation.view.RandomMealPage
 import com.example.recipe_app_compose.presentation.view.RecipeScreen
@@ -78,6 +80,16 @@ fun RecipeApp(navController: NavHostController, modifier: Modifier) {
             route = CategoryScreen.FavoriteScreen.route
         ) {
             FavoritesScreen(modifier = modifier)
+        }
+        composable(
+            route = CategoryScreen.AccountScreen.route
+        ) {
+            AccountScreen(modifier = modifier)
+        }
+        composable(
+            route = CategoryScreen.InfoScreen.route
+        ) {
+            InfoScreen(modifier = modifier)
         }
     }
 }
