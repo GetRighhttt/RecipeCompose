@@ -19,7 +19,7 @@
         android:theme="@style/Theme.Recipe_App_Compose"
         tools:targetApi="31">
         <activity
-            android:name=".presentation.view.MainActivity"
+            android:name=".features.categories.presentation.view.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Recipe_App_Compose">
             <intent-filter>

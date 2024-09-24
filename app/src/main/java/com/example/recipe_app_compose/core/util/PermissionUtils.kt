@@ -7,8 +7,8 @@ import android.location.Address
 import android.location.Geocoder
 import android.os.Looper
 import androidx.core.content.ContextCompat
-import com.example.recipe_app_compose.domain.model.location.LocationData
-import com.example.recipe_app_compose.presentation.viewmodel.LocationViewModel
+import com.example.recipe_app_compose.features.location.presentation.LocationViewModel
+import com.example.recipe_app_compose.features.location.domain.model.LocationData
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -43,7 +43,11 @@ class PermissionUtils(private val context: Context) {
             override fun onLocationResult(locationResult: LocationResult) {
                 super.onLocationResult(locationResult)
                 locationResult.lastLocation?.let { location ->
-                    val locationData = LocationData(location.latitude, location.longitude)
+                    val locationData =
+                        LocationData(
+                            location.latitude,
+                            location.longitude
+                        )
                     viewModel.updateLocation(locationData)
                 }
             }
