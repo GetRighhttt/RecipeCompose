@@ -38,9 +38,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.example.recipe_app_compose.features.categories.presentation.view.IngredientScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.RandomMealPage
 
 @Composable
@@ -63,7 +63,7 @@ fun FullScreenDialog(onDismissRequest: () -> Unit) {
 }
 
 @Composable
-fun IngredientFullScreenDialog(onDismissRequest: () -> Unit) {
+fun ReusableFullScreenDialog(content: @Composable () -> Unit, onDismissRequest: () -> Unit) {
     Dialog(
         onDismissRequest = { onDismissRequest() },
         properties = DialogProperties(
@@ -73,11 +73,10 @@ fun IngredientFullScreenDialog(onDismissRequest: () -> Unit) {
     ) {
         Surface(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(600.dp)
+                .height(770.dp)
                 .background(MaterialTheme.colorScheme.surfaceVariant),
         ) {
-            IngredientScreen(modifier = Modifier.fillMaxSize())
+            content()
         }
     }
 }
@@ -212,26 +211,18 @@ fun MyBottomAppBar(
 }
 
 @Composable
-fun VerticalScrollingWithFixedHeightTextDemo(randomText: String) {
+fun VerticalScrollingWithFixedHeightTextDemo(
+    randomText: String,
+    height: Dp? = null,
+    size: TextUnit? = null
+) {
     Text(
         text = randomText,
         style = TextStyle(fontWeight = FontWeight.Normal),
+        fontSize = size ?: 14.sp,
         modifier = Modifier
-            .height(100.dp)
             .verticalScroll(rememberScrollState())
-            .padding(top = 5.dp)
-    )
-}
-
-@Composable
-fun VerticalScrollingWithFixedHeightDetail(randomText: String, size: TextUnit) {
-    Text(
-        text = randomText,
-        style = TextStyle(fontWeight = FontWeight.Normal),
-        fontSize = size,
-        modifier = Modifier
-            .height(300.dp)
-            .verticalScroll(rememberScrollState())
+            .height(height ?: 300.dp)
             .padding(top = 5.dp)
     )
 }

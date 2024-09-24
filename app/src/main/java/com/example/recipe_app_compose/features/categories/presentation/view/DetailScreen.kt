@@ -15,7 +15,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
-import com.example.recipe_app_compose.core.components.VerticalScrollingWithFixedHeightDetail
+import com.example.recipe_app_compose.core.components.VerticalScrollingWithFixedHeightTextDemo
 import com.example.recipe_app_compose.features.categories.domain.model.category.Category
 
 @Composable
@@ -37,6 +37,10 @@ fun DetailScreen(category: Category) {
                 .aspectRatio(1F),
             contentDescription = "${category.strCategory} Thumbnail."
         )
-        VerticalScrollingWithFixedHeightDetail(category.strCategoryDescription, 18.sp)
+        VerticalScrollingWithFixedHeightTextDemo(
+            category.strCategoryDescription,
+            height = 300.dp,
+            size = 18.sp
+        )
     }
 }

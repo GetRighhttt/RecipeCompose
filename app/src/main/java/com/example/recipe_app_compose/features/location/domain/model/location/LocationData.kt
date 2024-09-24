@@ -1,4 +1,4 @@
-package com.example.recipe_app_compose.features.location.domain.model
+package com.example.recipe_app_compose.features.location.domain.model.location
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

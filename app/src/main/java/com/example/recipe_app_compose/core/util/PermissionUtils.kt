@@ -7,7 +7,7 @@ import android.location.Address
 import android.location.Geocoder
 import android.os.Looper
 import androidx.core.content.ContextCompat
-import com.example.recipe_app_compose.features.location.domain.model.LocationData
+import com.example.recipe_app_compose.features.location.domain.model.location.LocationData
 import com.example.recipe_app_compose.features.location.presentation.viewmodel.LocationViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback

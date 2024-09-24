@@ -98,7 +98,7 @@ class RecipeViewModel : ViewModel() {
         when (val response = repository.getCategories()) {
             is Resource.Error -> _categoriesState.value = _categoriesState.value.copy(
                 loading = false,
-                error = "Error fetching categories.}"
+                error = "Error fetching categories."
             )
 
             is Resource.Loading -> _categoriesState.value =
@@ -117,7 +117,7 @@ class RecipeViewModel : ViewModel() {
         when (val response = repository.getCategoriesMeal()) {
             is Resource.Error -> _categoryMealState.value = _categoryMealState.value.copy(
                 loading = false,
-                error = "Error fetching category meals.}"
+                error = "Error fetching category meals."
             )
 
             is Resource.Loading -> _categoryMealState.value =
@@ -135,7 +135,7 @@ class RecipeViewModel : ViewModel() {
         when (val response = repository.getRandomMeal()) {
             is Resource.Error -> _randomMealState.value = _randomMealState.value.copy(
                 loading = false,
-                error = "Error fetching random meal.}"
+                error = "Error fetching random meal."
             )
 
             is Resource.Loading -> _randomMealState.value =
@@ -153,7 +153,7 @@ class RecipeViewModel : ViewModel() {
         when (val response = repository.getIngredient(query)) {
             is Resource.Error -> _ingredientMealState.value = _ingredientMealState.value.copy(
                 loading = false,
-                error = "Error fetching random ingredients.}"
+                error = "Error fetching random ingredients."
             )
 
             is Resource.Loading -> _ingredientMealState.value =

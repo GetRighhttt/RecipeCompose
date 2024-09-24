@@ -8,8 +8,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.recipe_app_compose.core.components.VerticalScrollingWithFixedHeightDetail
+import com.example.recipe_app_compose.core.components.VerticalScrollingWithFixedHeightTextDemo
 
 @Composable
 fun FavoritesScreen(modifier: Modifier) {
@@ -21,7 +22,11 @@ fun FavoritesScreen(modifier: Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            VerticalScrollingWithFixedHeightDetail("Favorites Screen", 40.sp)
+            VerticalScrollingWithFixedHeightTextDemo(
+                "Favorites Screen",
+                height = 300.dp,
+                size = 40.sp
+            )
         }
     }
 }
