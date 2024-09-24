@@ -299,7 +299,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                     IconButton(
                                         onClick = {
-                                            navController.navigate(CategoryScreen.AddressScreen.route) {
+                                            navController.navigate(CategoryScreen.YelpScreen.route) {
                                                 launchSingleTop = true
                                             }
                                         }

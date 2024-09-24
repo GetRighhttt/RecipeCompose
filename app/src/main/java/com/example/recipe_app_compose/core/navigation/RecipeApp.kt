@@ -18,6 +18,7 @@ import com.example.recipe_app_compose.features.categories.presentation.view.Reci
 import com.example.recipe_app_compose.features.categories.presentation.view.SettingsScreen
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 import com.example.recipe_app_compose.features.location.presentation.view.AddressScreen
+import com.example.recipe_app_compose.features.location.presentation.view.YelpScreen
 
 /*
 File for Navigation.
@@ -89,7 +90,12 @@ fun RecipeApp(navController: NavHostController, modifier: Modifier) {
         composable(
             route = CategoryScreen.AddressScreen.route
         ) {
-            AddressScreen(modifier = modifier)
+            AddressScreen()
+        }
+        composable(
+            route = CategoryScreen.YelpScreen.route
+        ) {
+            YelpScreen(modifier = modifier)
         }
     }
 }

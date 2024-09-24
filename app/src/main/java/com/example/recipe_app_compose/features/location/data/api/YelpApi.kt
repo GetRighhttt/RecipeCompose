@@ -16,5 +16,4 @@ interface YelpApi {
             @Query("limit") limit: UInt,
             @Query("offset") offset: UInt
         ) : Response<YelpSearchResult>
-
 }

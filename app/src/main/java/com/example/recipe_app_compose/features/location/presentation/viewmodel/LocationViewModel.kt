@@ -1,7 +1,7 @@
 package com.example.recipe_app_compose.features.location.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.example.recipe_app_compose.features.location.domain.model.LocationData
+import com.example.recipe_app_compose.features.location.domain.model.location.LocationData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 

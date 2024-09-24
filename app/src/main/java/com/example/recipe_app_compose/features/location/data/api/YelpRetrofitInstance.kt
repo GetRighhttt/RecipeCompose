@@ -1,6 +1,6 @@
 package com.example.recipe_app_compose.features.location.data.api
 
-import com.example.recipe_app_compose.core.util.Constants.BASE_URL
+import com.example.recipe_app_compose.core.util.Constants.YELP_BASE_URL
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -25,7 +25,7 @@ object YelpRetrofitInstance {
 
     private val gson: GsonConverterFactory = GsonConverterFactory.create()
     private val retrofit: Retrofit = Retrofit.Builder()
-        .baseUrl(BASE_URL)
+        .baseUrl(YELP_BASE_URL)
         .addConverterFactory(gson)
         .client(provideHttpInterceptor())
         .build()
