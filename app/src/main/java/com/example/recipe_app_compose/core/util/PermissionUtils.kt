@@ -6,8 +6,8 @@ import androidx.core.content.ContextCompat
 
 class PermissionUtils(private val context: Context) {
 
-    fun hasPermission(context: Context): Boolean {
-        return ContextCompat.checkSelfPermission(
+    val hasLocationPermissions: (context: Context) -> Boolean = {
+        ContextCompat.checkSelfPermission(
             context,
             android.Manifest.permission.ACCESS_COARSE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED &&
@@ -15,5 +15,21 @@ class PermissionUtils(private val context: Context) {
                     context,
                     android.Manifest.permission.ACCESS_FINE_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    val hasNetworkPermissions: (context: Context) -> Boolean = {
+        ContextCompat.checkSelfPermission(
+            context,
+            android.Manifest.permission.ACCESS_NETWORK_STATE
+        ) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(
+                    context,
+                    android.Manifest.permission.ACCESS_WIFI_STATE
+                ) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(
+                    context,
+                    android.Manifest.permission.INTERNET
+                ) == PackageManager.PERMISSION_GRANTED
+
     }
 }
