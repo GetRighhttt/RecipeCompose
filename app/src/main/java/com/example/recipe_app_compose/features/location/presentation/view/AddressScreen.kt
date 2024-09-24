@@ -1,6 +1,7 @@
 package com.example.recipe_app_compose.features.location.presentation.view
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -17,11 +18,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import com.example.recipe_app_compose.core.util.PermissionUtils
-import com.example.recipe_app_compose.features.categories.presentation.view.MainActivity
 import com.example.recipe_app_compose.features.location.presentation.viewmodel.LocationViewModel
 
 @Composable
-fun AddressScreen(modifier: Modifier) {
+fun AddressScreen() {
     val locationViewModel = LocationViewModel()
     MyApp(viewModel = locationViewModel)
 }
@@ -35,7 +35,7 @@ fun MyApp(viewModel: LocationViewModel){
 
 
 @Composable
-fun LocationDisplay(
+private fun LocationDisplay(
     locationUtils: PermissionUtils,
     viewModel: LocationViewModel,
     context: Context
@@ -56,10 +56,10 @@ fun LocationDisplay(
                 locationUtils.requestLocationUpdates
             }else{
                 val rationaleRequired = ActivityCompat.shouldShowRequestPermissionRationale(
-                    context as MainActivity,
+                    context as Activity,
                     Manifest.permission.ACCESS_FINE_LOCATION
                 ) || ActivityCompat.shouldShowRequestPermissionRationale(
-                    context as MainActivity,
+                    context,
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 )
 

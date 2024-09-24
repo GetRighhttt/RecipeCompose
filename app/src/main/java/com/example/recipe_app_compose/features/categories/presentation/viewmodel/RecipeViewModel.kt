@@ -53,7 +53,7 @@ class RecipeViewModel : ViewModel() {
     private val _ingredientsList = MutableStateFlow(_ingredientMealState.value.list)
 
     @OptIn(FlowPreview::class)
-    val ingredientsList = searchQuery
+    internal val ingredientsList = searchQuery
         .debounce(1000L)
         .onEach { _isSearching.update { true } }
         .combine(_ingredientsList) { text, ingredients ->
@@ -76,7 +76,7 @@ class RecipeViewModel : ViewModel() {
         )
 
     // method to set new search value
-    val onSearchTextChange: (String) -> Unit = { text ->
+    internal val onSearchTextChange: (String) -> Unit = { text ->
         _searchQuery.value = text
     }
 
@@ -167,7 +167,7 @@ class RecipeViewModel : ViewModel() {
         }
     }
 
-    companion object {
+    internal companion object {
         // initial search value
         const val SEARCH_DEFAULT = ""
     }

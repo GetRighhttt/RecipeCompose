@@ -18,7 +18,7 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
 import java.util.Locale
 
-class PermissionUtils(private val context: Context) {
+internal class PermissionUtils(private val context: Context) {
 
     /*
     Location Data
@@ -28,7 +28,7 @@ class PermissionUtils(private val context: Context) {
     3. Get location updates
     4. Convert to lat long to address
     */
-    val hasLocationPermissions: (context: Context) -> Boolean = {
+    internal val hasLocationPermissions: (context: Context) -> Boolean = {
         ContextCompat.checkSelfPermission(
             context,
             android.Manifest.permission.ACCESS_COARSE_LOCATION
@@ -43,7 +43,7 @@ class PermissionUtils(private val context: Context) {
         LocationServices.getFusedLocationProviderClient(context)
 
     @SuppressLint("MissingPermission")
-    val requestLocationUpdates: (LocationViewModel) -> Unit = { viewModel ->
+    internal val requestLocationUpdates: (LocationViewModel) -> Unit = { viewModel ->
         val locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 super.onLocationResult(locationResult)
@@ -69,7 +69,7 @@ class PermissionUtils(private val context: Context) {
 
     @SuppressLint("Deprecated")
     // geocoder to convert lat and long to address
-    val reverseGeocodeLocation: (LocationData) -> String = { locationData ->
+    internal val reverseGeocodeLocation: (LocationData) -> String = { locationData ->
         val geocoder = Geocoder(context, Locale.getDefault())
         val coordinate = LatLng(locationData.latitude, locationData.longitude)
         val addresses: MutableList<Address>? =
@@ -85,7 +85,7 @@ class PermissionUtils(private val context: Context) {
     /*
     NetWork Data
      */
-    val hasNetworkPermissions: (context: Context) -> Boolean = {
+    internal val hasNetworkPermissions: (context: Context) -> Boolean = {
         ContextCompat.checkSelfPermission(
             context,
             android.Manifest.permission.ACCESS_NETWORK_STATE

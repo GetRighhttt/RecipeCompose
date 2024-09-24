@@ -9,7 +9,7 @@ class LocationViewModel() : ViewModel() {
     private val _location = MutableStateFlow<LocationData?>(null)
     val location: StateFlow<LocationData?> = _location
 
-    val updateLocation: (LocationData) -> Unit = { newLocation ->
+    internal val updateLocation: (LocationData) -> Unit = { newLocation ->
         _location.value = newLocation
     }
 }
