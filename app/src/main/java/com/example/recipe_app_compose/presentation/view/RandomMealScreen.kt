@@ -253,7 +253,7 @@ fun RandomMealItem(category: RandomMeal) {
                     .height(80.dp)
             ) {
                 items(listOfIngredients) { msg ->
-                    MessageCard(msg)
+                    MessageCard(msg.uppercase())
                 }
             }
         }
