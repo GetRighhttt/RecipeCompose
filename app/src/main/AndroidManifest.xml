@@ -27,7 +27,6 @@
         </activity>
     </application>
 
-    // Query Permissions needed for intents to work properly.
     <queries>
         <intent>
             <action android:name="android.intent.action.SEND"/>
