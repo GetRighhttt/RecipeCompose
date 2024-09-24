@@ -56,7 +56,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.recipe_app_compose.core.navigation.CategoryScreen
 import com.example.recipe_app_compose.core.navigation.NavigationItem
 import com.example.recipe_app_compose.core.navigation.RecipeApp
-import com.example.recipe_app_compose.presentation.AlertDialogExample
 import com.example.recipe_app_compose.presentation.FullScreenDialog
 import com.example.recipe_app_compose.presentation.IngredientFullScreenDialog
 import com.example.recipe_app_compose.presentation.MyBottomAppBar
@@ -77,7 +76,6 @@ class MainActivity : ComponentActivity() {
             var showBottomSheet by remember { mutableStateOf(false) }
             var showFullDialogBox by remember { mutableStateOf(false) }
             var showSearchDialog by remember { mutableStateOf(false) }
-            var showAlertDialogBox by remember { mutableStateOf(false) }
             var showCategoryMealDialogBox by remember { mutableStateOf(false) }
             val navController = rememberNavController()
 
@@ -193,14 +191,6 @@ class MainActivity : ComponentActivity() {
                                         Icon(
                                             imageVector = Icons.Default.Menu,
                                             contentDescription = "Menu"
-                                        )
-                                    }
-                                    if (showAlertDialogBox) {
-                                        AlertDialogExample(
-                                            onDismissRequest = { showAlertDialogBox = false },
-                                            onConfirmation = { showAlertDialogBox = false },
-                                            dialogTitle = "Menu",
-                                            dialogText = "This is the Navigation Menu!"
                                         )
                                     }
                                 },
