@@ -58,8 +58,11 @@ dependencies {
     // ViewModel utilities for Compose
     implementation(libs.androidx.lifecycle.viewmodel.compose.v286)
 
-    // Jetpack Compose integration
+    // Jetpack Compose navigation
     implementation(libs.androidx.navigation.compose)
+
+    // Google play
+    implementation(libs.play.services.location)
 
     // network
     implementation(libs.retrofit)
