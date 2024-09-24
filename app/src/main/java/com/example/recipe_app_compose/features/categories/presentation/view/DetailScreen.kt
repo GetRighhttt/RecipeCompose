@@ -16,9 +16,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.core.components.VerticalScrollingWithFixedHeightDetail
+import com.example.recipe_app_compose.features.categories.domain.model.category.Category
 
 @Composable
-fun DetailScreen(category: com.example.recipe_app_compose.features.categories.domain.model.category.Category) {
+fun DetailScreen(category: Category) {
     Column(
         modifier = Modifier
             .fillMaxSize()

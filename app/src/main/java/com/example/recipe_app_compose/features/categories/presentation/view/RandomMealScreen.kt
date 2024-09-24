@@ -54,6 +54,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.MessageCard
 import com.example.recipe_app_compose.core.components.VerticalScrollingWithFixedHeightTextDemo
+import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 
 @Composable
@@ -156,7 +157,7 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun RandomCategoryScreen(categories: List<com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal>) {
+fun RandomCategoryScreen(categories: List<RandomMeal>) {
     LazyVerticalGrid(GridCells.Fixed(1), modifier = Modifier.fillMaxSize()) {
         items(categories) { category ->
             RandomMealItem(category = category)
@@ -165,7 +166,7 @@ fun RandomCategoryScreen(categories: List<com.example.recipe_app_compose.feature
 }
 
 @Composable
-fun RandomMealItem(category: com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal) {
+fun RandomMealItem(category: RandomMeal) {
 
     // define list for Lazy Column
     val listOfIngredients = listOf(

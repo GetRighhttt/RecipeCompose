@@ -2,14 +2,17 @@ package com.example.recipe_app_compose.features.categories.data.repoimpl
 
 import com.example.recipe_app_compose.core.util.Resource
 import com.example.recipe_app_compose.features.categories.data.api.RetrofitInstance.apiService
+import com.example.recipe_app_compose.features.categories.domain.model.category.CategoryResponse
+import com.example.recipe_app_compose.features.categories.domain.model.categorymeal.CategoryMealResponse
+import com.example.recipe_app_compose.features.categories.domain.model.ingredient.IngredientResponse
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMealResponse
+import com.example.recipe_app_compose.features.categories.domain.repository.RecipeRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class RecipeRepositoryImpl :
-    com.example.recipe_app_compose.features.categories.domain.repository.RecipeRepository {
+class RecipeRepositoryImpl : RecipeRepository {
 
-    override suspend fun getCategories(): Resource<com.example.recipe_app_compose.features.categories.domain.model.category.CategoryResponse> {
+    override suspend fun getCategories(): Resource<CategoryResponse> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = apiService.getCategories()
@@ -25,7 +28,7 @@ class RecipeRepositoryImpl :
         }
     }
 
-    override suspend fun getCategoriesMeal(): Resource<com.example.recipe_app_compose.features.categories.domain.model.categorymeal.CategoryMealResponse> {
+    override suspend fun getCategoriesMeal(): Resource<CategoryMealResponse> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = apiService.getCategoriesMeal()
@@ -57,7 +60,7 @@ class RecipeRepositoryImpl :
         }
     }
 
-    override suspend fun getIngredient(ingredient: String): Resource<com.example.recipe_app_compose.features.categories.domain.model.ingredient.IngredientResponse> {
+    override suspend fun getIngredient(ingredient: String): Resource<IngredientResponse> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = apiService.getIngredient(ingredient)

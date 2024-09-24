@@ -26,13 +26,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.core.components.AlertDialogExample
+import com.example.recipe_app_compose.features.categories.domain.model.category.Category
+import com.example.recipe_app_compose.features.categories.domain.states.RecipeState
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 
 @Composable
 fun RecipeScreen(
     modifier: Modifier = Modifier,
-    viewState: com.example.recipe_app_compose.features.categories.domain.states.RecipeState,
-    navigateToDetail: (com.example.recipe_app_compose.features.categories.domain.model.category.Category) -> Unit
+    viewState: RecipeState,
+    navigateToDetail: (Category) -> Unit
 ) {
     // declare view model and state variable
     val viewModel: RecipeViewModel = viewModel()
@@ -68,7 +70,7 @@ fun RecipeScreen(
 }
 
 @Composable
-fun CategoryScreen(categories: List<com.example.recipe_app_compose.features.categories.domain.model.category.Category>, navigateToDetail: (com.example.recipe_app_compose.features.categories.domain.model.category.Category) -> Unit) {
+fun CategoryScreen(categories: List<Category>, navigateToDetail: (Category) -> Unit) {
     LazyVerticalGrid(GridCells.Fixed(2), modifier = Modifier.fillMaxSize()) {
         items(categories) { category ->
             CategoryItem(category = category) {
@@ -79,7 +81,7 @@ fun CategoryScreen(categories: List<com.example.recipe_app_compose.features.cate
 }
 
 @Composable
-fun CategoryItem(category: com.example.recipe_app_compose.features.categories.domain.model.category.Category, navigateToDetail: (com.example.recipe_app_compose.features.categories.domain.model.category.Category) -> Unit) {
+fun CategoryItem(category: Category, navigateToDetail: (Category) -> Unit) {
     Column(
         modifier = Modifier
             .padding(8.dp)

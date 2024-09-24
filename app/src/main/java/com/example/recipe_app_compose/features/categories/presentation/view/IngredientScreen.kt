@@ -41,6 +41,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.DialogWithImage
+import com.example.recipe_app_compose.features.categories.domain.model.ingredient.Ingredient
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -138,7 +139,7 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun IngredientMealScreen(categories: List<com.example.recipe_app_compose.features.categories.domain.model.ingredient.Ingredient>) {
+fun IngredientMealScreen(categories: List<Ingredient>) {
     LazyVerticalGrid(GridCells.Fixed(3), modifier = Modifier.fillMaxSize()) {
         items(categories) { category ->
             IngredientMealItem(category = category)
@@ -147,7 +148,7 @@ fun IngredientMealScreen(categories: List<com.example.recipe_app_compose.feature
 }
 
 @Composable
-fun IngredientMealItem(category: com.example.recipe_app_compose.features.categories.domain.model.ingredient.Ingredient) {
+fun IngredientMealItem(category: Ingredient) {
     var alertState by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier

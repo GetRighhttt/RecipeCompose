@@ -30,16 +30,16 @@ class RecipeViewModel : ViewModel() {
     private val repository = RecipeRepositoryImpl()
 
     // states for each api call from `RecipeStates.kt`
-    private val _categoriesState = MutableStateFlow(com.example.recipe_app_compose.features.categories.domain.states.RecipeState())
+    private val _categoriesState = MutableStateFlow(RecipeState())
     val categoriesState = _categoriesState.asStateFlow()
 
-    private val _categoryMealState = MutableStateFlow(com.example.recipe_app_compose.features.categories.domain.states.CategoryMealState())
+    private val _categoryMealState = MutableStateFlow(CategoryMealState())
     val categoryMealState = _categoryMealState.asStateFlow()
 
-    private val _randomMealState = MutableStateFlow(com.example.recipe_app_compose.features.categories.domain.states.RandomMealState())
+    private val _randomMealState = MutableStateFlow(RandomMealState())
     val randomMealState = _randomMealState.asStateFlow()
 
-    private val _ingredientMealState = MutableStateFlow(com.example.recipe_app_compose.features.categories.domain.states.IngredientMealState())
+    private val _ingredientMealState = MutableStateFlow(IngredientMealState())
     val ingredientMealState = _ingredientMealState.asStateFlow()
 
     // states for search view

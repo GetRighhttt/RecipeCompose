@@ -5,5 +5,5 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class CategoryMealResponse(
-    val meals: List<com.example.recipe_app_compose.features.categories.domain.model.categorymeal.CategoryMeal>
+    val meals: List<CategoryMeal>
 ) : Parcelable
