@@ -63,6 +63,7 @@ dependencies {
 
     // Google play
     implementation(libs.play.services.location)
+    implementation(libs.play.services.maps)
 
     // network
     implementation(libs.retrofit)
