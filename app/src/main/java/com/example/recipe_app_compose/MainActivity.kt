@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Home
@@ -285,8 +286,8 @@ class MainActivity : ComponentActivity() {
                                 showYelpDialogBox = true
                             }) {
                                 Icon(
-                                    imageVector = Icons.Default.Place,
-                                    contentDescription = "Place"
+                                    imageVector = Icons.Default.ShoppingCart,
+                                    contentDescription = "Shops"
                                 )
                                 if (showYelpDialogBox) {
                                     ReusableFullScreenDialog({ YelpScreen(modifier = Modifier) }) {

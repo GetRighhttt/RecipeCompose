@@ -109,7 +109,7 @@ fun YelpScreen(modifier: Modifier = Modifier) {
                                 }
                             ),
                             maxLines = 1,
-                            placeholder = { Text("Search Restaurants and Businesses In Tampa") },
+                            placeholder = { Text("Shop Restaurants and Businesses In Tampa") },
                             enabled = true,
                             shape = RoundedCornerShape(30.dp),
                             modifier = Modifier
@@ -195,7 +195,7 @@ fun YelpItem(category: YelpBusinesses) {
         )
         Text(
             text = "${category.location.address1},\n ${category.location.city}, ${category.location.state} \n" +
-                    " ${category.location.country}",
+                    " ${category.location.country} ${category.location.zipCode}",
             style = TextStyle(fontWeight = FontWeight.Normal),
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(3.dp)
