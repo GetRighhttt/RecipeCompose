@@ -38,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.recipe_app_compose.features.categories.presentation.view.RandomMealPage
@@ -218,8 +219,10 @@ fun VerticalScrollingWithFixedHeightTextDemo(
     Text(
         text = randomText,
         style = TextStyle(fontWeight = FontWeight.Normal),
+        fontSize = size ?: 14.sp,
         modifier = Modifier
             .verticalScroll(rememberScrollState())
+            .height(height ?: 300.dp)
             .padding(top = 5.dp)
     )
 }
