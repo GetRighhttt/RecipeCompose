@@ -180,7 +180,7 @@ class MainActivity : ComponentActivity() {
                         topBar = {
                             CenterAlignedTopAppBar(
                                 title = {
-                                    Text("Recipes")
+                                    Text("Favorite Cuisines")
                                 },
                                 navigationIcon = {
                                     IconButton(onClick = {
