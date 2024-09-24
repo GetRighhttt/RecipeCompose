@@ -1,4 +1,4 @@
-package com.example.recipe_app_compose.features.categories.presentation.view
+package com.example.recipe_app_compose
 
 import android.content.Intent
 import android.os.Bundle
@@ -59,6 +59,7 @@ import com.example.recipe_app_compose.core.components.MyBottomAppBar
 import com.example.recipe_app_compose.core.navigation.CategoryScreen
 import com.example.recipe_app_compose.core.navigation.NavigationItem
 import com.example.recipe_app_compose.core.navigation.RecipeApp
+import com.example.recipe_app_compose.features.categories.presentation.view.CategoryRecipeScreen
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 import com.example.recipe_app_compose.ui.theme.Recipe_App_ComposeTheme
 import kotlinx.coroutines.Job

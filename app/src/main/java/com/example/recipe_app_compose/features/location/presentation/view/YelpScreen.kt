@@ -77,11 +77,13 @@ fun YelpScreen(modifier: Modifier = Modifier) {
                     onDismissRequest = { alertDialogState = false },
                     onConfirmation = {
                         alertDialogState = false
+                        viewModel.getBusinesses(searchText)
                     },
                 )
 
                 else -> {
                     Column(modifier = Modifier.fillMaxSize()) {
+                        // set up searchbar with outline text field
                         OutlinedTextField(
                             value = searchText,
                             onValueChange = viewModel.onSearchTextChange,
@@ -166,6 +168,7 @@ fun YelpItem(category: YelpBusinesses) {
                     alertState = true
                 })
         )
+        // navigate to new activity for maps here
         if (alertState) {
             DialogWithImage(
                 text = category.name,
@@ -173,7 +176,7 @@ fun YelpItem(category: YelpBusinesses) {
                 imageDescription = "Image",
                 onDismissRequest = { alertState = false },
                 onConfirmation = { alertState = false },
-                modifier = Modifier
+                modifier = Modifier.align(Alignment.CenterHorizontally)
             )
         }
         Text(
