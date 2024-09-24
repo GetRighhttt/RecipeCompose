@@ -45,9 +45,11 @@ fun RecipeScreen(
             .fillMaxSize()
             .padding(top = 30.dp, bottom = 80.dp),
     ) { innerPadding ->
-        Box(modifier = modifier
-            .fillMaxSize()
-            .padding(innerPadding)) {
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
             when {
                 viewState.loading -> CircularProgressIndicator(modifier.align(Alignment.Center))
                 viewState.error != null -> AlertDialogExample(dialogTitle = "Error",

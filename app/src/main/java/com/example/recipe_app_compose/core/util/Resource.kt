@@ -1,4 +1,6 @@
-package com.example.recipe_app_compose.core.util/*
+package com.example.recipe_app_compose.core.util
+
+/*
 Generic wrapper class from google usually used to outline classes that define the state of
 a response.
  */

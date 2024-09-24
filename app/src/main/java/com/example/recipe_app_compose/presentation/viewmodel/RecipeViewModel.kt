@@ -51,6 +51,7 @@ class RecipeViewModel : ViewModel() {
 
     // ingredient list to be populated by way of Flow operators
     private val _ingredientsList = MutableStateFlow(_ingredientMealState.value.list)
+
     @OptIn(FlowPreview::class)
     val ingredientsList = searchQuery
         .debounce(1000L)
@@ -75,7 +76,7 @@ class RecipeViewModel : ViewModel() {
         )
 
     // method to set new search value
-    val onSearchTextChange : (String) -> Unit = { text ->
+    val onSearchTextChange: (String) -> Unit = { text ->
         _searchQuery.value = text
     }
 
@@ -94,22 +95,22 @@ class RecipeViewModel : ViewModel() {
     */
 
     internal fun fetchCategories() = viewModelScope.launch(Dispatchers.Main) {
-            when (val response = repository.getCategories()) {
-                is Resource.Error -> _categoriesState.value = _categoriesState.value.copy(
-                    loading = false,
-                    error = "Error fetching categories.}"
-                )
+        when (val response = repository.getCategories()) {
+            is Resource.Error -> _categoriesState.value = _categoriesState.value.copy(
+                loading = false,
+                error = "Error fetching categories.}"
+            )
 
-                is Resource.Loading -> _categoriesState.value =
-                    _categoriesState.value.copy(loading = true)
+            is Resource.Loading -> _categoriesState.value =
+                _categoriesState.value.copy(loading = true)
 
-                is Resource.Success -> _categoriesState.value = _categoriesState.value.copy(
-                    loading = false,
-                    list = response.data!!.categories,
-                    error = null
-                )
-            }
+            is Resource.Success -> _categoriesState.value = _categoriesState.value.copy(
+                loading = false,
+                list = response.data!!.categories,
+                error = null
+            )
         }
+    }
 
 
     internal fun fetchCategoryMeals() = viewModelScope.launch(Dispatchers.Main) {

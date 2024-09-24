@@ -29,14 +29,14 @@
 
     <queries>
         <intent>
-            <action android:name="android.intent.action.SEND"/>
+            <action android:name="android.intent.action.SEND" />
             <data android:mimeType="text/plain" />
 
         </intent>
 
         <intent>
-            <action android:name="android.intent.action.MAIN"/>
-            <data android:mimeType="text/plain"/>
+            <action android:name="android.intent.action.MAIN" />
+            <data android:mimeType="text/plain" />
         </intent>
     </queries>
 
