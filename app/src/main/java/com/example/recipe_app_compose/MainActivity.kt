@@ -1,5 +1,6 @@
 package com.example.recipe_app_compose
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -40,6 +41,7 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.getValue
@@ -70,6 +72,7 @@ import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
+    @SuppressLint("CoroutineCreationDuringComposition")
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -177,55 +180,69 @@ class MainActivity : ComponentActivity() {
                     }, drawerState = drawerState
                 ) {
                     Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
-                        CenterAlignedTopAppBar(title = {
-                            Text("Favorite Cuisines")
-                        }, navigationIcon = {
-                            IconButton(onClick = {
-                                scope.launch {
-                                    drawerState.open()
+                        TopAppBar(
+                            title = {
+                                Text("Favorite Cuisines")
+                            },
+                            navigationIcon = {
+                                IconButton(onClick = {
+                                    when {
+                                        drawerState.isClosed -> {
+                                            scope.launch {
+                                                drawerState.open()
+                                            }
+                                        }
+
+                                        drawerState.isClosed ->
+                                            scope.launch {
+                                                drawerState.close()
+                                            }
+                                    }
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Menu,
+                                        contentDescription = "Menu"
+                                    )
                                 }
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Default.Menu,
-                                    contentDescription = "Menu"
-                                )
-                            }
-                        }, actions = {
-                            IconButton(onClick = {
-                                showBottomSheet = true
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Default.KeyboardArrowUp,
-                                    contentDescription = "Up"
-                                )
-                            }
-                            IconButton(onClick = {
-                                showSearchDialog = true
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Default.Search,
-                                    contentDescription = "Search"
-                                )
-                                if (showSearchDialog) {
-                                    ReusableFullScreenDialog({
-                                        IngredientScreen(modifier = Modifier.fillMaxSize())
-                                    }) {
-                                        showSearchDialog = false
+                            },
+                            actions = {
+                                IconButton(onClick = {
+                                    showBottomSheet = true
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Default.KeyboardArrowUp,
+                                        contentDescription = "Up"
+                                    )
+                                }
+                                IconButton(onClick = {
+                                    showSearchDialog = true
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Search,
+                                        contentDescription = "Search"
+                                    )
+                                    if (showSearchDialog) {
+                                        ReusableFullScreenDialog({
+                                            IngredientScreen(modifier = Modifier.fillMaxSize())
+                                        }) {
+                                            showSearchDialog = false
+                                        }
                                     }
                                 }
-                            }
-                            IconButton(onClick = {
-                                showFullDialogBox = true
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Default.PlayArrow,
-                                    contentDescription = "Play"
-                                )
-                            }
-                            if (showFullDialogBox) {
-                                FullScreenDialog { showFullDialogBox = false }
-                            }
-                        })
+                                IconButton(onClick = {
+                                    showFullDialogBox = true
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Default.PlayArrow,
+                                        contentDescription = "Play"
+                                    )
+                                }
+                                if (showFullDialogBox) {
+                                    FullScreenDialog {
+                                        showFullDialogBox = false
+                                    }
+                                }
+                            })
                     }, bottomBar = {
                         MyBottomAppBar(modifier = Modifier.fillMaxWidth(), content = {
                             IconButton(onClick = {
