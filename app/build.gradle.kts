@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("kotlin-parcelize")
+    id("kotlin-kapt")
 }
 
 android {
@@ -60,6 +61,11 @@ dependencies {
 
     // Jetpack Compose navigation
     implementation(libs.androidx.navigation.compose)
+
+    // ROOM Database
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    kapt(libs.androidx.room.compiler)
 
     // Google play
     implementation(libs.play.services.location)
