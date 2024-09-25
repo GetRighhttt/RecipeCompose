@@ -33,6 +33,7 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -180,7 +181,7 @@ class MainActivity : ComponentActivity() {
                     Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
                         TopAppBar(
                             title = {
-                                Text("Favorite Cuisines")
+                                Text("Favorite Cuisines", style = MaterialTheme.typography.titleLarge)
                             },
                             navigationIcon = {
                                 IconButton(onClick = {
@@ -325,7 +326,7 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier.padding(8.dp)
                             ) {
                                 Scaffold(topBar = {
-                                    CenterAlignedTopAppBar(title = { Text("Explore Our Best Dishes!") },
+                                    CenterAlignedTopAppBar(title = { Text("Explore Our Best Dishes!", style = MaterialTheme.typography.titleLarge) },
                                         actions = {
                                             IconButton(onClick = {
                                                 showCategoryMealDialogBox = true
