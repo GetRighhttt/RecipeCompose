@@ -2,6 +2,7 @@ package com.example.recipe_app_compose.features.categories.presentation.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -139,16 +141,18 @@ fun SettingsScreen(modifier: Modifier) {
         HorizontalDivider()
         Spacer(modifier = Modifier.padding(bottom = 50.dp))
         OutlinedButton(onClick = {},
-            shape = RoundedCornerShape(30.dp),
+            shape = RoundedCornerShape(40.dp),
             elevation = ButtonDefaults.buttonElevation(20.dp),
-            enabled = true
+            enabled = true,
+            contentPadding = PaddingValues(start = 50.dp, end = 50.dp, top = 20.dp, bottom = 20.dp),
+            modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
         ) {
             Text(
                 text = "Sign Out",
                 textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
-                    .padding(10.dp)
+                    .padding(5.dp)
             )
         }
     }
