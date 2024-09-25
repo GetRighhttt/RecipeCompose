@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -29,7 +30,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -181,21 +181,26 @@ fun YelpItem(category: YelpBusinesses) {
         }
         Text(
             text = "${category.name} - ${category.rating} \uD83C\uDF1F",
-            style = TextStyle(fontWeight = FontWeight.Bold),
+            style = MaterialTheme.typography.labelLarge,
             textAlign = TextAlign.Center,
-            fontSize = 13.sp,
             modifier = Modifier.padding(5.dp)
         )
         Text(
             text = "${category.location.address1},\n ${category.location.city}, ${category.location.state} \n" +
                     " ${category.location.country} ${category.location.zipCode}",
-            style = TextStyle(fontWeight = FontWeight.Normal),
+            style = MaterialTheme.typography.labelMedium,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(3.dp)
         )
         Text(
             text = category.phone ?: "No Phone Number",
-            style = TextStyle(fontWeight = FontWeight.Normal),
+            style = MaterialTheme.typography.labelMedium,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(2.dp)
+        )
+        Text(
+            text = category.displayDistance() ?: "No Distance Found.",
+            style = MaterialTheme.typography.labelMedium,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(2.dp)
         )

@@ -34,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -242,7 +241,7 @@ fun VerticalScrollingWithFixedHeightTextDemo(
 ) {
     Text(
         text = randomText,
-        style = TextStyle(fontWeight = FontWeight.Normal),
+        style = MaterialTheme.typography.bodyLarge,
         fontSize = size ?: 14.sp,
         modifier = Modifier
             .height(height ?: 100.dp)
@@ -257,7 +256,7 @@ fun MessageCard(msg: String) {
         Column {
             Text(
                 text = msg,
-                style = TextStyle(fontWeight = FontWeight.Normal)
+                style = MaterialTheme.typography.bodyMedium
             )
         }
     }

@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -29,13 +30,11 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
@@ -124,7 +123,7 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
                                     text = "No results found",
                                     textAlign = TextAlign.Center,
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = 30.sp,
+                                    style = MaterialTheme.typography.displayLarge,
                                     modifier = Modifier.align(Alignment.Center)
                                 )
                             }
@@ -178,7 +177,7 @@ fun IngredientMealItem(category: Ingredient) {
         }
         Text(
             text = category.strMeal,
-            style = TextStyle(fontWeight = FontWeight.Bold),
+            style = MaterialTheme.typography.labelLarge,
             modifier = Modifier.padding(4.dp)
         )
     }

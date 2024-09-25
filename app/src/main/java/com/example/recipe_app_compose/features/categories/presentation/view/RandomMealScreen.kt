@@ -42,12 +42,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
@@ -80,7 +77,8 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                         Text(
                             randomViewState.item?.first()?.strMeal.toString(),
                             overflow = TextOverflow.Ellipsis,
-                            maxLines = 2
+                            maxLines = 2,
+                            style = MaterialTheme.typography.titleLarge
                         )
                     },
                     navigationIcon = {
@@ -198,11 +196,7 @@ fun RandomMealItem(category: RandomMeal) {
         Spacer(modifier = Modifier.padding(top = 5.dp))
         Text(
             text = "Details",
-            style = TextStyle(
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                fontSize = 20.sp,
-            ),
+            style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
         HorizontalDivider(thickness = 2.dp)
@@ -210,31 +204,31 @@ fun RandomMealItem(category: RandomMeal) {
 
         Text(
             text = "Type : " + category.strCategory,
-            style = TextStyle(fontWeight = FontWeight.Medium),
+            style = MaterialTheme.typography.bodyMedium,
         )
 
         Spacer(modifier = Modifier.padding(top = 5.dp))
         Text(
             text = "Originated : " + category.strArea,
-            style = TextStyle(fontWeight = FontWeight.Medium),
+            style = MaterialTheme.typography.bodyMedium,
         )
 
         Spacer(modifier = Modifier.padding(top = 5.dp))
         Text(
             text = "Source : " + category.strSource,
-            style = TextStyle(fontWeight = FontWeight.Medium),
+            style = MaterialTheme.typography.bodyMedium,
         )
 
         Spacer(modifier = Modifier.padding(top = 5.dp))
         Text(
             text = "YouTube : " + category.strYoutube,
-            style = TextStyle(fontWeight = FontWeight.Medium),
+            style = MaterialTheme.typography.bodyMedium,
         )
         Spacer(modifier = Modifier.padding(top = 5.dp))
         HorizontalDivider(thickness = 2.dp)
         Spacer(modifier = Modifier.padding(top = 5.dp, bottom = 5.dp))
 
-        Text("Instructions: ", style = TextStyle(fontWeight = FontWeight.Bold))
+        Text("Instructions: ", style = MaterialTheme.typography.bodyMedium)
 
         Spacer(modifier = Modifier.padding(top = 3.dp))
         VerticalScrollingWithFixedHeightTextDemo(category.strInstructions)
@@ -242,7 +236,7 @@ fun RandomMealItem(category: RandomMeal) {
         Spacer(modifier = Modifier.padding(bottom = 5.dp))
         HorizontalDivider(thickness = 2.dp)
         Spacer(modifier = Modifier.padding(bottom = 5.dp))
-        Text("Ingredients: ", style = TextStyle(fontWeight = FontWeight.Bold))
+        Text("Ingredients: ", style = MaterialTheme.typography.bodyMedium)
 
         Spacer(modifier = Modifier.padding(top = 8.dp, bottom = 2.dp))
         Box {

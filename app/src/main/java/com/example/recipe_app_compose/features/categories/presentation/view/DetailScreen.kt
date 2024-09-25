@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,16 +29,20 @@ fun DetailScreen(category: Category) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = category.strCategory, textAlign = TextAlign.Center)
+        Text(text = category.strCategory,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleLarge
+        )
         Image(
             painter = rememberAsyncImagePainter(
                 category.strCategoryThumb
             ), modifier = Modifier
                 .wrapContentSize() // wrap in layout
-                .padding(8.dp)
+                .padding(15.dp)
                 .aspectRatio(1F),
             contentDescription = "${category.strCategory} Thumbnail."
         )
+        HorizontalDivider(modifier = Modifier.padding(bottom = 10.dp))
         VerticalScrollingWithFixedHeightTextDemo(
             category.strCategoryDescription,
             height = 300.dp,
