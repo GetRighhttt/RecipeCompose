@@ -48,8 +48,9 @@ class YelpViewModel : ViewModel() {
                 businesses?.filter { business ->
                     business.name.contains(text)
                 }.also {
+                    delay(1500L)
                     getBusinesses(text)
-                    delay(400L)
+                    delay(1500L)
                 }
             }
             // convert to State FLow
