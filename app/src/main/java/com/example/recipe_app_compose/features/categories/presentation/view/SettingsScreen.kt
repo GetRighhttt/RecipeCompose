@@ -30,7 +30,11 @@ import com.example.recipe_app_compose.core.components.MinimalDialog
 
 @Composable
 fun SettingsScreen(modifier: Modifier) {
+    SettingsInfo(modifier)
+}
 
+@Composable
+fun SettingsInfo(modifier: Modifier) {
     var detailState by remember { mutableStateOf(false) }
     var preferenceState by remember { mutableStateOf(false) }
     var infoState by remember { mutableStateOf(false) }
