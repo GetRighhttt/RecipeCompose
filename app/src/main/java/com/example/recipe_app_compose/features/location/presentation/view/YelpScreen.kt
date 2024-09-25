@@ -176,11 +176,7 @@ fun YelpItem(category: YelpBusinesses) {
         // navigate to new activity for maps here
         if (alertState) {
             // start intent to go to yelp maps activity
-            ReusableFullScreenDialog(
-                {
-                    LocationSelectionScreen(location = locationData)
-                }
-            ) {
+            ReusableFullScreenDialog({ LocationSelectionScreen(location = locationData) }) {
                 alertState = false
             }
         }

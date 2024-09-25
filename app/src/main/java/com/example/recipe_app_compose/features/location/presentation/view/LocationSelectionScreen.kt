@@ -58,20 +58,16 @@ fun LocationSelectionScreen(
             properties = properties,
             uiSettings = uiSettings,
             onMapClick = { it ->
+                alertDialogState = false
                 userLocation.value = it
                 val address = it.let {
                     locationUtils.reverseGeocodeLocation(LocationData(it.latitude, it.longitude))
                 }
-                Toast.makeText(context, "Location: $address", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Location: $address", Toast.LENGTH_LONG).show()
             }
         ) {
             Marker(state = MarkerState(position = userLocation.value))
             alertDialogState = false
         }
-
-        val address2 = location.let {
-            locationUtils.reverseGeocodeLocation(location)
-        }
-        Toast.makeText(context, "Location: $address2", Toast.LENGTH_SHORT).show()
     }
 }
