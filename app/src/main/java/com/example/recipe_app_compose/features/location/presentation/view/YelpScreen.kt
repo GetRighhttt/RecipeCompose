@@ -40,7 +40,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.core.components.AlertDialogExample
-import com.example.recipe_app_compose.core.components.DialogWithImage
+import com.example.recipe_app_compose.core.components.ReusableFullScreenDialog
+import com.example.recipe_app_compose.features.location.domain.model.location.LocationData
 import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpBusinesses
 import com.example.recipe_app_compose.features.location.presentation.viewmodel.YelpViewModel
 
@@ -53,7 +54,6 @@ fun YelpScreen(modifier: Modifier = Modifier) {
     val viewModel: YelpViewModel = viewModel()
     val viewState by viewModel.yelpState.collectAsStateWithLifecycle()
     var alertDialogState by remember { mutableStateOf(true) }
-    var navigateState by remember { mutableStateOf(false) }
 
     // search stuff
     val searchText by viewModel.searchQuery.collectAsStateWithLifecycle()
@@ -109,7 +109,7 @@ fun YelpScreen(modifier: Modifier = Modifier) {
                                 }
                             ),
                             maxLines = 1,
-                            placeholder = { Text("Shop Restaurants and Businesses In Tampa") },
+                            placeholder = { Text("Find Restaurants in Tampa") },
                             enabled = true,
                             shape = RoundedCornerShape(30.dp),
                             modifier = Modifier
@@ -155,6 +155,8 @@ fun YelpListScreen(categories: List<YelpBusinesses>) {
 @Composable
 fun YelpItem(category: YelpBusinesses) {
     var alertState by remember { mutableStateOf(false) }
+    val locationData =
+        LocationData(category.coordinates.latitude, category.coordinates.longitude)
     Column(
         modifier = Modifier
             .padding(8.dp)
@@ -174,17 +176,13 @@ fun YelpItem(category: YelpBusinesses) {
         // navigate to new activity for maps here
         if (alertState) {
             // start intent to go to yelp maps activity
-            DialogWithImage(
-                text = category.name,
-                painter = rememberAsyncImagePainter(
-                    category.imageUrl
-                ),
-                imageDescription = "Image",
-                onDismissRequest = { alertState = false },
-                onConfirmation = { alertState = false },
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-            )
+            ReusableFullScreenDialog(
+                {
+                    LocationSelectionScreen(location = locationData)
+                }
+            ) {
+                alertState = false
+            }
         }
         Text(
             text = "${category.name} - ${category.rating} \uD83C\uDF1F",
