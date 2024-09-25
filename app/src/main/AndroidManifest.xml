@@ -18,6 +18,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Recipe_App_Compose"
         tools:targetApi="31">
+
+<!--        API KEY-->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBheQhaCfZSd0DgC7g_EBF23q3rWW1EHAc"
+            />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
