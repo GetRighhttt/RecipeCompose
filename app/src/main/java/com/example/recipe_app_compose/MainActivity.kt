@@ -62,6 +62,7 @@ import com.example.recipe_app_compose.core.navigation.RecipeApp
 import com.example.recipe_app_compose.features.categories.presentation.view.CategoryRecipeScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.IngredientScreen
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
+import com.example.recipe_app_compose.features.location.presentation.view.RequestLocation
 import com.example.recipe_app_compose.features.location.presentation.view.YelpScreen
 import com.example.recipe_app_compose.ui.theme.Recipe_App_ComposeTheme
 import kotlinx.coroutines.Job
@@ -74,6 +75,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            // request location
+            RequestLocation()
 
             val sheetState = rememberModalBottomSheetState()
             var showBottomSheet by remember { mutableStateOf(false) }
