@@ -198,5 +198,11 @@ fun YelpItem(category: YelpBusinesses) {
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(2.dp)
         )
+        Text(
+            text = category.displayDistance() ?: "No Distance Found.",
+            style = MaterialTheme.typography.labelMedium,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(2.dp)
+        )
     }
 }
