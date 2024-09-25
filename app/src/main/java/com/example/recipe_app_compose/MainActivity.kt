@@ -192,7 +192,7 @@ class MainActivity : ComponentActivity() {
                                             }
                                         }
 
-                                        drawerState.isClosed ->
+                                        drawerState.isOpen ->
                                             scope.launch {
                                                 drawerState.close()
                                             }
