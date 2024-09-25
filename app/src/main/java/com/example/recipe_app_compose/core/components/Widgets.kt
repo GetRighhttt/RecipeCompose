@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -35,6 +36,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -120,6 +122,27 @@ fun AlertDialogExample(
 }
 
 @Composable
+fun MinimalDialog(text: String, onDismissRequest: () -> Unit) {
+    Dialog(onDismissRequest = { onDismissRequest() }) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+        ) {
+            Text(
+                text = text,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .wrapContentSize(Alignment.Center),
+                textAlign = TextAlign.Center,
+            )
+        }
+    }
+}
+
+@Composable
 fun DialogWithImage(
     onDismissRequest: () -> Unit,
     onConfirmation: () -> Unit,
@@ -153,7 +176,8 @@ fun DialogWithImage(
                 )
                 Text(
                     text = text, fontWeight = FontWeight.Medium,
-                    modifier = modifier.padding(10.dp),
+                    textAlign = TextAlign.Center,
+                    modifier = modifier.padding(5.dp),
                 )
                 Row(
                     modifier = modifier

@@ -36,7 +36,6 @@ class YelpViewModel : ViewModel() {
 
     // ingredient list to be populated by way of Flow operators
     private val _businessList = MutableStateFlow(_yelpState.value.list)
-
     @OptIn(FlowPreview::class)
     internal val businessList = searchQuery
         .debounce(1000L)

@@ -173,10 +173,9 @@ fun YelpItem(category: YelpBusinesses) {
                     alertState = true
                 })
         )
-        // navigate to new activity for maps here
+        // open full screen dialog for google maps when icon is clicked
         if (alertState) {
-            // start intent to go to yelp maps activity
-            ReusableFullScreenDialog({ LocationSelectionScreen(location = locationData) }) {
+            ReusableFullScreenDialog({ GoogleLocationSelectionScreen(location = locationData) }) {
                 alertState = false
             }
         }
