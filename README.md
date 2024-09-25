@@ -49,12 +49,10 @@ If you'd like to contribute to Project Title, here are some guidelines:
 8. Submit a pull request.
 
 ## **Demo**
-https://github.com/user-attachments/assets/81324d29-beb0-4790-976d-aa2277b5f91b
-
-[Navigation.webm](https://github.com/user-attachments/assets/83d7fe5a-be56-451f-a17f-c25c7d12225d)
+#### **Slow Playback Speed Down**
+https://github.com/user-attachments/assets/7adb745a-d128-4dc4-bd28-18afd28ec235
 
 
 ## **Contact**
 
 If you have any questions or comments about Project Title, please contact **stefanbusiness95@gmail.com**.
-
