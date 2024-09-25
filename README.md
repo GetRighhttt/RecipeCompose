@@ -1,14 +1,11 @@
 ## **Recipe Compose**
 
 ## **Introduction**
-This app uses `TheMealDB` apis to allow users the ability to preview meals by way of their ingredients, various categories, and even gives access to random meals.
+This app uses `TheMealDB`, `YelpFusion`, and `Google Maps` APIs to allow users the ability to preview meals by way of their ingredients, various categories, and even gives access to random meals.
 
 ## **Installation**
 
- 
-
 To install Project Title, follow these steps:
-
  
 1. Have Android Studio downloaded.
 2. Clone the repository into Android Studio: **`git clone "git@github.com:GetRighhttt/RecipeCompose.git"`**
