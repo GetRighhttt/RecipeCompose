@@ -73,7 +73,7 @@ fun ReusableFullScreenDialog(content: @Composable () -> Unit, onDismissRequest: 
     ) {
         Surface(
             modifier = Modifier
-                .height(770.dp)
+                .height(800.dp)
                 .background(MaterialTheme.colorScheme.surfaceVariant),
         ) {
             content()

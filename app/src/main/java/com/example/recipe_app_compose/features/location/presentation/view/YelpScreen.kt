@@ -54,7 +54,6 @@ fun YelpScreen(modifier: Modifier = Modifier) {
     val viewModel: YelpViewModel = viewModel()
     val viewState by viewModel.yelpState.collectAsStateWithLifecycle()
     var alertDialogState by remember { mutableStateOf(true) }
-    var navigateState by remember { mutableStateOf(false) }
 
     // search stuff
     val searchText by viewModel.searchQuery.collectAsStateWithLifecycle()
@@ -156,7 +155,7 @@ fun YelpListScreen(categories: List<YelpBusinesses>) {
 @Composable
 fun YelpItem(category: YelpBusinesses) {
     var alertState by remember { mutableStateOf(false) }
-    val locationData: LocationData =
+    val locationData =
         LocationData(category.coordinates.latitude, category.coordinates.longitude)
     Column(
         modifier = Modifier
