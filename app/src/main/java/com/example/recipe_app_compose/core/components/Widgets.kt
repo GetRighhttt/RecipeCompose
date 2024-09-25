@@ -221,8 +221,8 @@ fun VerticalScrollingWithFixedHeightTextDemo(
         style = TextStyle(fontWeight = FontWeight.Normal),
         fontSize = size ?: 14.sp,
         modifier = Modifier
+            .height(height ?: 100.dp)
             .verticalScroll(rememberScrollState())
-            .height(height ?: 300.dp)
             .padding(top = 5.dp)
     )
 }

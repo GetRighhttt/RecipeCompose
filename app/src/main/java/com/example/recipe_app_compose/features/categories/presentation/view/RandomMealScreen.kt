@@ -57,6 +57,7 @@ import com.example.recipe_app_compose.core.components.VerticalScrollingWithFixed
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RandomMealPage(modifier: Modifier = Modifier) {
 
@@ -236,9 +237,7 @@ fun RandomMealItem(category: RandomMeal) {
         Text("Instructions: ", style = TextStyle(fontWeight = FontWeight.Bold))
 
         Spacer(modifier = Modifier.padding(top = 3.dp))
-        VerticalScrollingWithFixedHeightTextDemo(
-            category.strInstructions
-        )
+        VerticalScrollingWithFixedHeightTextDemo(category.strInstructions)
 
         Spacer(modifier = Modifier.padding(bottom = 5.dp))
         HorizontalDivider(thickness = 2.dp)
