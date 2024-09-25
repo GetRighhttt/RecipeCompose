@@ -113,7 +113,7 @@ class MainActivity : ComponentActivity() {
                         selectedIcon = Icons.Filled.AccountCircle,
                         unselectedIcon = Icons.Outlined.AccountCircle
                     ), NavigationItem(
-                        title = "Places",
+                        title = "Shops Near Me",
                         selectedIcon = Icons.Filled.ShoppingCart,
                         unselectedIcon = Icons.Outlined.ShoppingCart,
                     )

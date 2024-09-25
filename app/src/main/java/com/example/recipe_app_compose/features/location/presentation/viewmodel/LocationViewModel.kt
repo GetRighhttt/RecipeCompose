@@ -17,6 +17,6 @@ class LocationViewModel() : ViewModel() {
     internal val updateLocation: (LocationData) -> Unit = { newLocation ->
         _isLoading(true)
         _location.value = newLocation
-        _isLoading.value = false
+        _isLoading(false)
     }
 }
