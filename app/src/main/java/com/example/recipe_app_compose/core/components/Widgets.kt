@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -153,7 +154,8 @@ fun DialogWithImage(
                 )
                 Text(
                     text = text, fontWeight = FontWeight.Medium,
-                    modifier = modifier.padding(10.dp),
+                    textAlign = TextAlign.Center,
+                    modifier = modifier.padding(5.dp),
                 )
                 Row(
                     modifier = modifier

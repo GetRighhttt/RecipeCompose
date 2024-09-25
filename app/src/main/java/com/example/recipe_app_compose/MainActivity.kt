@@ -17,7 +17,6 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
@@ -27,8 +26,8 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -111,9 +110,9 @@ class MainActivity : ComponentActivity() {
                         selectedIcon = Icons.Filled.AccountCircle,
                         unselectedIcon = Icons.Outlined.AccountCircle
                     ), NavigationItem(
-                        title = "Address",
-                        selectedIcon = Icons.Filled.Place,
-                        unselectedIcon = Icons.Outlined.Place,
+                        title = "Places",
+                        selectedIcon = Icons.Filled.ShoppingCart,
+                        unselectedIcon = Icons.Outlined.ShoppingCart,
                     )
                 )
 
@@ -122,9 +121,10 @@ class MainActivity : ComponentActivity() {
                         ModalDrawerSheet {
                             Spacer(modifier = Modifier.height(16.dp))
                             items.forEachIndexed { index, item ->
-                                NavigationDrawerItem(label = {
-                                    Text(text = item.title)
-                                },
+                                NavigationDrawerItem(
+                                    label = {
+                                        Text(text = item.title)
+                                    },
                                     selected = index == selectedItemIndex,
                                     onClick = {
                                         val closeDrawer: Job = scope.launch {
@@ -154,7 +154,7 @@ class MainActivity : ComponentActivity() {
                                             }
 
                                             4 -> {
-                                                navController.navigate(CategoryScreen.AddressScreen.route)
+                                                navController.navigate(CategoryScreen.YelpScreen.route)
                                                 closeDrawer.isActive
                                             }
                                         }
@@ -220,7 +220,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                             if (showFullDialogBox) {
-                               FullScreenDialog { showFullDialogBox = false }
+                                FullScreenDialog { showFullDialogBox = false }
                             }
                         })
                     }, bottomBar = {
