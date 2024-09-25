@@ -19,36 +19,13 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class YelpViewModel () : ViewModel() {
+class YelpViewModel : ViewModel() {
 
     // necessary repo composition
     private val repository = YelpRepImpl()
 
     private val _yelpState = MutableStateFlow(YelpStates())
     val yelpState = _yelpState.asStateFlow()
-
-    internal val getBusinesses: (String) -> Unit = { query ->
-        viewModelScope.launch(Dispatchers.IO) {
-            when(val response = repository.searchBusinesses(
-                BEARER,
-                query,
-                DEFAULT_LOCATION,
-                DEFAULT_LIMIT,
-                DEFAULT_OFFSET
-            )) {
-                is Resource.Error -> _yelpState.value = _yelpState.value.copy(
-                    loading = false,
-                    error = response.message!!
-                )
-                is Resource.Loading -> _yelpState.value = _yelpState.value.copy(loading = true)
-                is Resource.Success -> _yelpState.value = _yelpState.value.copy(
-                    loading = false,
-                    list = response.data!!.restaurants,
-                    error = null
-                )
-            }
-        }
-    }
 
     // states for search view
     private val _searchQuery = MutableStateFlow("")
@@ -88,13 +65,37 @@ class YelpViewModel () : ViewModel() {
         _searchQuery.value = text
     }
 
+    internal val getBusinesses: (String) -> Unit = { query ->
+        viewModelScope.launch(Dispatchers.Main) {
+            when (val response = repository.searchBusinesses(
+                BEARER,
+                query,
+                DEFAULT_LOCATION,
+                DEFAULT_LIMIT,
+                DEFAULT_OFFSET
+            )) {
+                is Resource.Error -> _yelpState.value = _yelpState.value.copy(
+                    loading = false,
+                    error = response.message!!
+                )
+
+                is Resource.Loading -> _yelpState.value = _yelpState.value.copy(loading = true)
+                is Resource.Success -> _yelpState.value = _yelpState.value.copy(
+                    loading = false,
+                    list = response.data!!.restaurants,
+                    error = null
+                )
+            }
+        }
+    }
+
     init {
         getBusinesses("")
     }
 
     companion object {
+        const val DEFAULT_LOCATION = "Tampa"
         private const val BEARER = "Bearer ${Constants.YELP_API_KEY}"
-        private const val DEFAULT_LOCATION = "Tampa"
         private const val DEFAULT_LIMIT: UInt = 50U
         private const val DEFAULT_OFFSET: UInt = 0U
     }

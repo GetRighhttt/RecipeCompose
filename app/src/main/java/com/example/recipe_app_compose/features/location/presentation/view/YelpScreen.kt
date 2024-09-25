@@ -110,7 +110,7 @@ fun YelpScreen(modifier: Modifier = Modifier) {
                                 }
                             ),
                             maxLines = 1,
-                            placeholder = { Text("Shop Restaurants and Businesses In Tampa") },
+                            placeholder = { Text("Find Restaurants in Tampa") },
                             enabled = true,
                             shape = RoundedCornerShape(30.dp),
                             modifier = Modifier
@@ -179,7 +179,7 @@ fun YelpItem(category: YelpBusinesses) {
             // start intent to go to yelp maps activity
             ReusableFullScreenDialog(
                 {
-                    LocationSelectionScreen(location = locationData) { alertState = false }
+                    LocationSelectionScreen(location = locationData)
                 }
             ) {
                 alertState = false

@@ -26,8 +26,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
 fun LocationSelectionScreen(
-    location: LocationData,
-    onLocationSelected: (LocationData) -> Unit
+    location: LocationData
 ) {
 
     var alertDialogState by remember { mutableStateOf(false) }
@@ -47,6 +46,7 @@ fun LocationSelectionScreen(
     }
 
     val context = LocalContext.current
+    val locationUtils = PermissionUtils(context)
 
     Column(modifier = Modifier.fillMaxSize()) {
         alertDialogState = false
@@ -59,7 +59,6 @@ fun LocationSelectionScreen(
             uiSettings = uiSettings,
             onMapClick = { it ->
                 userLocation.value = it
-                val locationUtils = PermissionUtils(context)
                 val address = it.let {
                     locationUtils.reverseGeocodeLocation(LocationData(it.latitude, it.longitude))
                 }
@@ -70,5 +69,9 @@ fun LocationSelectionScreen(
             alertDialogState = false
         }
 
+        val address2 = location.let {
+            locationUtils.reverseGeocodeLocation(location)
+        }
+        Toast.makeText(context, "Location: $address2", Toast.LENGTH_SHORT).show()
     }
 }
