@@ -141,16 +141,16 @@ fun SettingsScreen(modifier: Modifier) {
         HorizontalDivider()
         Spacer(modifier = Modifier.padding(bottom = 50.dp))
         OutlinedButton(onClick = {},
-            shape = RoundedCornerShape(40.dp),
+            shape = RoundedCornerShape(20.dp),
             elevation = ButtonDefaults.buttonElevation(20.dp),
             enabled = true,
             contentPadding = PaddingValues(start = 50.dp, end = 50.dp, top = 20.dp, bottom = 20.dp),
             modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
         ) {
             Text(
-                text = "Sign Out",
+                text = "Delete Account",
                 textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier
                     .padding(5.dp)
             )
