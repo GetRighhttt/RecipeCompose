@@ -13,12 +13,17 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun SettingsScreen(modifier: Modifier) {
+    var text by remember { mutableStateOf("") }
     Column(
         modifier = modifier
             .padding(16.dp),
@@ -35,7 +40,7 @@ fun SettingsScreen(modifier: Modifier) {
         HorizontalDivider()
         TextButton(onClick = {}) {
             Text(
-                text = "Privacy ->",
+                text = "Personal Details",
                 textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
@@ -46,7 +51,7 @@ fun SettingsScreen(modifier: Modifier) {
         HorizontalDivider()
         TextButton(onClick = {}) {
             Text(
-                text = "Personal Details ->",
+                text = "Preferences",
                 textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
@@ -57,7 +62,7 @@ fun SettingsScreen(modifier: Modifier) {
         HorizontalDivider()
         TextButton(onClick = {}) {
             Text(
-                text = "Preferences ->",
+                text = "Information",
                 textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
@@ -68,7 +73,7 @@ fun SettingsScreen(modifier: Modifier) {
         HorizontalDivider()
         TextButton(onClick = {}) {
             Text(
-                text = "Accessibility ->",
+                text = "Accessibility",
                 textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
@@ -79,7 +84,7 @@ fun SettingsScreen(modifier: Modifier) {
         HorizontalDivider()
         TextButton(onClick = {}) {
             Text(
-                text = "Information ->",
+                text = "Privacy",
                 textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
@@ -90,7 +95,7 @@ fun SettingsScreen(modifier: Modifier) {
         HorizontalDivider()
         TextButton(onClick = {}) {
             Text(
-                text = "Updates ->",
+                text = "Security",
                 textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
@@ -101,7 +106,7 @@ fun SettingsScreen(modifier: Modifier) {
         HorizontalDivider()
         TextButton(onClick = {}) {
             Text(
-                text = "FAQ ->",
+                text = "Updates",
                 textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
@@ -112,7 +117,7 @@ fun SettingsScreen(modifier: Modifier) {
         HorizontalDivider()
         TextButton(onClick = {}) {
             Text(
-                text = "Security ->",
+                text = "FAQ",
                 textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
@@ -123,7 +128,7 @@ fun SettingsScreen(modifier: Modifier) {
         HorizontalDivider()
         TextButton(onClick = {}) {
             Text(
-                text = "Contact ->",
+                text = "Contact",
                 textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
