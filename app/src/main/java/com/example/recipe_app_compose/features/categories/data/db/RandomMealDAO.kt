@@ -9,7 +9,7 @@ import com.example.recipe_app_compose.features.categories.domain.model.randommea
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface CategoryDAO {
+interface RandomMealDAO {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMeal(meal: RandomMeal)
