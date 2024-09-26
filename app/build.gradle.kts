@@ -60,6 +60,9 @@ dependencies {
     // ViewModel utilities for Compose
     implementation(libs.androidx.lifecycle.viewmodel.compose.v286)
 
+    // LiveData
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+
     // Jetpack Compose navigation
     implementation(libs.androidx.navigation.compose)
 
