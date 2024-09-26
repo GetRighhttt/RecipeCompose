@@ -55,9 +55,7 @@ android {
 dependencies {
     // viewmodel
     implementation(libs.kotlinx.coroutines.android)
-    // ViewModel
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    // ViewModel utilities for Compose
     implementation(libs.androidx.lifecycle.viewmodel.compose.v286)
 
     // LiveData
