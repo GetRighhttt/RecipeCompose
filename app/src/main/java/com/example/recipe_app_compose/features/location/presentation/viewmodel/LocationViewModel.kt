@@ -1,5 +1,6 @@
 package com.example.recipe_app_compose.features.location.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.recipe_app_compose.features.location.domain.model.location.LocationData
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +18,7 @@ class LocationViewModel() : ViewModel() {
     internal val updateLocation: (LocationData) -> Unit = { newLocation ->
         _isLoading(true)
         _location.value = newLocation
+        Log.d("LocationViewModel", "Location updated: $newLocation")
         _isLoading(false)
     }
 }

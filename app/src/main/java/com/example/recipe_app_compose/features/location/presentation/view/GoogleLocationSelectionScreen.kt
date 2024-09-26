@@ -46,7 +46,7 @@ fun GoogleLocationSelectionScreen(
         position = CameraPosition.fromLatLngZoom(userLocation.value, 10f)
     }
     val uiSettings by remember { mutableStateOf(MapUiSettings(zoomControlsEnabled = true)) }
-    val properties by remember { mutableStateOf(MapProperties(mapType = MapType.NORMAL)) }
+    val properties by remember { mutableStateOf(MapProperties(mapType = MapType.HYBRID)) }
     val locationUtils = PermissionUtils(context)
 
     // UI
