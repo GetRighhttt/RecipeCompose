@@ -52,6 +52,7 @@ import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.MessageCard
 import com.example.recipe_app_compose.core.components.VerticalScrollingWithFixedHeightTextDemo
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
+import com.example.recipe_app_compose.features.categories.presentation.viewmodel.DatabaseViewModel
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,6 +65,9 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
     var alertDialogState by remember { mutableStateOf(true) }
     var favoriteDialogState by remember { mutableStateOf(false) }
     var favoriteViewState by remember { mutableStateOf(false) }
+
+    // database
+    val databaseViewModel = DatabaseViewModel()
 
     Box(modifier = modifier.fillMaxSize()) {
         val context = LocalContext.current
@@ -103,6 +107,9 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                                 onConfirmation = {
                                     favoriteDialogState = false
                                     favoriteViewState = true
+                                    databaseViewModel.executeInsertMeal.invoke(
+                                        randomViewState.item?.first()!!
+                                    )
                                     Toast.makeText(
                                         context,
                                         "${randomViewState.item?.first()?.strMeal.toString()} " +

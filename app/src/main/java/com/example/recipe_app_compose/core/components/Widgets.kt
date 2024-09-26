@@ -204,6 +204,70 @@ fun DialogWithImage(
 }
 
 @Composable
+fun DatabaseDialogWithImage(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    painter: Painter,
+    imageDescription: String,
+    text: String,
+    modifier: Modifier
+) {
+    Dialog(onDismissRequest = { onDismissRequest() }) {
+        // Draw a rectangle shape with rounded corners inside the dialog
+        Card(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(450.dp)
+                .padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(10.dp)
+        ) {
+            Column(
+                modifier = modifier
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Image(
+                    painter = painter,
+                    contentDescription = imageDescription,
+                    contentScale = ContentScale.Crop,
+                    modifier = modifier
+                        .height(300.dp)
+                )
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = modifier.padding(5.dp),
+                )
+                Row(
+                    modifier = modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    ElevatedButton(
+                        onClick = { onDismissRequest() },
+                        modifier = modifier.padding(5.dp),
+                        elevation = ButtonDefaults.buttonElevation(15.dp)
+                    ) {
+                        Text("Delete Meal", style = MaterialTheme.typography.bodyMedium)
+                    }
+                    ElevatedButton(
+                        onClick = { onConfirmation() },
+                        modifier = modifier.padding(5.dp),
+                        elevation = ButtonDefaults.buttonElevation(15.dp)
+                    ) {
+                        Text("Save Meal", style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
 fun MyBottomAppBar(
     modifier: Modifier = Modifier,
     containerColor: Color = BottomAppBarDefaults.containerColor,

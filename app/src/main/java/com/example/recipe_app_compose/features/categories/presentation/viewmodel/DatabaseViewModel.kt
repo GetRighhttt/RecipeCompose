@@ -1,32 +1,33 @@
 package com.example.recipe_app_compose.features.categories.presentation.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
+import com.example.recipe_app_compose.di.DependencyInjector
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
 import com.example.recipe_app_compose.features.categories.domain.repository.DatabaseRepository
+import com.example.recipe_app_compose.features.categories.domain.states.DatabaseState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class DatabaseViewModel(
-    private val databaseRepository: DatabaseRepository
+    // must default for dependency injection
+    private val databaseRepository: DatabaseRepository = DependencyInjector.databaseRepo
 ) : ViewModel() {
 
     // Collecting flow data in LiveData variable
-    private val _currentState = MutableLiveData<List<RandomMeal>>()
-    val currentState = _currentState.asFlow()
+    private val _currentState = MutableStateFlow(DatabaseState())
+    val currentState = _currentState.asStateFlow()
 
     // Loading state
-    private val _isLoading = MutableLiveData(false)
-    val isLoading: LiveData<Boolean> get() = _isLoading
+    private val _isLoading = MutableStateFlow(false)
 
-    // operator methods
-    private operator fun MutableLiveData<Boolean>.invoke(state: Boolean?) =
-        _isLoading.postValue(state)
+    // operator extension method for loading state to remove dot notation
+    private operator fun MutableStateFlow<Boolean>.invoke(state: Boolean?) =
+        _isLoading.value == state
 
     val executeInsertMeal: (RandomMeal) -> Job = { meal ->
         viewModelScope.launch {
@@ -46,12 +47,16 @@ class DatabaseViewModel(
         }
     }
 
-    private val executeGetAllMeals: () -> Job = {
+    val executeGetAllMeals: () -> Job = {
         viewModelScope.launch {
             _isLoading(true)
             delay(1000)
             databaseRepository.executeGetAllMeals().collectLatest { meal ->
-                _currentState.value = meal
+                _currentState.value = _currentState.value.copy(
+                    loading = false,
+                    list = meal,
+                    error = null
+                )
             }
             _isLoading(false)
         }
