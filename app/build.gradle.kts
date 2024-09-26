@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("kotlin-parcelize")
     id("com.google.devtools.ksp") // ksp
+    id("kotlin-kapt") // kapt
 }
 
 android {
@@ -66,6 +67,8 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
+    // To use Kotlin annotation processing tool (kapt)
+    ksp("androidx.room:room-compiler:$2.6.1")
 
     // Google play
     implementation(libs.play.services.location)
