@@ -43,7 +43,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -220,7 +219,6 @@ fun DatabaseDialogWithImage(
     imageDescription: String,
     text: String,
     source: List<String>,
-    youtube: List<String>,
     modifier: Modifier
 ) {
     Dialog(
@@ -298,7 +296,6 @@ fun HyperlinkText(
     hyperlinks: List<String>,
     linkTextColor: Color = MaterialTheme.colorScheme.primary,
     linkStyle: TextStyle = MaterialTheme.typography.bodyMedium,
-    linkTextDecoration: TextDecoration = TextDecoration.Underline,
     fontSize: TextUnit = TextUnit.Unspecified,
     fontFamily: FontFamily = FontFamily.Monospace
 ) {
@@ -317,7 +314,6 @@ fun HyperlinkText(
                     SpanStyle(
                         color = linkTextColor,
                         fontSize = fontSize,
-                        textDecoration = linkTextDecoration,
                         fontFamily = fontFamily
                     )
                 )

@@ -107,8 +107,7 @@ fun MealDBItem(meal: RandomMeal) {
         if (alertState) {
             DatabaseDialogWithImage(
                 text = meal.strMeal,
-                source = listOf(meal.strYoutube),
-                youtube = listOf(meal.strSource),
+                source = listOf(meal.strSource),
                 painter = rememberAsyncImagePainter(meal.strMealThumb),
                 imageDescription = "Image",
                 onDismissRequest = {
