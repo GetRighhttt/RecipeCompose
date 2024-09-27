@@ -1,7 +1,7 @@
-package com.example.recipe_app_compose.features.categories.data.repoimpl
+package com.example.recipe_app_compose.features.categories.data.remote.repoimpl
 
 import com.example.recipe_app_compose.core.util.Resource
-import com.example.recipe_app_compose.features.categories.data.api.RetrofitInstance.apiService
+import com.example.recipe_app_compose.features.categories.data.remote.retrofit.RetrofitInstance.apiService
 import com.example.recipe_app_compose.features.categories.domain.model.category.CategoryResponse
 import com.example.recipe_app_compose.features.categories.domain.model.categorymeal.CategoryMealResponse
 import com.example.recipe_app_compose.features.categories.domain.model.ingredient.IngredientResponse

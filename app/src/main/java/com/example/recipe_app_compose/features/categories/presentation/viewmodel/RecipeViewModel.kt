@@ -3,7 +3,8 @@ package com.example.recipe_app_compose.features.categories.presentation.viewmode
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipe_app_compose.core.util.Resource
-import com.example.recipe_app_compose.features.categories.data.repoimpl.RecipeRepositoryImpl
+import com.example.recipe_app_compose.di.DependencyInjector
+import com.example.recipe_app_compose.features.categories.data.remote.repoimpl.RecipeRepositoryImpl
 import com.example.recipe_app_compose.features.categories.domain.states.CategoryMealState
 import com.example.recipe_app_compose.features.categories.domain.states.IngredientMealState
 import com.example.recipe_app_compose.features.categories.domain.states.RandomMealState
@@ -24,10 +25,9 @@ import kotlinx.coroutines.launch
 /*
 Explaining various states and reasoning as this can be somewhat confusing at first..
  */
-class RecipeViewModel : ViewModel() {
-
-    // necessary repo composition
-    private val repository = RecipeRepositoryImpl()
+class RecipeViewModel(
+    private val repository: RecipeRepositoryImpl = DependencyInjector.repository
+) : ViewModel() {
 
     // states for each api call from `RecipeStates.kt`
     private val _categoriesState = MutableStateFlow(RecipeState())

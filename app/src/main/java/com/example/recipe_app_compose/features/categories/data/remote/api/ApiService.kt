@@ -1,4 +1,4 @@
-package com.example.recipe_app_compose.features.categories.data.api
+package com.example.recipe_app_compose.features.categories.data.remote.api
 
 import com.example.recipe_app_compose.core.util.Constants.CATEGORY_ENDPOINT
 import com.example.recipe_app_compose.core.util.Constants.CATEGORY_MEAL_ENDPOINT

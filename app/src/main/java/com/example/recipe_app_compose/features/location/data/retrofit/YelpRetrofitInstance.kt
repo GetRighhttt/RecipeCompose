@@ -1,6 +1,7 @@
-package com.example.recipe_app_compose.features.location.data.api
+package com.example.recipe_app_compose.features.location.data.retrofit
 
 import com.example.recipe_app_compose.core.util.Constants.YELP_BASE_URL
+import com.example.recipe_app_compose.features.location.data.api.YelpApi
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit

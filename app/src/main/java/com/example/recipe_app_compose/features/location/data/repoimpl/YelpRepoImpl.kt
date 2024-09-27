@@ -1,7 +1,7 @@
 package com.example.recipe_app_compose.features.location.data.repoimpl
 
 import com.example.recipe_app_compose.core.util.Resource
-import com.example.recipe_app_compose.features.location.data.api.YelpRetrofitInstance.yelpApiService
+import com.example.recipe_app_compose.features.location.data.retrofit.YelpRetrofitInstance.yelpApiService
 import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpSearchResult
 import com.example.recipe_app_compose.features.location.domain.repo.YelpRepository
 import kotlinx.coroutines.Dispatchers

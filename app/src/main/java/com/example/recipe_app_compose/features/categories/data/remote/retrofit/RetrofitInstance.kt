@@ -1,6 +1,7 @@
-package com.example.recipe_app_compose.features.categories.data.api
+package com.example.recipe_app_compose.features.categories.data.remote.retrofit
 
 import com.example.recipe_app_compose.core.util.Constants.BASE_URL
+import com.example.recipe_app_compose.features.categories.data.remote.api.ApiService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit

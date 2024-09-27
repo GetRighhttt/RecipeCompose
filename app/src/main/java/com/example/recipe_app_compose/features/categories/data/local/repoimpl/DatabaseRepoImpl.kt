@@ -1,6 +1,6 @@
-package com.example.recipe_app_compose.features.categories.data.repoimpl
+package com.example.recipe_app_compose.features.categories.data.local.repoimpl
 
-import com.example.recipe_app_compose.features.categories.data.db.RandomMealDAO
+import com.example.recipe_app_compose.features.categories.data.local.db.RandomMealDAO
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
 import com.example.recipe_app_compose.features.categories.domain.repository.DatabaseRepository
 import kotlinx.coroutines.Dispatchers
