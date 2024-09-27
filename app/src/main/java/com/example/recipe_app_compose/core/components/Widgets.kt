@@ -227,6 +227,7 @@ fun DatabaseDialogWithImage(
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
             dismissOnBackPress = true,
+            dismissOnClickOutside = false
         ),
     ) {
         // Draw a rectangle shape with rounded corners inside the dialog
