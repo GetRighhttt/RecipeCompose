@@ -207,7 +207,7 @@ fun DismissBackground(dismissState: SwipeToDismissBoxState, meal: RandomMeal) {
         )
         Text(
             text = "Delete ${meal.strMeal}?",
-            style = MaterialTheme.typography.labelLarge
+            style = MaterialTheme.typography.labelSmall
         )
     }
 }
