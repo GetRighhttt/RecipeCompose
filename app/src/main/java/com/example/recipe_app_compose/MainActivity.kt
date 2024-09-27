@@ -128,7 +128,7 @@ class MainActivity : ComponentActivity() {
                             items.forEachIndexed { index, item ->
                                 NavigationDrawerItem(
                                     label = {
-                                        Text(text = item.title)
+                                        Text(text = item.title, style = MaterialTheme.typography.titleMedium)
                                     },
                                     selected = index == selectedItemIndex,
                                     onClick = {
@@ -176,7 +176,9 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                         }
-                    }, drawerState = drawerState
+                    },
+                    drawerState = drawerState,
+                    gesturesEnabled = true,
                 ) {
                     Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
                         TopAppBar(
