@@ -12,9 +12,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlayArrow
@@ -23,9 +23,9 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -111,13 +111,13 @@ class MainActivity : ComponentActivity() {
                         selectedIcon = Icons.Filled.Settings,
                         unselectedIcon = Icons.Outlined.Settings,
                     ), NavigationItem(
-                        title = "About Me",
-                        selectedIcon = Icons.Filled.AccountCircle,
-                        unselectedIcon = Icons.Outlined.AccountCircle
-                    ), NavigationItem(
                         title = "Shops Near Me",
                         selectedIcon = Icons.Filled.ShoppingCart,
                         unselectedIcon = Icons.Outlined.ShoppingCart,
+                    ), NavigationItem(
+                        title = "Info",
+                        selectedIcon = Icons.Filled.Info,
+                        unselectedIcon = Icons.Outlined.Info
                     )
                 )
 
@@ -154,14 +154,15 @@ class MainActivity : ComponentActivity() {
                                             }
 
                                             3 -> {
-                                                navController.navigate(CategoryScreen.AccountScreen.route)
+                                                navController.navigate(CategoryScreen.YelpScreen.route)
                                                 closeDrawer.isActive
                                             }
 
                                             4 -> {
-                                                navController.navigate(CategoryScreen.YelpScreen.route)
+                                                navController.navigate(CategoryScreen.InfoScreen.route)
                                                 closeDrawer.isActive
                                             }
+
                                         }
                                     },
                                     icon = {
@@ -274,6 +275,19 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                             IconButton(onClick = {
+                                showYelpDialogBox = true
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.ShoppingCart,
+                                    contentDescription = "Shops"
+                                )
+                                if (showYelpDialogBox) {
+                                    ReusableFullScreenDialog({ YelpScreen(modifier = Modifier) }) {
+                                        showYelpDialogBox = false
+                                    }
+                                }
+                            }
+                            IconButton(onClick = {
                                 navController.navigate(CategoryScreen.FavoriteScreen.route) {
                                     launchSingleTop = true
                                 }
@@ -281,16 +295,6 @@ class MainActivity : ComponentActivity() {
                                 Icon(
                                     imageVector = Icons.Default.Favorite,
                                     contentDescription = "Favorites"
-                                )
-                            }
-                            IconButton(onClick = {
-                                navController.navigate(CategoryScreen.AccountScreen.route) {
-                                    launchSingleTop = true
-                                }
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Default.AccountCircle,
-                                    contentDescription = "Account"
                                 )
                             }
                             IconButton(onClick = {
@@ -304,17 +308,14 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                             IconButton(onClick = {
-                                showYelpDialogBox = true
+                                navController.navigate(CategoryScreen.InfoScreen.route) {
+                                    launchSingleTop = true
+                                }
                             }) {
                                 Icon(
-                                    imageVector = Icons.Default.ShoppingCart,
-                                    contentDescription = "Shops"
+                                    imageVector = Icons.Default.Info,
+                                    contentDescription = "Info"
                                 )
-                                if (showYelpDialogBox) {
-                                    ReusableFullScreenDialog({ YelpScreen(modifier = Modifier) }) {
-                                        showYelpDialogBox = false
-                                    }
-                                }
                             }
                         })
                     }) { innerPadding ->
