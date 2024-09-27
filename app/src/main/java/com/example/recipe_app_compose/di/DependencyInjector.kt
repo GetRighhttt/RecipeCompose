@@ -25,7 +25,5 @@ object DependencyInjector {
     fun provide(context: Context) {
         database = Room.databaseBuilder(context, RandomMealDatabase::class.java, "randomMeal.db")
             .fallbackToDestructiveMigration().build()
-
-
     }
 }
