@@ -129,7 +129,6 @@ fun MealDBItem(meal: RandomMeal) {
             when(it) {
                 SwipeToDismissBoxValue.StartToEnd -> {
                     viewModel.executeDeleteMeal(meal)
-                    viewModel.executeGetAllMeals
                     Toast.makeText(context, "${meal.strMeal} deleted", Toast.LENGTH_SHORT).show()
                 }
                 SwipeToDismissBoxValue.EndToStart -> {
