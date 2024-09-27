@@ -12,15 +12,9 @@ Custom Dependency Injection Class created when the app is first created.
  */
 object DependencyInjector {
     private lateinit var database: RandomMealDatabase
-    val databaseRepo by lazy {
-        DatabaseRepoImpl(randomMealDAO = database.randomMealDao())
-    }
-    val repository by lazy {
-        RecipeRepositoryImpl()
-    }
-    val yelpRepo by lazy {
-        YelpRepImpl()
-    }
+    val databaseRepo by lazy { DatabaseRepoImpl(randomMealDAO = database.randomMealDao()) }
+    val repository by lazy { RecipeRepositoryImpl() }
+    val yelpRepo by lazy { YelpRepImpl() }
 
     fun provide(context: Context) {
         database = Room.databaseBuilder(context, RandomMealDatabase::class.java, "randomMeal.db")
