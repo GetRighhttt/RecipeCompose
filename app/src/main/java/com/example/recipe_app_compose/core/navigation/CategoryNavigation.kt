@@ -7,6 +7,6 @@ sealed class CategoryScreen(val route: String) {
     data object IngredientScreen : CategoryScreen("ingredient_screen")
     data object SettingsScreen : CategoryScreen("settings_screen")
     data object FavoriteScreen : CategoryScreen("favorite_screen")
-    data object AccountScreen : CategoryScreen("account_screen")
+    data object InfoScreen : CategoryScreen("account_screen")
     data object YelpScreen : CategoryScreen("yelp_screen")
 }
