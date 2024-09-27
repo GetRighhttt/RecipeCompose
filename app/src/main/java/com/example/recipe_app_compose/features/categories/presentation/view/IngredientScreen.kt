@@ -103,7 +103,7 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
                                 }
                             ),
                             maxLines = 1,
-                            placeholder = { Text("Search") },
+                            placeholder = { Text("Search Meals By Their Ingredients") },
                             enabled = true,
                             shape = RoundedCornerShape(30.dp),
                             modifier = Modifier
