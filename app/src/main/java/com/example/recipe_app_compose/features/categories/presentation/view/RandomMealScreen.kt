@@ -193,7 +193,7 @@ fun RandomMealItem(category: RandomMeal) {
             .fillMaxSize(),
     ) {
         Image(
-            painter = rememberAsyncImagePainter(category.strMealThumb),
+            painter = rememberAsyncImagePainter(category.strMealThumb ?: ""),
             contentDescription = "Image",
             modifier = Modifier
                 .fillMaxSize()
@@ -210,7 +210,7 @@ fun RandomMealItem(category: RandomMeal) {
         Spacer(modifier = Modifier.padding(top = 20.dp))
 
         Text(
-            text = "Type : " + category.strCategory,
+            text = "Type : " + category.strCategory ?: "",
             style = MaterialTheme.typography.bodyMedium,
         )
 
@@ -238,7 +238,7 @@ fun RandomMealItem(category: RandomMeal) {
         Text("Instructions: ", style = MaterialTheme.typography.bodyMedium)
 
         Spacer(modifier = Modifier.padding(top = 3.dp))
-        VerticalScrollingWithFixedHeightTextDemo(category.strInstructions)
+        VerticalScrollingWithFixedHeightTextDemo(category.strInstructions ?: "")
 
         Spacer(modifier = Modifier.padding(bottom = 5.dp))
         HorizontalDivider(thickness = 2.dp)
@@ -253,7 +253,7 @@ fun RandomMealItem(category: RandomMeal) {
                     .height(80.dp)
             ) {
                 items(listOfIngredients) { msg ->
-                    MessageCard(msg.uppercase())
+                    MessageCard(msg?.uppercase() ?: "")
                 }
             }
         }

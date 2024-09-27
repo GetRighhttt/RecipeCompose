@@ -13,7 +13,9 @@ object DependencyInjector {
     val databaseRepo by lazy {
         DatabaseRepoImpl(randomMealDAO = database.randomMealDao())
     }
+
     fun provide(context: Context) {
-        database = Room.databaseBuilder(context, RandomMealDatabase::class.java, "randomMeal.db").build()
+        database = Room.databaseBuilder(context, RandomMealDatabase::class.java, "randomMeal.db")
+            .fallbackToDestructiveMigration().build()
     }
 }

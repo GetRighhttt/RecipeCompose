@@ -6,6 +6,7 @@ import com.example.recipe_app_compose.di.DependencyInjector
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
 import com.example.recipe_app_compose.features.categories.domain.repository.DatabaseRepository
 import com.example.recipe_app_compose.features.categories.domain.states.DatabaseState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +31,7 @@ class DatabaseViewModel(
         _isLoading.value == state
 
     val executeInsertMeal: (RandomMeal) -> Job = { meal ->
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _isLoading(true)
             delay(1000)
             databaseRepository.executeInsertMeal(meal = meal)
@@ -39,7 +40,7 @@ class DatabaseViewModel(
     }
 
     val executeDeleteMeal: (RandomMeal) -> Job = { meal ->
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _isLoading(true)
             delay(1000)
             databaseRepository.executeDeleteMeal(meal = meal)
@@ -48,7 +49,7 @@ class DatabaseViewModel(
     }
 
     val executeGetAllMeals: () -> Job = {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _isLoading(true)
             delay(1000)
             databaseRepository.executeGetAllMeals().collectLatest { meal ->
@@ -63,7 +64,7 @@ class DatabaseViewModel(
     }
 
     val executeDeleteAll: () -> Job = {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _isLoading(true)
             delay(1000)
             databaseRepository.executeDeleteAll()
