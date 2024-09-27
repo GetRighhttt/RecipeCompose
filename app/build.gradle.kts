@@ -55,10 +55,11 @@ android {
 dependencies {
     // viewmodel
     implementation(libs.kotlinx.coroutines.android)
-    // ViewModel
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    // ViewModel utilities for Compose
     implementation(libs.androidx.lifecycle.viewmodel.compose.v286)
+
+    // LiveData
+    implementation(libs.androidx.lifecycle.livedata.ktx)
 
     // Jetpack Compose navigation
     implementation(libs.androidx.navigation.compose)
@@ -67,8 +68,6 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
-    // To use Kotlin annotation processing tool (kapt)
-    ksp("androidx.room:room-compiler:$2.6.1")
 
     // Google play
     implementation(libs.play.services.location)

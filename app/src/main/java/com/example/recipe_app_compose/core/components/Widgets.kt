@@ -34,8 +34,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -202,6 +210,147 @@ fun DialogWithImage(
         }
     }
 }
+
+@Composable
+fun DatabaseDialogWithImage(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    painter: Painter,
+    imageDescription: String,
+    text: String,
+    source: List<String>,
+    youtube: List<String>,
+    modifier: Modifier
+) {
+    Dialog(
+        onDismissRequest = { onDismissRequest() },
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnBackPress = true,
+        ),
+    ) {
+        // Draw a rectangle shape with rounded corners inside the dialog
+        Card(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(650.dp)
+                .padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(10.dp)
+        ) {
+            Column(
+                modifier = modifier
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = modifier.padding(15.dp),
+                )
+                Image(
+                    painter = painter,
+                    contentDescription = imageDescription,
+                    contentScale = ContentScale.Crop,
+                    modifier = modifier
+                        .height(400.dp)
+                )
+                Row(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    HyperlinkText(
+                        modifier = Modifier.padding(end = 60.dp),
+                        text = "",
+                        linkText = listOf("Source"),
+                        hyperlinks = source
+                    )
+                    HyperlinkText(
+                        modifier = Modifier,
+                        text = "",
+                        linkText = listOf("Youtube"),
+                        hyperlinks = youtube
+                    )
+                }
+                Row(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .padding(top = 40.dp),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    ElevatedButton(
+                        onClick = { onDismissRequest() },
+                        modifier = modifier.padding(15.dp),
+                        elevation = ButtonDefaults.buttonElevation(15.dp)
+                    ) {
+                        Text("Delete Meal", style = MaterialTheme.typography.bodyMedium)
+                    }
+                    ElevatedButton(
+                        onClick = { onConfirmation() },
+                        modifier = modifier.padding(15.dp),
+                        elevation = ButtonDefaults.buttonElevation(15.dp)
+                    ) {
+                        Text("Save Meal", style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun HyperlinkText(
+    modifier: Modifier = Modifier,
+    text: String,
+    linkText: List<String>,
+    hyperlinks: List<String>,
+    linkTextColor: Color = MaterialTheme.colorScheme.primary,
+    linkStyle: TextStyle = MaterialTheme.typography.bodyMedium,
+    fontSize: TextUnit = TextUnit.Unspecified,
+    fontFamily: FontFamily = FontFamily.Monospace
+) {
+    val uriHandler = LocalUriHandler.current
+
+    val annotatedString = buildAnnotatedString {
+        var lastIndex = 0
+        linkText.forEachIndexed { index, link ->
+            val startIndex = text.indexOf(link, lastIndex)
+            val endIndex = startIndex + link.length
+
+            if (startIndex > lastIndex) append(text.substring(lastIndex, startIndex))
+
+            val linkUrL = LinkAnnotation.Url(
+                hyperlinks[index], TextLinkStyles(
+                    SpanStyle(
+                        color = linkTextColor,
+                        fontSize = fontSize,
+                        fontFamily = fontFamily
+                    )
+                )
+            ) {
+                val url = (it as LinkAnnotation.Url).url
+                uriHandler.openUri(url)
+            }
+            withLink(linkUrL) { append(link) }
+            append(" ")
+            lastIndex = endIndex + 1
+        }
+        if (lastIndex < text.length) {
+            append(text.substring(lastIndex))
+        }
+        addStyle(
+            style = SpanStyle(
+                fontSize = fontSize, fontFamily = fontFamily
+            ), start = 0, end = text.length
+        )
+    }
+    Text(text = annotatedString, modifier = modifier, style = linkStyle)
+}
+
 
 @Composable
 fun MyBottomAppBar(
