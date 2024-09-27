@@ -126,17 +126,18 @@ fun MealDBItem(meal: RandomMeal) {
 
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = {
-            when(it) {
+            when (it) {
                 SwipeToDismissBoxValue.StartToEnd -> {
                     viewModel.executeDeleteMeal(meal)
-                    Toast.makeText(context, "${meal.strMeal} deleted", Toast.LENGTH_SHORT).show()
-                }
-                SwipeToDismissBoxValue.EndToStart -> {
-                    viewModel.executeDeleteMeal(meal)
-                    Toast.makeText(context, "${meal.strMeal} Deleted", Toast.LENGTH_SHORT).show()
                 }
 
-                SwipeToDismissBoxValue.Settled -> TODO()
+                SwipeToDismissBoxValue.EndToStart -> {
+                    viewModel.executeDeleteMeal(meal)
+                }
+
+                SwipeToDismissBoxValue.Settled -> {
+                    return@rememberSwipeToDismissBoxState false
+                }
             }
             return@rememberSwipeToDismissBoxState true
         })
@@ -144,7 +145,7 @@ fun MealDBItem(meal: RandomMeal) {
     SwipeToDismissBox(
         state = dismissState,
         modifier = Modifier,
-        backgroundContent = { DismissBackground(dismissState)},
+        backgroundContent = { DismissBackground(dismissState, meal = meal) },
         content = {
             Column(
                 modifier = Modifier
@@ -186,7 +187,7 @@ fun MealDBItem(meal: RandomMeal) {
 }
 
 @Composable
-fun DismissBackground(dismissState: SwipeToDismissBoxState) {
+fun DismissBackground(dismissState: SwipeToDismissBoxState, meal: RandomMeal) {
     val color = when (dismissState.dismissDirection) {
         SwipeToDismissBoxValue.StartToEnd -> Color(0xFFFF1744)
         SwipeToDismissBoxValue.EndToStart -> Color(0xFFFF1744)
@@ -203,6 +204,10 @@ fun DismissBackground(dismissState: SwipeToDismissBoxState) {
         Icon(
             Icons.Sharp.Delete,
             contentDescription = "delete"
+        )
+        Text(
+            text = "Delete ${meal.strMeal}?",
+            style = MaterialTheme.typography.labelSmall
         )
     }
 }
