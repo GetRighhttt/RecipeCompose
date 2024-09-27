@@ -52,9 +52,6 @@ https://github.com/user-attachments/assets/7adb745a-d128-4dc4-bd28-18afd28ec235
 #### **Database Addition**
 https://github.com/user-attachments/assets/a3e77de4-4100-4f17-a416-f91b4057e975
 
-#### **Google Maps**
-https://github.com/user-attachments/assets/09b606d6-0948-40b0-bcb8-405eab1e3524
-
 ## **Contact**
 
 If you have any questions or comments about Project Title, please contact **stefanbusiness95@gmail.com**.
