@@ -1,7 +1,7 @@
 ## **Recipe Compose**
 
 ## **Introduction**
-This app uses `TheMealDB`, `YelpFusion`, and `Google Maps` APIs to allow users the ability to preview meals by way of their ingredients, various categories, and even gives access to random meals.
+This app uses `TheMealDB`, `YelpFusion`, and `Google Maps` APIs to allow users the ability to preview meals by way of their ingredients, categories, and even gives access to random meals. Leveraged most of the Jetpack Components to create this application and further explore Jetpack Compose. A user can save their favorite meals, visit the source of where the meals came from, watch how to prepare the meals on youtube, search for restaurants in the Tampa area using the Yelp API (had to specify location unfortunately), and more. 
 
 ## **Installation**
 
