@@ -56,7 +56,7 @@ fun FavoritesScreen(
                 })
 
             else -> {
-                MealDBScreen(categories = viewState.list ?: emptyList())
+                MealDBScreen(meals = viewState.list ?: emptyList())
             }
         }
     }
@@ -65,7 +65,7 @@ fun FavoritesScreen(
 
 
 @Composable
-fun MealDBScreen(categories: List<RandomMeal>) {
+fun MealDBScreen(meals: List<RandomMeal>) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -73,19 +73,22 @@ fun MealDBScreen(categories: List<RandomMeal>) {
             "Favorites",
             style = MaterialTheme.typography.displaySmall,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(start = 10.dp, bottom = 30.dp).fillMaxWidth()
+            modifier = Modifier
+                .padding(start = 10.dp, bottom = 30.dp)
+                .fillMaxWidth()
         )
         LazyVerticalGrid(GridCells.Fixed(4), modifier = Modifier.fillMaxSize()) {
-            items(categories) { category ->
-                MealDBItem(category = category)
+            items(meals) { meal ->
+                MealDBItem(meal = meal)
             }
         }
     }
 }
 
 @Composable
-fun MealDBItem(category: RandomMeal) {
+fun MealDBItem(meal: RandomMeal) {
 
+    val viewModel = DatabaseViewModel()
     var alertState by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
@@ -93,7 +96,7 @@ fun MealDBItem(category: RandomMeal) {
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(painter = rememberAsyncImagePainter(category.strMealThumb),
+        Image(painter = rememberAsyncImagePainter(meal.strMealThumb),
             contentDescription = "Image",
             modifier = Modifier
                 .fillMaxSize()
@@ -103,16 +106,21 @@ fun MealDBItem(category: RandomMeal) {
                 })
         if (alertState) {
             DatabaseDialogWithImage(
-                text = category.strMeal,
-                painter = rememberAsyncImagePainter(category.strMealThumb),
+                text = meal.strMeal,
+                source = listOf(meal.strYoutube),
+                youtube = listOf(meal.strSource),
+                painter = rememberAsyncImagePainter(meal.strMealThumb),
                 imageDescription = "Image",
-                onDismissRequest = { alertState = false },
+                onDismissRequest = {
+                    viewModel.executeDeleteMeal.invoke(meal)
+                    alertState = false
+                },
                 onConfirmation = { alertState = false },
                 modifier = Modifier
             )
         }
         Text(
-            text = category.strMeal,
+            text = meal.strMeal,
             style = MaterialTheme.typography.labelLarge,
             modifier = Modifier.padding(4.dp)
         )
