@@ -219,6 +219,7 @@ fun DatabaseDialogWithImage(
     imageDescription: String,
     text: String,
     source: List<String>,
+    youtube: List<String>,
     modifier: Modifier
 ) {
     Dialog(
@@ -256,12 +257,25 @@ fun DatabaseDialogWithImage(
                     modifier = modifier
                         .height(400.dp)
                 )
-                HyperlinkText(
-                    modifier = Modifier.padding(top = 10.dp),
-                    text = "",
-                    linkText = listOf("Source"),
-                    hyperlinks = source
-                )
+                Row(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    HyperlinkText(
+                        modifier = Modifier.padding(end = 60.dp),
+                        text = "",
+                        linkText = listOf("Source"),
+                        hyperlinks = source
+                    )
+                    HyperlinkText(
+                        modifier = Modifier,
+                        text = "",
+                        linkText = listOf("Youtube"),
+                        hyperlinks = youtube
+                    )
+                }
                 Row(
                     modifier = modifier
                         .fillMaxWidth()
