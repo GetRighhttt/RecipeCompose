@@ -38,7 +38,7 @@ class DatabaseViewModel(
     }
 
     val executeGetAllMeals: () -> Job = {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.Main) {
             delay(1000)
             databaseRepository.executeGetAllMeals().collectLatest { meal ->
                 _currentState.value = _currentState.value.copy(
