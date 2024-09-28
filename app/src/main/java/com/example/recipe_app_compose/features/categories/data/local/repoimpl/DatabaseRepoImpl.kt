@@ -8,6 +8,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
 class DatabaseRepoImpl(private val randomMealDAO: RandomMealDAO) : DatabaseRepository {
+    /*
+    We are not passing in a resource state here because the methods are executed locally on the
+    device, so there is no http response that we need to check for. We do update UI state in the
+    view model however.
+     */
     override suspend fun executeInsertMeal(meal: RandomMeal) = withContext(Dispatchers.IO) {
         randomMealDAO.insertMeal(meal = meal)
     }

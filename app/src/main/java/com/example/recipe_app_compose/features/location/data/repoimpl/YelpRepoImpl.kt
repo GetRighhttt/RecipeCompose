@@ -7,7 +7,7 @@ import com.example.recipe_app_compose.features.location.domain.repo.YelpReposito
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class YelpRepImpl() : YelpRepository {
+class YelpRepImpl : YelpRepository {
     override suspend fun searchBusinesses(
         authHeader: String,
         searchTerm: String,

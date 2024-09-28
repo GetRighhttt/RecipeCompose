@@ -23,34 +23,22 @@ class DatabaseViewModel(
     private val _currentState = MutableStateFlow(DatabaseState())
     val currentState = _currentState.asStateFlow()
 
-    // Loading state
-    private val _isLoading = MutableStateFlow(false)
-
-    // operator extension method for loading state to remove dot notation
-    private operator fun MutableStateFlow<Boolean>.invoke(state: Boolean?) =
-        _isLoading.value == state
-
     val executeInsertMeal: (RandomMeal) -> Job = { meal ->
         viewModelScope.launch(Dispatchers.IO) {
-            _isLoading(true)
             delay(1000)
             databaseRepository.executeInsertMeal(meal = meal)
-            _isLoading(false)
         }
     }
 
     val executeDeleteMeal: (RandomMeal) -> Job = { meal ->
         viewModelScope.launch(Dispatchers.IO) {
-            _isLoading(true)
             delay(1000)
             databaseRepository.executeDeleteMeal(meal = meal)
-            _isLoading(false)
         }
     }
 
     val executeGetAllMeals: () -> Job = {
         viewModelScope.launch(Dispatchers.IO) {
-            _isLoading(true)
             delay(1000)
             databaseRepository.executeGetAllMeals().collectLatest { meal ->
                 _currentState.value = _currentState.value.copy(
@@ -59,16 +47,13 @@ class DatabaseViewModel(
                     error = null
                 )
             }
-            _isLoading(false)
         }
     }
 
     val executeDeleteAll: () -> Job = {
         viewModelScope.launch(Dispatchers.IO) {
-            _isLoading(true)
             delay(1000)
             databaseRepository.executeDeleteAll()
-            _isLoading(false)
         }
     }
 
