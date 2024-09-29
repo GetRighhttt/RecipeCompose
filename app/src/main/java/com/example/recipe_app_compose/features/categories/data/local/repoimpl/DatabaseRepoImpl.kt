@@ -21,10 +21,7 @@ class DatabaseRepoImpl(private val randomMealDAO: RandomMealDAO) : DatabaseRepos
         randomMealDAO.deleteMeal(meal = meal)
     }
 
-    override suspend fun executeGetAllMeals(): Flow<List<RandomMeal>> =
-        withContext(Dispatchers.IO) {
-            randomMealDAO.getAllMeals()
-        }
+    override suspend fun executeGetAllMeals(): Flow<List<RandomMeal>> = randomMealDAO.getAllMeals()
 
     override fun executeDeleteAll() = randomMealDAO.deleteAll()
 }

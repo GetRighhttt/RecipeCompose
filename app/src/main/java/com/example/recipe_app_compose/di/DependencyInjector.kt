@@ -1,3 +1,5 @@
+@file:OptIn(InternalCoroutinesApi::class)
+
 package com.example.recipe_app_compose.di
 
 import android.content.Context
@@ -6,6 +8,8 @@ import com.example.recipe_app_compose.features.categories.data.local.db.RandomMe
 import com.example.recipe_app_compose.features.categories.data.local.repoimpl.DatabaseRepoImpl
 import com.example.recipe_app_compose.features.categories.data.remote.repoimpl.RecipeRepositoryImpl
 import com.example.recipe_app_compose.features.location.data.repoimpl.YelpRepImpl
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.internal.synchronized
 
 /*
 Custom Dependency Injection Class created when the app is first created.
@@ -17,8 +21,11 @@ object DependencyInjector {
     val repository by lazy { RecipeRepositoryImpl() }
     val yelpRepo by lazy { YelpRepImpl() }
 
+    @OptIn(InternalCoroutinesApi::class)
     fun provide(context: Context) {
-        database = Room.databaseBuilder(context, RandomMealDatabase::class.java, "randomMeal.db")
-            .fallbackToDestructiveMigration().build()
+        synchronized(this) {
+            database = Room.databaseBuilder(context, RandomMealDatabase::class.java, "randomMeal.db")
+                .fallbackToDestructiveMigration().build()
+        }
     }
 }
