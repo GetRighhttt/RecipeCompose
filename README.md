@@ -49,9 +49,8 @@ If you'd like to contribute to Project Title, here are some guidelines:
 #### **Slow Playback Speed Down**
 https://github.com/user-attachments/assets/7adb745a-d128-4dc4-bd28-18afd28ec235
 
-#### **Database Addition**
 https://github.com/user-attachments/assets/a3e77de4-4100-4f17-a416-f91b4057e975
 
 ## **Contact**
 
-If you have any questions or comments about Project Title, please contact **stefanbusiness95@gmail.com**.
+If you have any questions or comments, please contact **stefanbusiness95@gmail.com**.
