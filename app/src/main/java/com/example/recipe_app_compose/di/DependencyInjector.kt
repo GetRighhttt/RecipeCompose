@@ -11,6 +11,7 @@ import com.example.recipe_app_compose.features.location.data.repoimpl.YelpRepImp
 Custom Dependency Injection Class created when the app is first created.
  */
 object DependencyInjector {
+    @Volatile
     private lateinit var database: RandomMealDatabase
     val databaseRepo by lazy { DatabaseRepoImpl(randomMealDAO = database.randomMealDao()) }
     val repository by lazy { RecipeRepositoryImpl() }
