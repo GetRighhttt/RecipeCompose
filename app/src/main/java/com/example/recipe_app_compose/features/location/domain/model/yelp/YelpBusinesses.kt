@@ -27,7 +27,7 @@ data class YelpBusinesses(
     fun displayDistance(): String {
         val milesPerMeter = 0.000621371
         val distanceInMiles = "%.2f".format(distance * milesPerMeter)
-        return "$distanceInMiles miles" ?: ""
+        return "$distanceInMiles miles"
     }
 }
 

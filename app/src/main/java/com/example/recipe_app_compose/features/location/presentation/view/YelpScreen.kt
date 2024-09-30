@@ -199,7 +199,7 @@ fun YelpItem(category: YelpBusinesses) {
             modifier = Modifier.padding(2.dp)
         )
         Text(
-            text = category.displayDistance() ?: "No Distance Found.",
+            text = category.displayDistance(),
             style = MaterialTheme.typography.labelMedium,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(2.dp)

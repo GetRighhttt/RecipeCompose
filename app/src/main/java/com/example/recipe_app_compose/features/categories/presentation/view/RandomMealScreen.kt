@@ -79,7 +79,7 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                 CenterAlignedTopAppBar(
                     title = {
                         Text(
-                            randomViewState.item?.first()?.strMeal.toString() ?: "",
+                            randomViewState.item?.first()?.strMeal.toString(),
                             overflow = TextOverflow.Ellipsis,
                             maxLines = 2,
                             style = MaterialTheme.typography.titleLarge
@@ -112,7 +112,7 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                                     )
                                     Toast.makeText(
                                         context,
-                                        "${randomViewState.item?.first()?.strMeal.toString() ?: ""} " +
+                                        "${randomViewState.item?.first()?.strMeal.toString()} " +
                                                 "added to favorites",
                                         Toast.LENGTH_SHORT
                                     ).show()
