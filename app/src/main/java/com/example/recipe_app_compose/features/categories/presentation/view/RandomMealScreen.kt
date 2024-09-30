@@ -210,25 +210,25 @@ fun RandomMealItem(category: RandomMeal) {
         Spacer(modifier = Modifier.padding(top = 20.dp))
 
         Text(
-            text = "Type : + ${category.strCategory ?: "" } ",
+            text = "Type : " + " ${category.strCategory ?: "" } ",
             style = MaterialTheme.typography.bodyMedium,
         )
 
         Spacer(modifier = Modifier.padding(top = 5.dp))
         Text(
-            text = "Originated :  + ${category.strArea ?: "" } ",
+            text = "Originated : " + " ${category.strArea ?: "" } ",
             style = MaterialTheme.typography.bodyMedium,
         )
 
         Spacer(modifier = Modifier.padding(top = 5.dp))
         Text(
-            text = "Source : + ${category.strSource ?: "" } ",
+            text = "Source : " + " ${category.strSource ?: "" } ",
             style = MaterialTheme.typography.bodyMedium,
         )
 
         Spacer(modifier = Modifier.padding(top = 5.dp))
         Text(
-            text = "YouTube :  + ${category.strYoutube ?: "" } ",
+            text = "YouTube :  " + " ${category.strYoutube ?: "" } ",
             style = MaterialTheme.typography.bodyMedium,
         )
         Spacer(modifier = Modifier.padding(top = 5.dp))
