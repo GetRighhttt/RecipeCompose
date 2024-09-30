@@ -1,4 +1,6 @@
 plugins {
+    // Existing plugins
+    alias(libs.plugins.compose.compiler)
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("kotlin-parcelize")
@@ -71,8 +73,10 @@ dependencies {
 
     // Google - Firebase
     implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics)
-    implementation(libs.firebase.perf)
+    implementation(libs.firebase.analytics) // analytics
+    implementation(libs.firebase.perf) // performance
+    implementation(libs.firebase.firestore) // firestore
+    implementation(libs.firebase.auth) // authentication
 
     // Google play - Maps
     implementation(libs.play.services.location)
