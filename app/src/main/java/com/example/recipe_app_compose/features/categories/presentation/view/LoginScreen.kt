@@ -7,11 +7,12 @@ import android.content.Context
 import android.content.Intent
 import android.util.Patterns
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,9 +29,9 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,7 +47,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.MainActivity
+import com.example.recipe_app_compose.R
 
 @Composable
 fun LoginForm() {
@@ -55,17 +58,24 @@ fun LoginForm() {
         val context = LocalContext.current
 
         Column(
-            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 30.dp)
+                .padding(horizontal = 30.dp, vertical = 150.dp)
         ) {
+            Image(painter = rememberAsyncImagePainter(R.drawable.dining_table),
+                contentDescription = "Image",
+                modifier = Modifier
+                    .height(200.dp)
+                    .aspectRatio(1f)
+            )
+            Spacer(modifier = Modifier.height(30.dp))
             LoginField(
                 value = credentials.email,
                 onChange = { data -> credentials = credentials.copy(email = data) },
                 modifier = Modifier.fillMaxWidth()
             )
+            Spacer(modifier = Modifier.height(10.dp))
             PasswordField(
                 value = credentials.pwd,
                 onChange = { data -> credentials = credentials.copy(pwd = data) },
@@ -157,7 +167,7 @@ fun LoginField(
         )
     }
 
-    TextField(
+    OutlinedTextField(
         value = value,
         onValueChange = onChange,
         modifier = modifier,
@@ -169,7 +179,8 @@ fun LoginField(
         placeholder = { Text(placeholder) },
         label = { Text(label) },
         singleLine = true,
-        visualTransformation = VisualTransformation.None
+        visualTransformation = VisualTransformation.None,
+        shape = RoundedCornerShape(20.dp)
     )
 }
 
@@ -192,7 +203,7 @@ fun PasswordField(
             tint = MaterialTheme.colorScheme.primary
         )
     }
-    TextField(
+    OutlinedTextField(
         value = value,
         onValueChange = onChange,
         modifier = modifier,
@@ -207,6 +218,7 @@ fun PasswordField(
         placeholder = { Text(placeholder) },
         label = { Text(label) },
         singleLine = true,
-        visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation()
+        visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+        shape = RoundedCornerShape(20.dp)
     )
 }
