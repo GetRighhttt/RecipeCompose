@@ -73,7 +73,7 @@ fun LoginForm() {
             Spacer(modifier = Modifier.height(30.dp))
             Text(
                 "Favorite Cuisines...",
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.headlineMedium,
                 textAlign = TextAlign.Start,
                 modifier = Modifier.padding(bottom = 20.dp).fillMaxWidth()
             )
