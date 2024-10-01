@@ -46,6 +46,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.MainActivity
@@ -61,15 +62,21 @@ fun LoginForm() {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 30.dp, vertical = 150.dp)
+                .padding(horizontal = 30.dp, vertical = 80.dp)
         ) {
-            Image(painter = rememberAsyncImagePainter(R.drawable.dining_table),
+            Image(painter = rememberAsyncImagePainter(R.drawable.dining),
                 contentDescription = "Image",
                 modifier = Modifier
-                    .height(200.dp)
+                    .height(150.dp)
                     .aspectRatio(1f)
             )
             Spacer(modifier = Modifier.height(30.dp))
+            Text(
+                "Favorite Cuisines...",
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Start,
+                modifier = Modifier.padding(bottom = 20.dp).fillMaxWidth()
+            )
             LoginField(
                 value = credentials.email,
                 onChange = { data -> credentials = credentials.copy(email = data) },
