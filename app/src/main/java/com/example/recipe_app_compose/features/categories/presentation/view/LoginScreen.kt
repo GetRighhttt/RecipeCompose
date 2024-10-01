@@ -64,7 +64,7 @@ fun LoginForm() {
                 .fillMaxSize()
                 .padding(horizontal = 30.dp, vertical = 80.dp)
         ) {
-            Image(painter = rememberAsyncImagePainter(R.drawable.dining),
+            Image(painter = rememberAsyncImagePainter(R.drawable.dining_two),
                 contentDescription = "Image",
                 modifier = Modifier
                     .height(150.dp)
