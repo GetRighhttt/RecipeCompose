@@ -40,7 +40,7 @@ fun SplashScreen() {
 
     // Coroutine Launcher that initiates when composables are composed
     LaunchedEffect(key1 = true, block = {
-        alpha.animateTo(1F, animationSpec = tween(1500))
+        alpha.animateTo(1F, animationSpec = tween(1000))
         context.startActivity(Intent(context, LoginActivity::class.java))
     })
     Box(
