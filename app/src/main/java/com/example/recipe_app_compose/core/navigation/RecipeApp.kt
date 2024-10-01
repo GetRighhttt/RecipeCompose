@@ -9,9 +9,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.recipe_app_compose.features.categories.domain.model.category.Category
-import com.example.recipe_app_compose.features.categories.presentation.view.InfoScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.DetailScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.FavoritesScreen
+import com.example.recipe_app_compose.features.categories.presentation.view.InfoScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.IngredientScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.RandomMealPage
 import com.example.recipe_app_compose.features.categories.presentation.view.RecipeScreen
