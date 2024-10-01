@@ -103,7 +103,7 @@ fun MealDBScreen(meals: List<RandomMeal>) {
                 MealDBItem(meal = meal)
             }
         }
-        Spacer(modifier = Modifier.padding(40.dp))
+        Spacer(modifier = Modifier.padding(20.dp))
         ElevatedButton(
             onClick = {
                 viewModel.executeDeleteAll.invoke()
