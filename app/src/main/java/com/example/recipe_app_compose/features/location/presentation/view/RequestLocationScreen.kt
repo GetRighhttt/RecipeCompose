@@ -13,7 +13,7 @@ import com.example.recipe_app_compose.core.util.PermissionUtils
 import com.example.recipe_app_compose.features.location.presentation.viewmodel.LocationViewModel
 
 @Composable
-fun RequestLocation() {
+fun RequestPermissions() {
 
     // context
     val context = LocalContext.current
@@ -67,6 +67,18 @@ fun RequestLocation() {
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 )
             )
+        }
+
+        if(!locationUtils.hasNetworkPermissions(context)) {
+            requestPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.INTERNET,
+                    Manifest.permission.ACCESS_NETWORK_STATE,
+                    Manifest.permission.ACCESS_WIFI_STATE
+                )
+            )
+        } else {
+            return@SideEffect
         }
     }
 }

@@ -36,6 +36,7 @@ class YelpViewModel(
 
     // ingredient list to be populated by way of Flow operators
     private val _businessList = MutableStateFlow(_yelpState.value.list)
+
     @OptIn(FlowPreview::class)
     internal val businessList = searchQuery
         .debounce(1000L)
@@ -67,13 +68,14 @@ class YelpViewModel(
 
     internal val getBusinesses: (String) -> Unit = { query ->
         viewModelScope.launch(Dispatchers.Main) {
-            when (val response = repository.searchBusinesses(
-                BEARER,
-                query,
-                DEFAULT_LOCATION,
-                DEFAULT_LIMIT,
-                DEFAULT_OFFSET
-            )) {
+            when (
+                val response = repository.searchBusinesses(
+                    BEARER,
+                    query,
+                    DEFAULT_LOCATION,
+                    DEFAULT_LIMIT,
+                    DEFAULT_OFFSET
+                )) {
                 is Resource.Error -> _yelpState.value = _yelpState.value.copy(
                     loading = false,
                     error = response.message!!
