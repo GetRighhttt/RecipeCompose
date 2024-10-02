@@ -102,6 +102,7 @@ fun GoogleLocationSelectionScreen(
                     Marker(
                         state = MarkerState(position = userLocation.value),
                         title = "Business Location",
+                        draggable = true,
                         snippet = address
                     )
                 }
