@@ -42,9 +42,9 @@ fun GoogleLocationSelectionScreen(
     val isLoading = locationViewModel.isLoading.collectAsState()
 
     // location states
-    val userLocation = remember { mutableStateOf(LatLng(location.latitude, location.longitude)) }
+    val businessLocation = remember { mutableStateOf(LatLng(location.latitude, location.longitude)) }
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(userLocation.value, 10f)
+        position = CameraPosition.fromLatLngZoom(businessLocation.value, 10f)
     }
     val uiSettings by remember { mutableStateOf(MapUiSettings(zoomControlsEnabled = true)) }
     val properties by remember { mutableStateOf(MapProperties(mapType = MapType.HYBRID)) }
@@ -55,10 +55,10 @@ fun GoogleLocationSelectionScreen(
     val newMarkerState = rememberMarkerState()
 
     // use geocode method to get addresses
-    val address = locationUtils.reverseGeocodeLocation(
+    val businessAddress = locationUtils.reverseGeocodeLocation(
         LocationData(
-            userLocation.value.latitude,
-            userLocation.value.longitude
+            businessLocation.value.latitude,
+            businessLocation.value.longitude
         )
     )
 
@@ -86,10 +86,10 @@ fun GoogleLocationSelectionScreen(
                 cameraPositionState = cameraPositionState,
                 properties = properties,
                 uiSettings = uiSettings,
-                onMapClick = { it ->
+                onMapClick = { location ->
                     markerStateValue = true
-                    newMarkerState.position = it
-                },
+                    newMarkerState.position = location
+                }
             ) {
                 if (markerStateValue) {
                     Marker(
@@ -98,12 +98,13 @@ fun GoogleLocationSelectionScreen(
                         draggable = true,
                         snippet = newAddress
                     )
+                } else {
+                    Marker(
+                        state = MarkerState(position = businessLocation.value),
+                        title = "Business Location",
+                        snippet = businessAddress
+                    )
                 }
-                Marker(
-                    state = MarkerState(position = userLocation.value),
-                    title = "Business Location",
-                    snippet = address
-                )
             }
         }
     }
