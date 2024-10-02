@@ -98,12 +98,13 @@ fun GoogleLocationSelectionScreen(
                         draggable = true,
                         snippet = newAddress
                     )
+                } else {
+                    Marker(
+                        state = MarkerState(position = userLocation.value),
+                        title = "Business Location",
+                        snippet = address
+                    )
                 }
-                Marker(
-                    state = MarkerState(position = userLocation.value),
-                    title = "Business Location",
-                    snippet = address
-                )
             }
         }
     }
