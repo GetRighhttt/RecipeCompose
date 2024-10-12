@@ -24,8 +24,9 @@ object DependencyInjector {
     @OptIn(InternalCoroutinesApi::class)
     fun provide(context: Context) {
         synchronized(this) {
-            database = Room.databaseBuilder(context, RandomMealDatabase::class.java, "randomMeal.db")
-                .fallbackToDestructiveMigration().build()
+            database =
+                Room.databaseBuilder(context, RandomMealDatabase::class.java, "randomMeal.db")
+                    .fallbackToDestructiveMigration().build()
         }
     }
 }

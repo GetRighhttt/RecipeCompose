@@ -72,7 +72,7 @@ import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
-     @OptIn(ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -128,7 +128,10 @@ class MainActivity : ComponentActivity() {
                             items.forEachIndexed { index, item ->
                                 NavigationDrawerItem(
                                     label = {
-                                        Text(text = item.title, style = MaterialTheme.typography.titleMedium)
+                                        Text(
+                                            text = item.title,
+                                            style = MaterialTheme.typography.titleMedium
+                                        )
                                     },
                                     selected = index == selectedItemIndex,
                                     onClick = {
@@ -184,7 +187,10 @@ class MainActivity : ComponentActivity() {
                     Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
                         TopAppBar(
                             title = {
-                                Text("Favorite Cuisines", style = MaterialTheme.typography.titleLarge)
+                                Text(
+                                    "Favorite Cuisines",
+                                    style = MaterialTheme.typography.titleLarge
+                                )
                             },
                             navigationIcon = {
                                 IconButton(onClick = {
@@ -329,7 +335,12 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier.padding(8.dp)
                             ) {
                                 Scaffold(topBar = {
-                                    CenterAlignedTopAppBar(title = { Text("Explore Our Best Dishes!", style = MaterialTheme.typography.titleLarge) },
+                                    CenterAlignedTopAppBar(title = {
+                                        Text(
+                                            "Explore Our Best Dishes!",
+                                            style = MaterialTheme.typography.titleLarge
+                                        )
+                                    },
                                         actions = {
                                             IconButton(onClick = {
                                                 showCategoryMealDialogBox = true

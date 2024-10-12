@@ -50,6 +50,7 @@ fun SplashScreen() {
         Image(
             modifier = Modifier.alpha(alpha = alpha.value),
             painter = painterResource(R.drawable.dining_two),
-            contentDescription = null)
+            contentDescription = null
+        )
     }
 }
