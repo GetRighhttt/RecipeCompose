@@ -48,7 +48,7 @@
         <activity
             android:name=".SplashScreenActivity"
             android:exported="true"
-            android:label="@string/title_activity_splash_screen"
+            android:label="Recipe"
             android:theme="@style/Theme.Recipe_App_Compose">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
