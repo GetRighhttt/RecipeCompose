@@ -44,7 +44,7 @@ fun GoogleLocationSelectionScreen(
     // location states
     val businessLocation = remember { mutableStateOf(LatLng(location.latitude, location.longitude)) }
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(businessLocation.value, 10f)
+        position = CameraPosition.fromLatLngZoom(businessLocation.value, 12f)
     }
     val uiSettings by remember { mutableStateOf(MapUiSettings(zoomControlsEnabled = true)) }
     val properties by remember { mutableStateOf(MapProperties(mapType = MapType.HYBRID)) }
