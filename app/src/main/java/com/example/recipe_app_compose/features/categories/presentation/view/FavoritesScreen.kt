@@ -89,15 +89,7 @@ fun MealDBScreen(meals: List<RandomMeal>) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Text(
-            "Favorites",
-            style = MaterialTheme.typography.displaySmall,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .padding(start = 10.dp, bottom = 30.dp)
-                .fillMaxWidth()
-        )
-        LazyVerticalGrid(GridCells.Fixed(3), modifier = Modifier.height(550.dp)) {
+        LazyVerticalGrid(GridCells.Fixed(3), modifier = Modifier.height(650.dp)) {
             itemsIndexed(meals, key = { _, item -> item.hashCode() }
             ) { _, meal ->
                 MealDBItem(meal = meal)
@@ -147,7 +139,12 @@ fun MealDBItem(meal: RandomMeal) {
     SwipeToDismissBox(
         state = dismissState,
         modifier = Modifier,
-        backgroundContent = { DismissBackground(dismissState, meal = meal) },
+        backgroundContent = {
+            DismissBackground(
+                dismissState,
+                meal = meal
+            )
+        },
         content = {
             Column(
                 modifier = Modifier
@@ -203,13 +200,17 @@ fun DismissBackground(dismissState: SwipeToDismissBoxState, meal: RandomMeal) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Icon(
-            Icons.Sharp.Delete,
-            contentDescription = "delete"
-        )
-        Text(
-            text = if (dismissState.progress.toDouble() == 0.0) "" else "Delete ${meal.strMeal}?",
-            style = MaterialTheme.typography.labelSmall
-        )
+        if (dismissState.progress > 0.3F) {
+            Icon(
+                Icons.Sharp.Delete,
+                contentDescription = "delete"
+            )
+            Text(
+                text = if (dismissState.progress > 0.3F) "Delete ${meal.strMeal}?" else "",
+                style = MaterialTheme.typography.labelSmall
+            )
+        } else {
+            Box {}
+        }
     }
 }
