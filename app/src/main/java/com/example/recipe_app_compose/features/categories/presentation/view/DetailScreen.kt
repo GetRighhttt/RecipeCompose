@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.HorizontalDivider
@@ -38,6 +39,7 @@ fun DetailScreen(category: Category) {
                 category.strCategoryThumb
             ), modifier = Modifier
                 .wrapContentSize() // wrap in layout
+                .height(225.dp)
                 .padding(15.dp)
                 .aspectRatio(1F),
             contentDescription = "${category.strCategory} Thumbnail."
@@ -45,8 +47,8 @@ fun DetailScreen(category: Category) {
         HorizontalDivider(modifier = Modifier.padding(bottom = 10.dp))
         VerticalScrollingWithFixedHeightTextDemo(
             category.strCategoryDescription,
-            height = 300.dp,
-            size = 18.sp
+            height = 225.dp,
+            size = 15.sp
         )
     }
 }

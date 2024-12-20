@@ -62,7 +62,7 @@ fun LoginForm() {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 30.dp, vertical = 120.dp)
+                .padding(horizontal = 30.dp, vertical = 100.dp)
         ) {
             Image(painter = rememberAsyncImagePainter(R.drawable.dining_two),
                 contentDescription = "Image",
