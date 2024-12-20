@@ -208,7 +208,7 @@ fun DismissBackground(dismissState: SwipeToDismissBoxState, meal: RandomMeal) {
             contentDescription = "delete"
         )
         Text(
-            text = "Delete ${meal.strMeal}?",
+            text = if (dismissState.progress.toDouble() == 0.0) "" else "Delete ${meal.strMeal}?",
             style = MaterialTheme.typography.labelSmall
         )
     }
