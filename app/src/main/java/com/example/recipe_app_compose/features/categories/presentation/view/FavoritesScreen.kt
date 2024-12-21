@@ -89,7 +89,7 @@ fun MealDBScreen(meals: List<RandomMeal>) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        LazyVerticalGrid(GridCells.Fixed(3), modifier = Modifier.height(650.dp)) {
+        LazyVerticalGrid(GridCells.Fixed(2), modifier = Modifier.height(650.dp)) {
             itemsIndexed(meals, key = { _, item -> item.hashCode() }
             ) { _, meal ->
                 MealDBItem(meal = meal)
