@@ -12,6 +12,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class DatabaseViewModel(
@@ -23,34 +24,36 @@ class DatabaseViewModel(
     private val _currentState = MutableStateFlow(DatabaseState())
     val currentState = _currentState.asStateFlow()
 
-    val executeInsertMeal: (RandomMeal) -> Job = { meal ->
+    internal val executeInsertMeal: (RandomMeal) -> Job = { meal ->
         viewModelScope.launch(Dispatchers.IO) {
             delay(1000)
             databaseRepository.executeInsertMeal(meal = meal)
         }
     }
 
-    val executeDeleteMeal: (RandomMeal) -> Job = { meal ->
+    internal val executeDeleteMeal: (RandomMeal) -> Job = { meal ->
         viewModelScope.launch(Dispatchers.IO) {
             delay(1000)
             databaseRepository.executeDeleteMeal(meal = meal)
         }
     }
 
-    val executeGetAllMeals: () -> Job = {
+    internal val executeGetAllMeals: () -> Job = {
         viewModelScope.launch(Dispatchers.Main) {
             delay(1000)
             databaseRepository.executeGetAllMeals().collectLatest { meal ->
-                _currentState.value = _currentState.value.copy(
-                    loading = false,
-                    list = meal,
-                    error = null
-                )
+                _currentState.update {
+                    _currentState.value.copy(
+                        loading = false,
+                        list = meal,
+                        error = null
+                    )
+                }
             }
         }
     }
 
-    val executeDeleteAll: () -> Job = {
+    internal val executeDeleteAll: () -> Job = {
         viewModelScope.launch(Dispatchers.IO) {
             delay(1000)
             databaseRepository.executeDeleteAll()

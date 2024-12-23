@@ -63,7 +63,7 @@ class YelpViewModel(
 
     // method to set new search value
     internal val onSearchTextChange: (String) -> Unit = { text ->
-        _searchQuery.value = text
+        _searchQuery.update { text }
     }
 
     internal val getBusinesses: (String) -> Unit = { query ->
@@ -76,17 +76,21 @@ class YelpViewModel(
                     DEFAULT_LIMIT,
                     DEFAULT_OFFSET
                 )) {
-                is Resource.Error -> _yelpState.value = _yelpState.value.copy(
-                    loading = false,
-                    error = response.message!!
-                )
+                is Resource.Error -> _yelpState.update {
+                    _yelpState.value.copy(
+                        loading = false,
+                        error = response.message!!
+                    )
+                }
 
-                is Resource.Loading -> _yelpState.value = _yelpState.value.copy(loading = true)
-                is Resource.Success -> _yelpState.value = _yelpState.value.copy(
-                    loading = false,
-                    list = response.data!!.restaurants,
-                    error = null
-                )
+                is Resource.Loading -> _yelpState.update { _yelpState.value.copy(loading = true) }
+                is Resource.Success -> _yelpState.update {
+                    _yelpState.value.copy(
+                        loading = false,
+                        list = response.data!!.restaurants,
+                        error = null
+                    )
+                }
             }
         }
     }

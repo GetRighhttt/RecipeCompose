@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "com.example.recipe_app_compose"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.recipe_app_compose"
