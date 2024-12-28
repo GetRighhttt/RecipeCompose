@@ -110,7 +110,7 @@ class RecipeViewModel(
             is Resource.Success -> _categoriesState.update {
                 _categoriesState.value.copy(
                     loading = false,
-                    list = response.data!!.categories,
+                    list = response.data?.categories ?: emptyList(),
                     error = null
                 )
             }
@@ -134,7 +134,7 @@ class RecipeViewModel(
             is Resource.Success -> _categoryMealState.update {
                 _categoryMealState.value.copy(
                     loading = false,
-                    list = response.data!!.meals,
+                    list = response.data?.meals ?: emptyList(),
                     error = null
                 )
             }
@@ -157,7 +157,7 @@ class RecipeViewModel(
             is Resource.Success -> _randomMealState.update {
                 _randomMealState.value.copy(
                     loading = false,
-                    item = response.data!!.meals,
+                    item = response.data?.meals ?: emptyList(),
                     error = null
                 )
             }
@@ -180,7 +180,7 @@ class RecipeViewModel(
             is Resource.Success -> _ingredientMealState.update {
                 _ingredientMealState.value.copy(
                     loading = false,
-                    list = response.data!!.meals,
+                    list = response.data?.meals ?: emptyList(),
                     error = null
                 )
             }
