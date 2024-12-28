@@ -39,7 +39,7 @@ class DatabaseViewModel(
     }
 
     internal val executeGetAllMeals: () -> Job = {
-        viewModelScope.launch(Dispatchers.Main) {
+        viewModelScope.launch {
             delay(1000)
             databaseRepository.executeGetAllMeals().collectLatest { meal ->
                 _currentState.update {
