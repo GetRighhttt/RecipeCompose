@@ -7,10 +7,13 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import com.example.recipe_app_compose.core.util.PermissionUtils
 import com.example.recipe_app_compose.features.location.presentation.viewmodel.LocationViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun RequestPermissions() {
@@ -21,6 +24,8 @@ fun RequestPermissions() {
     // viewmodel states
     val locationViewModel = LocationViewModel()
     val locationUtils = PermissionUtils(context)
+
+    val scope = rememberCoroutineScope()
 
     // request
     val requestPermissionLauncher = rememberLauncherForActivityResult(
@@ -61,6 +66,7 @@ fun RequestPermissions() {
         if (locationUtils.hasLocationPermissions(context)) {
             locationUtils.requestLocationUpdates(locationViewModel)
         } else {
+            scope.launch { delay(500L) }
             requestPermissionLauncher.launch(
                 arrayOf(
                     Manifest.permission.ACCESS_FINE_LOCATION,
@@ -78,7 +84,7 @@ fun RequestPermissions() {
                 )
             )
         } else {
-            return@SideEffect
+            Toast.makeText(context, "Network Permissions granted", Toast.LENGTH_SHORT).show()
         }
     }
 }
