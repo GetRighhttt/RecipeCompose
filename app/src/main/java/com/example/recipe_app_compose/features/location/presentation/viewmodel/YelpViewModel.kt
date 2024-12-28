@@ -9,6 +9,7 @@ import com.example.recipe_app_compose.features.location.data.repoimpl.YelpRepImp
 import com.example.recipe_app_compose.features.location.domain.states.YelpStates
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -68,30 +69,33 @@ class YelpViewModel(
 
     internal val getBusinesses: (String) -> Unit = { query ->
         viewModelScope.launch(Dispatchers.Main) {
-            when (
-                val response = repository.searchBusinesses(
-                    BEARER,
-                    query,
-                    DEFAULT_LOCATION,
-                    DEFAULT_LIMIT,
-                    DEFAULT_OFFSET
-                )) {
-                is Resource.Error -> _yelpState.update {
-                    _yelpState.value.copy(
-                        loading = false,
-                        error = response.message!!
-                    )
-                }
+            val getBusinesses = async(Dispatchers.IO) {
+                when (
+                    val response = repository.searchBusinesses(
+                        BEARER,
+                        query,
+                        DEFAULT_LOCATION,
+                        DEFAULT_LIMIT,
+                        DEFAULT_OFFSET
+                    )) {
+                    is Resource.Error -> _yelpState.update {
+                        _yelpState.value.copy(
+                            loading = false,
+                            error = response.message!!
+                        )
+                    }
 
-                is Resource.Loading -> _yelpState.update { _yelpState.value.copy(loading = true) }
-                is Resource.Success -> _yelpState.update {
-                    _yelpState.value.copy(
-                        loading = false,
-                        list = response.data!!.restaurants,
-                        error = null
-                    )
+                    is Resource.Loading -> _yelpState.update { _yelpState.value.copy(loading = true) }
+                    is Resource.Success -> _yelpState.update {
+                        _yelpState.value.copy(
+                            loading = false,
+                            list = response.data!!.restaurants,
+                            error = null
+                        )
+                    }
                 }
             }
+            getBusinesses.await()
         }
     }
 
