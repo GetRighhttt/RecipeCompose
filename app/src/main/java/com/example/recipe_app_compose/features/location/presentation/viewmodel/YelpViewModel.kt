@@ -67,6 +67,7 @@ class YelpViewModel(
         _searchQuery.update { text }
     }
 
+     // launch on main thread and suspend results to background thread for structured concurrency
     internal val getBusinesses: (String) -> Unit = { query ->
         viewModelScope.launch(Dispatchers.Main) {
             val getBusinesses = async(Dispatchers.IO) {

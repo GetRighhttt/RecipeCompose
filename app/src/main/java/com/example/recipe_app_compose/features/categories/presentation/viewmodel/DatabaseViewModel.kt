@@ -61,8 +61,8 @@ class DatabaseViewModel(
 
     internal val executeDeleteAll: () -> Job = {
         viewModelScope.launch(Dispatchers.IO) {
-            val executeDeleteMeal = async { databaseRepository.executeDeleteAll() }
             delay(500)
+            val executeDeleteMeal = async { databaseRepository.executeDeleteAll() }
             executeDeleteMeal.await()
         }
     }
