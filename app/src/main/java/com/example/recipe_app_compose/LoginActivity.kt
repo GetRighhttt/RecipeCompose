@@ -115,6 +115,11 @@ class LoginActivity : ComponentActivity() {
                             onClick = {
                                 if (user == null) {
                                     createAccount(email, password, context = this@LoginActivity)
+                                    Toast.makeText(
+                                        this@LoginActivity,
+                                        "Account Created",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 } else {
                                     signIn(email, password, context = this@LoginActivity)
                                 }
@@ -136,7 +141,7 @@ class LoginActivity : ComponentActivity() {
         super.onStart()
         // Check if user is signed in (non-null) and update UI accordingly.
         val user = auth.currentUser
-        if(user != null) {
+        if (user != null) {
             startActivity(Intent(this, MainActivity::class.java))
             Log.d("USER_FIREBASE", "User: $user - ${user.email}")
         }
@@ -151,6 +156,11 @@ class LoginActivity : ComponentActivity() {
                     Log.d("USER_FIREBASE", "createUserWithEmail:success")
                     context.startActivity(Intent(context, MainActivity::class.java))
                     (context).finish()
+                    Toast.makeText(
+                        this@LoginActivity,
+                        "Account Created",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w("USER_FIREBASE", "createUserWithEmail:failure", task.exception)
@@ -173,6 +183,7 @@ class LoginActivity : ComponentActivity() {
                     Log.d("USER_FIREBASE", "signInWithEmail:success")
                     context.startActivity(Intent(context, MainActivity::class.java))
                     (context).finish()
+                    Toast.makeText(this@LoginActivity, "Account Created", Toast.LENGTH_SHORT).show()
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w("USER_FIREBASE", "signInWithEmail:failure", task.exception)
