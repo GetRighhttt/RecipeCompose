@@ -20,9 +20,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.DialogWithImage
@@ -75,6 +77,7 @@ fun CategoryMealScreen(categories: List<CategoryMeal>) {
 @Composable
 fun CategoryMealItem(category: CategoryMeal) {
     var alertState by remember { mutableStateOf(false) }
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .padding(8.dp)
@@ -82,7 +85,10 @@ fun CategoryMealItem(category: CategoryMeal) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = rememberAsyncImagePainter(category.strMealThumb),
+            painter = rememberAsyncImagePainter(
+                category.strMealThumb,
+                imageLoader = ImageLoader.Builder(context).crossfade(1500).build()
+            ),
             contentDescription = "Image",
             modifier = Modifier
                 .fillMaxSize()
@@ -94,7 +100,10 @@ fun CategoryMealItem(category: CategoryMeal) {
         if (alertState) {
             DialogWithImage(
                 text = category.strMeal,
-                painter = rememberAsyncImagePainter(category.strMealThumb),
+                painter = rememberAsyncImagePainter(
+                    category.strMealThumb,
+                    imageLoader = ImageLoader.Builder(context).crossfade(500).build()
+                ),
                 imageDescription = "Image",
                 onDismissRequest = { alertState = false },
                 onConfirmation = { alertState = false },

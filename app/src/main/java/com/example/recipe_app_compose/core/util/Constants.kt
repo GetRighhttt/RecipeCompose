@@ -9,4 +9,5 @@ object Constants {
     const val YELP_API_KEY =
         "vbM-Gqh-Gn7sF6frR9SEWe9O7gNnqB1gZadN8qLfiyPhDITiF5fySBMdZ9c7qaowT33t8WB05lziTfFmG3mRsx2iPEHoBMiws562ybGBrLfcJ3t4x9d_k-PhuhTzZnYx"
     const val YELP_BASE_URL = "https://api.yelp.com/v3/"
+    const val YELP_SEARCH_QUERY = "Steak in Wesley Chapel"
 }

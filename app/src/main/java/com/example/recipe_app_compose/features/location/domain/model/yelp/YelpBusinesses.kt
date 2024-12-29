@@ -24,10 +24,17 @@ data class YelpBusinesses(
 ) : Parcelable {
 
     @Composable
-    fun displayDistance(): String {
-        val milesPerMeter = 0.000621371
-        val distanceInMiles = "%.2f".format(distance * milesPerMeter)
-        return "$distanceInMiles miles"
+    fun displayRating(): String {
+        return rating.toInt().toString()
+    }
+
+    @Composable
+    fun displayPhoneNumber(): String {
+        return if (phone?.isNotBlank() == true) {
+            "(${phone.drop(2).dropLast(7)}) ${phone.drop(5).dropLast(4)} - ${phone.drop(8)}"
+        } else {
+            ""
+        }
     }
 }
 

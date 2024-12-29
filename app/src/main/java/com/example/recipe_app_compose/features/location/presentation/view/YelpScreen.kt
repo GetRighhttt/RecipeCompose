@@ -29,6 +29,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -38,9 +40,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.ReusableFullScreenDialog
+import com.example.recipe_app_compose.core.util.Constants
 import com.example.recipe_app_compose.features.location.domain.model.location.LocationData
 import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpBusinesses
 import com.example.recipe_app_compose.features.location.presentation.viewmodel.YelpViewModel
@@ -60,18 +64,22 @@ fun YelpScreen(modifier: Modifier = Modifier) {
     val isSearching by viewModel.isSearching.collectAsStateWithLifecycle()
     val searchResults by viewModel.businessList.collectAsStateWithLifecycle()
 
-    Box(modifier = modifier.fillMaxSize()) {
-        val focusManager = LocalFocusManager.current
-        Scaffold(
-            modifier = Modifier
+    val focusManager = LocalFocusManager.current
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) { innerPadding ->
+        Box(
+            modifier = modifier
                 .fillMaxSize()
-                .padding(16.dp)
-        ) { innerPadding ->
+                .padding(innerPadding)
+        ) {
             when {
                 viewState.loading -> CircularProgressIndicator(
                     modifier
-                        .align(Alignment.Center)
                         .padding(innerPadding)
+                        .align(Alignment.Center)
                 )
 
                 viewState.error != null -> AlertDialogExample(
@@ -80,7 +88,7 @@ fun YelpScreen(modifier: Modifier = Modifier) {
                     onDismissRequest = { alertDialogState = false },
                     onConfirmation = {
                         alertDialogState = false
-                        viewModel.getBusinesses(searchText)
+                        viewModel.getBusinesses(Constants.YELP_SEARCH_QUERY)
                     },
                 )
 
@@ -108,8 +116,8 @@ fun YelpScreen(modifier: Modifier = Modifier) {
                                     focusManager.moveFocus(FocusDirection.Enter)
                                 }
                             ),
-                            maxLines = 1,
-                            placeholder = { Text("Find Restaurants in Tampa") },
+                            maxLines = 3,
+                            placeholder = { Text("Enter name, location, etc. of business") },
                             enabled = true,
                             shape = RoundedCornerShape(30.dp),
                             modifier = Modifier
@@ -141,6 +149,7 @@ fun YelpScreen(modifier: Modifier = Modifier) {
             }
         }
     }
+
 }
 
 @Composable
@@ -154,6 +163,7 @@ fun YelpListScreen(categories: List<YelpBusinesses>) {
 
 @Composable
 fun YelpItem(category: YelpBusinesses) {
+    val context = LocalContext.current
     var alertState by remember { mutableStateOf(false) }
     val locationData =
         LocationData(category.coordinates.latitude, category.coordinates.longitude)
@@ -164,11 +174,14 @@ fun YelpItem(category: YelpBusinesses) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = rememberAsyncImagePainter(category.imageUrl),
+            painter = rememberAsyncImagePainter(
+                category.imageUrl,
+                imageLoader = ImageLoader.Builder(context).crossfade(500).build()
+            ),
             contentDescription = "Image",
+            contentScale = ContentScale.Crop,
             modifier = Modifier
-                .fillMaxSize()
-                .aspectRatio(1f)
+                .aspectRatio(1F)
                 .clickable(enabled = true, onClick = {
                     alertState = true
                 })
@@ -180,29 +193,22 @@ fun YelpItem(category: YelpBusinesses) {
             }
         }
         Text(
-            text = "${category.name} - ${category.rating} \uD83C\uDF1F",
-            style = MaterialTheme.typography.labelLarge,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(5.dp)
-        )
-        Text(
-            text = "${category.location.address1},\n ${category.location.city}, ${category.location.state} \n" +
-                    " ${category.location.country} ${category.location.zipCode}",
+            text = "${category.name} ${category.displayRating()} \uD83C\uDF1F",
             style = MaterialTheme.typography.labelMedium,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(3.dp)
+            modifier = Modifier.padding(top = 5.dp, bottom = 2.dp)
         )
         Text(
-            text = category.phone ?: "No Phone Number",
-            style = MaterialTheme.typography.labelMedium,
+            text = "${category.location.address1}, ${category.location.city}, ${category.location.state} " +
+                    "${category.location.country} ${category.location.zipCode}",
+            style = MaterialTheme.typography.labelSmall,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(2.dp)
+            modifier = Modifier.padding(bottom = 2.dp)
         )
         Text(
-            text = category.displayDistance(),
-            style = MaterialTheme.typography.labelMedium,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(2.dp)
+            text = category.displayPhoneNumber(),
+            style = MaterialTheme.typography.labelSmall,
+            textAlign = TextAlign.Center
         )
     }
 }

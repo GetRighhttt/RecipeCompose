@@ -47,6 +47,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.MessageCard
@@ -108,7 +109,8 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                                     favoriteDialogState = false
                                     favoriteViewState = true
                                     databaseViewModel.executeInsertMeal.invoke(
-                                        randomViewState.item?.first() ?: throw NoSuchElementException()
+                                        randomViewState.item?.first()
+                                            ?: throw NoSuchElementException()
                                     )
                                     Toast.makeText(
                                         context,
@@ -193,7 +195,10 @@ fun RandomMealItem(category: RandomMeal) {
             .fillMaxSize(),
     ) {
         Image(
-            painter = rememberAsyncImagePainter(category.strMealThumb ?: ""),
+            painter = rememberAsyncImagePainter(
+                category.strMealThumb ?: "",
+                imageLoader = ImageLoader.Builder(LocalContext.current).crossfade(400).build()
+            ),
             contentDescription = "Image",
             modifier = Modifier
                 .fillMaxSize()
@@ -210,25 +215,25 @@ fun RandomMealItem(category: RandomMeal) {
         Spacer(modifier = Modifier.padding(top = 20.dp))
 
         Text(
-            text = "Type : " + " ${category.strCategory ?: "" } ",
+            text = "Type : " + " ${category.strCategory ?: ""} ",
             style = MaterialTheme.typography.bodyMedium,
         )
 
         Spacer(modifier = Modifier.padding(top = 5.dp))
         Text(
-            text = "Originated : " + " ${category.strArea ?: "" } ",
+            text = "Originated : " + " ${category.strArea ?: ""} ",
             style = MaterialTheme.typography.bodyMedium,
         )
 
         Spacer(modifier = Modifier.padding(top = 5.dp))
         Text(
-            text = "Source : " + " ${category.strSource ?: "" } ",
+            text = "Source : " + " ${category.strSource ?: ""} ",
             style = MaterialTheme.typography.bodyMedium,
         )
 
         Spacer(modifier = Modifier.padding(top = 5.dp))
         Text(
-            text = "YouTube :  " + " ${category.strYoutube ?: "" } ",
+            text = "YouTube :  " + " ${category.strYoutube ?: ""} ",
             style = MaterialTheme.typography.bodyMedium,
         )
         Spacer(modifier = Modifier.padding(top = 5.dp))
