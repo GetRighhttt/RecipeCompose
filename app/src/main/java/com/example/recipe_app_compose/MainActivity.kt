@@ -61,11 +61,11 @@ import com.example.recipe_app_compose.core.components.ReusableFullScreenDialog
 import com.example.recipe_app_compose.core.navigation.CategoryScreen
 import com.example.recipe_app_compose.core.navigation.NavigationItem
 import com.example.recipe_app_compose.core.navigation.RecipeApp
+import com.example.recipe_app_compose.core.util.permissions.PermissionsRequestLauncher
+import com.example.recipe_app_compose.core.util.permissions.RequestNetworkPermissions
 import com.example.recipe_app_compose.features.categories.presentation.view.CategoryRecipeScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.IngredientScreen
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
-import com.example.recipe_app_compose.core.util.permissions.PermissionsRequestLauncher
-import com.example.recipe_app_compose.core.util.permissions.RequestNetworkPermissions
 import com.example.recipe_app_compose.features.location.presentation.view.YelpScreen
 import com.example.recipe_app_compose.ui.theme.Recipe_App_ComposeTheme
 import kotlinx.coroutines.Job
@@ -270,7 +270,7 @@ class MainActivity : ComponentActivity() {
                                     )
                                     putExtra(
                                         Intent.EXTRA_TEXT,
-                                        "Please checkout my application that I have created!"
+                                        "https://github.com/GetRighhttt/RecipeCompose"
                                     )
                                 }
                                 // another approach to error handling with resolve activity
