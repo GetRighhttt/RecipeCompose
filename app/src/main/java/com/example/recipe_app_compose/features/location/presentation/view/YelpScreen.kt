@@ -30,6 +30,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -39,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.ReusableFullScreenDialog
@@ -161,6 +163,7 @@ fun YelpListScreen(categories: List<YelpBusinesses>) {
 
 @Composable
 fun YelpItem(category: YelpBusinesses) {
+    val context = LocalContext.current
     var alertState by remember { mutableStateOf(false) }
     val locationData =
         LocationData(category.coordinates.latitude, category.coordinates.longitude)
@@ -171,7 +174,10 @@ fun YelpItem(category: YelpBusinesses) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = rememberAsyncImagePainter(category.imageUrl),
+            painter = rememberAsyncImagePainter(
+                category.imageUrl,
+                imageLoader = ImageLoader.Builder(context).crossfade(true).build()
+            ),
             contentDescription = "Image",
             contentScale = ContentScale.Crop,
             modifier = Modifier

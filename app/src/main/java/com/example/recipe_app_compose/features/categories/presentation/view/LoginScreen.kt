@@ -48,6 +48,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.MainActivity
 import com.example.recipe_app_compose.R
@@ -64,7 +65,9 @@ fun LoginForm() {
                 .fillMaxSize()
                 .padding(horizontal = 30.dp, vertical = 100.dp)
         ) {
-            Image(painter = rememberAsyncImagePainter(R.drawable.dining_two),
+            Image(painter = rememberAsyncImagePainter(
+                R.drawable.dining_two,
+                imageLoader = ImageLoader.Builder(context).crossfade(true).build()),
                 contentDescription = "Image",
                 modifier = Modifier
                     .height(150.dp)

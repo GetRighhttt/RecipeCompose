@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.DatabaseDialogWithImage
@@ -150,7 +151,10 @@ fun MealDBItem(meal: RandomMeal) {
                     .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Image(painter = rememberAsyncImagePainter(meal.strMealThumb),
+                Image(painter = rememberAsyncImagePainter(
+                    meal.strMealThumb,
+                    imageLoader = ImageLoader.Builder(context).crossfade(true).build()
+                ),
                     contentDescription = "Image",
                     modifier = Modifier
                         .fillMaxSize()
@@ -163,7 +167,10 @@ fun MealDBItem(meal: RandomMeal) {
                         text = meal.strMeal ?: "",
                         source = listOf(meal.strSource ?: ""),
                         youtube = listOf(meal.strYoutube ?: ""),
-                        painter = rememberAsyncImagePainter(meal.strMealThumb ?: ""),
+                        painter = rememberAsyncImagePainter(
+                            meal.strMealThumb ?: "",
+                            imageLoader = ImageLoader.Builder(context).crossfade(true).build()
+                        ),
                         imageDescription = "Image",
                         onDismissRequest = {
                             viewModel.executeDeleteMeal.invoke(meal)

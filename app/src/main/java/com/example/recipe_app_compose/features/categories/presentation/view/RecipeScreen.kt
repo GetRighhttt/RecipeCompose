@@ -18,8 +18,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.features.categories.domain.model.category.Category
 import com.example.recipe_app_compose.features.categories.domain.states.RecipeState
@@ -72,13 +74,17 @@ fun CategoryScreen(categories: List<Category>, navigateToDetail: (Category) -> U
 
 @Composable
 fun CategoryItem(category: Category, navigateToDetail: (Category) -> Unit) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(painter = rememberAsyncImagePainter(category.strCategoryThumb),
+        Image(painter = rememberAsyncImagePainter(
+            category.strCategoryThumb,
+            imageLoader = ImageLoader.Builder(context).crossfade(true).build()
+        ),
             contentDescription = "Image",
             modifier = Modifier
                 .fillMaxSize()

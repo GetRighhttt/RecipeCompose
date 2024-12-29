@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -37,6 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.DialogWithImage
@@ -148,6 +150,7 @@ fun IngredientMealScreen(categories: List<Ingredient>) {
 
 @Composable
 fun IngredientMealItem(category: Ingredient) {
+    val context = LocalContext.current
     var alertState by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
@@ -156,7 +159,10 @@ fun IngredientMealItem(category: Ingredient) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = rememberAsyncImagePainter(category.strMealThumb),
+            painter = rememberAsyncImagePainter(
+                category.strMealThumb,
+                imageLoader = ImageLoader.Builder(context).crossfade(true).build()
+                ),
             contentDescription = "Image",
             modifier = Modifier
                 .fillMaxSize()
@@ -168,7 +174,10 @@ fun IngredientMealItem(category: Ingredient) {
         if (alertState) {
             DialogWithImage(
                 text = category.strMeal,
-                painter = rememberAsyncImagePainter(category.strMealThumb),
+                painter = rememberAsyncImagePainter(
+                    category.strMealThumb,
+                    imageLoader = ImageLoader.Builder(context).crossfade(true).build()
+                ),
                 imageDescription = "Image",
                 onDismissRequest = { alertState = false },
                 onConfirmation = { alertState = false },
