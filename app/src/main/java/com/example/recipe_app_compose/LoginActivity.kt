@@ -23,7 +23,6 @@ class LoginActivity : ComponentActivity() {
             val context = LocalContext.current
             val permissionUtils = PermissionUtils(context)
             val connectionState by permissionUtils.rememberConnectivityState()
-
             val isConnected by remember(connectionState) {
                 derivedStateOf {
                     connectionState === PermissionUtils.NetworkConnectionState.Available
@@ -36,7 +35,7 @@ class LoginActivity : ComponentActivity() {
                    showDialog = true
                     AlertDialogExample(
                         dialogTitle = "Network Unavailable",
-                        dialogText = "Please connect to a network service to avoid app crashes.",
+                        dialogText = "Please connect to a network service to proceed further.",
                         onDismissRequest = { showDialog = false },
                         onConfirmation = { showDialog = false }
                     )

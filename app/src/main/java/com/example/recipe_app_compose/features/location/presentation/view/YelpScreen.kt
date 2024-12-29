@@ -60,18 +60,22 @@ fun YelpScreen(modifier: Modifier = Modifier) {
     val isSearching by viewModel.isSearching.collectAsStateWithLifecycle()
     val searchResults by viewModel.businessList.collectAsStateWithLifecycle()
 
-    Box(modifier = modifier.fillMaxSize()) {
-        val focusManager = LocalFocusManager.current
-        Scaffold(
-            modifier = Modifier
+    val focusManager = LocalFocusManager.current
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) { innerPadding ->
+        Box(
+            modifier = modifier
                 .fillMaxSize()
-                .padding(16.dp)
-        ) { innerPadding ->
+                .padding(innerPadding)
+        ) {
             when {
                 viewState.loading -> CircularProgressIndicator(
                     modifier
-                        .align(Alignment.Center)
                         .padding(innerPadding)
+                        .align(Alignment.Center)
                 )
 
                 viewState.error != null -> AlertDialogExample(
@@ -141,6 +145,7 @@ fun YelpScreen(modifier: Modifier = Modifier) {
             }
         }
     }
+
 }
 
 @Composable

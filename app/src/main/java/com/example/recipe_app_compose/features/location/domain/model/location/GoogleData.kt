@@ -6,5 +6,5 @@ data class GeoCodingResponse(
 )
 
 data class GeoCodingResult(
-    val formatted_address: String
+    val formattedAddress: String
 )
