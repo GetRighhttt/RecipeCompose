@@ -23,11 +23,9 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -106,17 +104,9 @@ class MainActivity : ComponentActivity() {
                         selectedIcon = Icons.Filled.Home,
                         unselectedIcon = Icons.Outlined.Home,
                     ), NavigationItem(
-                        title = "Favorites",
-                        selectedIcon = Icons.Filled.Favorite,
-                        unselectedIcon = Icons.Outlined.Favorite,
-                    ), NavigationItem(
                         title = "Settings",
                         selectedIcon = Icons.Filled.Settings,
                         unselectedIcon = Icons.Outlined.Settings,
-                    ), NavigationItem(
-                        title = "Shops Near Me",
-                        selectedIcon = Icons.Filled.ShoppingCart,
-                        unselectedIcon = Icons.Outlined.ShoppingCart,
                     ), NavigationItem(
                         title = "Info",
                         selectedIcon = Icons.Filled.Info,
@@ -150,25 +140,14 @@ class MainActivity : ComponentActivity() {
                                             }
 
                                             1 -> {
-                                                navController.navigate(CategoryScreen.FavoriteScreen.route)
-                                                closeDrawer.isActive
-                                            }
-
-                                            2 -> {
                                                 navController.navigate(CategoryScreen.SettingsScreen.route)
                                                 closeDrawer.isActive
                                             }
 
-                                            3 -> {
-                                                navController.navigate(CategoryScreen.YelpScreen.route)
-                                                closeDrawer.isActive
-                                            }
-
-                                            4 -> {
+                                            2 -> {
                                                 navController.navigate(CategoryScreen.InfoScreen.route)
                                                 closeDrawer.isActive
                                             }
-
                                         }
                                     },
                                     icon = {
@@ -232,19 +211,6 @@ class MainActivity : ComponentActivity() {
                                         }
                                     }
                                 }
-                                IconButton(onClick = {
-                                    showFullDialogBox = true
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.Default.PlayArrow,
-                                        contentDescription = "Play"
-                                    )
-                                }
-                                if (showFullDialogBox) {
-                                    FullScreenDialog {
-                                        showFullDialogBox = false
-                                    }
-                                }
                             })
                     }, bottomBar = {
                         MyBottomAppBar(modifier = Modifier.fillMaxWidth(), content = {
@@ -299,21 +265,24 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                             IconButton(onClick = {
+                                showFullDialogBox = true
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.PlayArrow,
+                                    contentDescription = "Play"
+                                )
+                            }
+                            if (showFullDialogBox) {
+                                FullScreenDialog {
+                                    showFullDialogBox = false
+                                }
+                            }
+                            IconButton(onClick = {
                                 showBottomSheet = true
                             }) {
                                 Icon(
                                     imageVector = Icons.Default.KeyboardArrowUp,
                                     contentDescription = "Settings"
-                                )
-                            }
-                            IconButton(onClick = {
-                                navController.navigate(CategoryScreen.InfoScreen.route) {
-                                    launchSingleTop = true
-                                }
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Default.Info,
-                                    contentDescription = "Info"
                                 )
                             }
                         })
