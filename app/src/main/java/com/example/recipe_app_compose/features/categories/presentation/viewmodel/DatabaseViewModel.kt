@@ -27,23 +27,22 @@ class DatabaseViewModel(
 
     internal val executeInsertMeal: (RandomMeal) -> Job = { meal ->
         viewModelScope.launch(Dispatchers.IO) {
-            delay(500)
             val insertMeal = async { databaseRepository.executeInsertMeal(meal = meal) }
+            delay(500)
             insertMeal.await()
         }
     }
 
     internal val executeDeleteMeal: (RandomMeal) -> Job = { meal ->
         viewModelScope.launch(Dispatchers.IO) {
-            delay(500)
             val deleteMeal = async { databaseRepository.executeDeleteMeal(meal = meal) }
+            delay(500)
             deleteMeal.await()
         }
     }
 
     internal val executeGetAllMeals: () -> Job = {
         viewModelScope.launch {
-            delay(500)
             val getAllMeals = async {
                 databaseRepository.executeGetAllMeals().collectLatest { meal ->
                     _currentState.update {
@@ -55,14 +54,15 @@ class DatabaseViewModel(
                     }
                 }
             }
+            delay(500)
             getAllMeals.await()
         }
     }
 
     internal val executeDeleteAll: () -> Job = {
         viewModelScope.launch(Dispatchers.IO) {
-            delay(500)
             val executeDeleteMeal = async { databaseRepository.executeDeleteAll() }
+            delay(500)
             executeDeleteMeal.await()
         }
     }
