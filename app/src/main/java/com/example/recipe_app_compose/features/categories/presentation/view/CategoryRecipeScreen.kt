@@ -85,7 +85,10 @@ fun CategoryMealItem(category: CategoryMeal) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = rememberAsyncImagePainter(category.strMealThumb),
+            painter = rememberAsyncImagePainter(
+                category.strMealThumb,
+                imageLoader = ImageLoader.Builder(context).crossfade(1500).build()
+            ),
             contentDescription = "Image",
             modifier = Modifier
                 .fillMaxSize()
@@ -99,7 +102,7 @@ fun CategoryMealItem(category: CategoryMeal) {
                 text = category.strMeal,
                 painter = rememberAsyncImagePainter(
                     category.strMealThumb,
-                    imageLoader = ImageLoader.Builder(context).crossfade(true).build()
+                    imageLoader = ImageLoader.Builder(context).crossfade(500).build()
                 ),
                 imageDescription = "Image",
                 onDismissRequest = { alertState = false },

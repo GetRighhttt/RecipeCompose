@@ -41,7 +41,7 @@ fun DetailScreen(category: Category) {
         Image(
             painter = rememberAsyncImagePainter(
                 category.strCategoryThumb,
-                imageLoader = ImageLoader.Builder(context).crossfade(true).build()
+                imageLoader = ImageLoader.Builder(context).crossfade(500).build()
             ), modifier = Modifier
                 .wrapContentSize() // wrap in layout
                 .height(225.dp)

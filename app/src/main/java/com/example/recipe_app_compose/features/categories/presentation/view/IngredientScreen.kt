@@ -161,7 +161,7 @@ fun IngredientMealItem(category: Ingredient) {
         Image(
             painter = rememberAsyncImagePainter(
                 category.strMealThumb,
-                imageLoader = ImageLoader.Builder(context).crossfade(true).build()
+                imageLoader = ImageLoader.Builder(context).crossfade(500).build()
                 ),
             contentDescription = "Image",
             modifier = Modifier
@@ -176,7 +176,7 @@ fun IngredientMealItem(category: Ingredient) {
                 text = category.strMeal,
                 painter = rememberAsyncImagePainter(
                     category.strMealThumb,
-                    imageLoader = ImageLoader.Builder(context).crossfade(true).build()
+                    imageLoader = ImageLoader.Builder(context).crossfade(500).build()
                 ),
                 imageDescription = "Image",
                 onDismissRequest = { alertState = false },

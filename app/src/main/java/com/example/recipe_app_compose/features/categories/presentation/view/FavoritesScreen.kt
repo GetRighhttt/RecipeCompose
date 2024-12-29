@@ -153,7 +153,7 @@ fun MealDBItem(meal: RandomMeal) {
             ) {
                 Image(painter = rememberAsyncImagePainter(
                     meal.strMealThumb,
-                    imageLoader = ImageLoader.Builder(context).crossfade(true).build()
+                    imageLoader = ImageLoader.Builder(context).crossfade(500).build()
                 ),
                     contentDescription = "Image",
                     modifier = Modifier
@@ -169,7 +169,7 @@ fun MealDBItem(meal: RandomMeal) {
                         youtube = listOf(meal.strYoutube ?: ""),
                         painter = rememberAsyncImagePainter(
                             meal.strMealThumb ?: "",
-                            imageLoader = ImageLoader.Builder(context).crossfade(true).build()
+                            imageLoader = ImageLoader.Builder(context).crossfade(500).build()
                         ),
                         imageDescription = "Image",
                         onDismissRequest = {

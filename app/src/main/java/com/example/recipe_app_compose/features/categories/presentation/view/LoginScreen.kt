@@ -67,7 +67,7 @@ fun LoginForm() {
         ) {
             Image(painter = rememberAsyncImagePainter(
                 R.drawable.dining_two,
-                imageLoader = ImageLoader.Builder(context).crossfade(true).build()),
+                imageLoader = ImageLoader.Builder(context).crossfade(1000).build()),
                 contentDescription = "Image",
                 modifier = Modifier
                     .height(150.dp)

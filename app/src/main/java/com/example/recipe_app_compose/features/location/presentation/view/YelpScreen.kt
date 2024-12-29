@@ -176,7 +176,7 @@ fun YelpItem(category: YelpBusinesses) {
         Image(
             painter = rememberAsyncImagePainter(
                 category.imageUrl,
-                imageLoader = ImageLoader.Builder(context).crossfade(true).build()
+                imageLoader = ImageLoader.Builder(context).crossfade(500).build()
             ),
             contentDescription = "Image",
             contentScale = ContentScale.Crop,

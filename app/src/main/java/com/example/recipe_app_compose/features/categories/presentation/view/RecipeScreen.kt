@@ -83,7 +83,7 @@ fun CategoryItem(category: Category, navigateToDetail: (Category) -> Unit) {
     ) {
         Image(painter = rememberAsyncImagePainter(
             category.strCategoryThumb,
-            imageLoader = ImageLoader.Builder(context).crossfade(true).build()
+            imageLoader = ImageLoader.Builder(context).crossfade(500).build()
         ),
             contentDescription = "Image",
             modifier = Modifier
