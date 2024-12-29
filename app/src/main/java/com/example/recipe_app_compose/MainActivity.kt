@@ -290,7 +290,7 @@ class MainActivity : ComponentActivity() {
                                     )
                                     putExtra(
                                         Intent.EXTRA_TEXT,
-                                        "Please checkout my Rick and Morty application that I have created!"
+                                        "Please checkout my application that I have created!"
                                     )
                                 }
                                 // another approach to error handling with resolve activity
