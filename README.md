@@ -39,17 +39,18 @@ This app uses `TheMealDB`, `YelpFusion`, and `Google Maps` APIs to allow users t
 
 ## **Demo**
 
-### **Slow Playback Speed Down To 0.25x**
-https://github.com/user-attachments/assets/ee3fdfcf-9be6-447a-997a-d1d17fac035c
+### **Slow Playback Speed Down**
 
-### **Source Website and YouTube**
-https://github.com/user-attachments/assets/88aa379a-1c77-440e-a97b-c4a69b418e03
+https://github.com/user-attachments/assets/a831f9f5-f571-4027-b85e-4542936bf09e
 
-### **Google Maps**
-https://github.com/user-attachments/assets/c375fd36-1e0d-4bea-b857-26e4dd622d43
+https://github.com/user-attachments/assets/9272f3ba-72a5-403f-bcfc-da8735dccdb2
 
-### Monitoring Connectivity
-https://github.com/user-attachments/assets/cf60fb7d-6bd4-4ee7-af13-73e4a18118d8
+###Maps
+
+https://github.com/user-attachments/assets/85ea40df-5807-4948-b3f7-42c5830a4a0a
+
+### Local Storage
+https://github.com/user-attachments/assets/5f3f7408-b13d-4225-8854-7ce993fea4a4
 
 ## **Contact**
 
