@@ -23,11 +23,6 @@ data class YelpBusinesses(
     val distance: Double // meters
 ) : Parcelable {
 
-//    fun displayDistance(): String {
-//        val milesPerMeter = 0.000621371
-//        val distanceInMiles = "%.2f".format(distance * milesPerMeter)
-//        return "$distanceInMiles miles"
-
     @Composable
     fun displayRating(): String {
         return rating.toInt().toString()
