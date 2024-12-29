@@ -66,6 +66,14 @@
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Recipe_App_Compose" />
+        <receiver
+            android:name=".core.util.ConnectivityReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
 
     </application>
 

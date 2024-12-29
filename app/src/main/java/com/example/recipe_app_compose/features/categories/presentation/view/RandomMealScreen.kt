@@ -108,7 +108,7 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                                     favoriteDialogState = false
                                     favoriteViewState = true
                                     databaseViewModel.executeInsertMeal.invoke(
-                                        randomViewState.item?.first()!!
+                                        randomViewState.item?.first() ?: throw NoSuchElementException()
                                     )
                                     Toast.makeText(
                                         context,

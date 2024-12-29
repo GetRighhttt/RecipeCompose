@@ -1,7 +1,10 @@
 package com.example.recipe_app_compose
 
 import android.content.Intent
+import android.content.IntentFilter
+import android.net.ConnectivityManager
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -61,24 +64,34 @@ import com.example.recipe_app_compose.core.components.ReusableFullScreenDialog
 import com.example.recipe_app_compose.core.navigation.CategoryScreen
 import com.example.recipe_app_compose.core.navigation.NavigationItem
 import com.example.recipe_app_compose.core.navigation.RecipeApp
+import com.example.recipe_app_compose.core.util.ConnectivityReceiver
 import com.example.recipe_app_compose.features.categories.presentation.view.CategoryRecipeScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.IngredientScreen
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
-import com.example.recipe_app_compose.features.location.presentation.view.RequestPermissions
+import com.example.recipe_app_compose.features.location.presentation.view.RequestLocationPermissions
+import com.example.recipe_app_compose.features.location.presentation.view.RequestNetworkPermissions
 import com.example.recipe_app_compose.features.location.presentation.view.YelpScreen
 import com.example.recipe_app_compose.ui.theme.Recipe_App_ComposeTheme
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), ConnectivityReceiver.ConnectivityReceiverListener {
+
+    private val networkReceiver by lazy { ConnectivityReceiver() }
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        registerReceiver(
+            networkReceiver,
+            IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+        )
+
         setContent {
             // request permissions
-            RequestPermissions()
+            RequestNetworkPermissions()
+            RequestLocationPermissions()
 
             val sheetState = rememberModalBottomSheetState()
             var showBottomSheet by remember { mutableStateOf(false) }
@@ -372,5 +385,23 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        ConnectivityReceiver.connectivityReceiverListener = this
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(networkReceiver)
+    }
+
+    override fun onNetworkConnectionChanged(isConnected: Boolean) {
+        if (!isConnected) {
+            Toast.makeText(this, "No internet connection", Toast.LENGTH_LONG).show()
+        } else {
+            Toast.makeText(this, "Internet connection available", Toast.LENGTH_LONG).show()
+        }
     }
 }
