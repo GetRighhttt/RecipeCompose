@@ -1,5 +1,6 @@
 package com.example.recipe_app_compose.features.categories.presentation.view
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -15,16 +16,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.features.categories.domain.model.category.Category
 import com.example.recipe_app_compose.features.categories.domain.states.RecipeState
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
@@ -37,7 +33,6 @@ fun RecipeScreen(
 ) {
     // declare view model and state variable
     val viewModel: RecipeViewModel = viewModel()
-    var alertDialogState by remember { mutableStateOf(true) }
 
     Scaffold(
         modifier = modifier
@@ -51,14 +46,10 @@ fun RecipeScreen(
         ) {
             when {
                 viewState.loading -> CircularProgressIndicator(modifier.align(Alignment.Center))
-                viewState.error != null -> AlertDialogExample(dialogTitle = "Error",
-                    dialogText = "Error occurred: ${viewState.error}",
-                    onDismissRequest = { alertDialogState = false },
-                    onConfirmation = {
-                        viewModel.fetchCategories()
-                        alertDialogState = false
-                    })
-
+                viewState.error != null -> {
+                    viewModel.fetchCategories()
+                    Log.d("RECIPE_SCREEN", "Error in Recipe Screen")
+                }
                 else -> {
                     // display list of categories
                     CategoryScreen(categories = viewState.list ?: emptyList(), navigateToDetail)

@@ -92,7 +92,7 @@ fun RequestNetworkPermissions() {
                 && permissions[Manifest.permission.ACCESS_WIFI_STATE] == true
                 && permissions[Manifest.permission.INTERNET] == true
             ) {
-                networkUtils.networkCallback
+                networkUtils.networkCallback{}
             } else {
                 val rationaleRequired = ActivityCompat.shouldShowRequestPermissionRationale(
                     context as Activity,

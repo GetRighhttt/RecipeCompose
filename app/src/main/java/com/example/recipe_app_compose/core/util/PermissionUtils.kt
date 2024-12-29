@@ -10,6 +10,10 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Looper
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.produceState
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import com.example.recipe_app_compose.features.location.domain.model.location.LocationData
 import com.example.recipe_app_compose.features.location.presentation.viewmodel.LocationViewModel
@@ -20,9 +24,12 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import java.util.Locale
 
-internal class PermissionUtils(private val context: Context) {
+class PermissionUtils(private val context: Context) {
 
     /*
     Location Data
@@ -111,24 +118,68 @@ internal class PermissionUtils(private val context: Context) {
         .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
         .build()
 
-    internal val networkCallback = object : ConnectivityManager.NetworkCallback() {
+    sealed interface NetworkConnectionState {
+        data object Available : NetworkConnectionState
+        data object Unavailable : NetworkConnectionState
+    }
+
+    internal fun networkCallback(callback: (NetworkConnectionState) -> Unit): ConnectivityManager.NetworkCallback = object : ConnectivityManager.NetworkCallback() {
         // network is available for use
         override fun onAvailable(network: Network) {
-            super.onAvailable(network)
+            callback(NetworkConnectionState.Available)
         }
 
-        // Network capabilities have changed for the network
-        override fun onCapabilitiesChanged(
-            network: Network,
-            networkCapabilities: NetworkCapabilities
-        ) {
-            super.onCapabilitiesChanged(network, networkCapabilities)
-            val unMetered = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
-        }
-
-        // lost network connection
         override fun onLost(network: Network) {
-            super.onLost(network)
+            callback(NetworkConnectionState.Unavailable)
+        }
+    }
+
+    private fun getCurrentConnectivityState(connectivityManager: ConnectivityManager): NetworkConnectionState {
+        val network = connectivityManager.activeNetwork
+
+        val isConnected = connectivityManager
+            .getNetworkCapabilities(network)
+            ?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) ?: false
+
+        return if (isConnected) NetworkConnectionState.Available else NetworkConnectionState.Unavailable
+    }
+
+    private fun Context.observeConnectivityAsFlow(): Flow<NetworkConnectionState> = callbackFlow {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        val callback = networkCallback { connectionState ->
+            trySend(connectionState)
+        }
+
+        val networkRequest = NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .build()
+
+        connectivityManager.registerNetworkCallback(networkRequest, callback)
+
+        val currentState = getCurrentConnectivityState(connectivityManager)
+        trySend(currentState)
+
+        awaitClose {
+            connectivityManager.unregisterNetworkCallback(callback)
+        }
+    }
+
+    private val Context.currentConnectivityState: NetworkConnectionState
+        get() {
+            val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+            return getCurrentConnectivityState(connectivityManager)
+        }
+
+    @Composable
+    fun rememberConnectivityState(): State<NetworkConnectionState> {
+        val context = LocalContext.current
+
+        return produceState(initialValue = context.currentConnectivityState) {
+            context.observeConnectivityAsFlow().collect {
+                value = it
+            }
         }
     }
 }

@@ -1,13 +1,12 @@
 package com.example.recipe_app_compose
 
 import android.content.Intent
-import android.content.IntentFilter
-import android.net.ConnectivityManager
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,6 +31,7 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -47,6 +47,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -54,8 +55,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.recipe_app_compose.core.components.FullScreenDialog
@@ -64,7 +70,7 @@ import com.example.recipe_app_compose.core.components.ReusableFullScreenDialog
 import com.example.recipe_app_compose.core.navigation.CategoryScreen
 import com.example.recipe_app_compose.core.navigation.NavigationItem
 import com.example.recipe_app_compose.core.navigation.RecipeApp
-import com.example.recipe_app_compose.core.util.ConnectivityReceiver
+import com.example.recipe_app_compose.core.util.PermissionUtils
 import com.example.recipe_app_compose.features.categories.presentation.view.CategoryRecipeScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.IngredientScreen
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
@@ -75,20 +81,24 @@ import com.example.recipe_app_compose.ui.theme.Recipe_App_ComposeTheme
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class MainActivity : ComponentActivity(), ConnectivityReceiver.ConnectivityReceiverListener {
+class MainActivity : ComponentActivity() {
 
-    private val networkReceiver by lazy { ConnectivityReceiver() }
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        registerReceiver(
-            networkReceiver,
-            IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
-        )
-
         setContent {
+
+            val context = LocalContext.current
+            val permissionUtils = PermissionUtils(context)
+            val connectionState by permissionUtils.rememberConnectivityState()
+
+            val isConnected by remember(connectionState) {
+                derivedStateOf {
+                    connectionState === PermissionUtils.NetworkConnectionState.Available
+                }
+            }
             // request permissions
             RequestNetworkPermissions()
             RequestLocationPermissions()
@@ -377,31 +387,37 @@ class MainActivity : ComponentActivity(), ConnectivityReceiver.ConnectivityRecei
                                 }
                             }
                         }
-                        RecipeApp(
-                            navController = navController, modifier = Modifier.padding(innerPadding)
-                        )
+                        if (!isConnected) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(innerPadding)
+                                    .fillMaxSize(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = "Network Unavailable. Please consider connecting to a Network Service...",
+                                    fontSize = 22.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.padding(8.dp)
+                                )
+                                CircularProgressIndicator(
+                                    modifier = Modifier
+                                        .padding(innerPadding)
+                                        .align(Alignment.CenterHorizontally)
+                                )
+                            }
+                        } else {
+                            RecipeApp(
+                                navController = navController,
+                                modifier = Modifier.padding(innerPadding)
+                            )
+                            Toast.makeText(this, "Network Connected", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
-        }
-
-    }
-
-    override fun onResume() {
-        super.onResume()
-        ConnectivityReceiver.connectivityReceiverListener = this
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        unregisterReceiver(networkReceiver)
-    }
-
-    override fun onNetworkConnectionChanged(isConnected: Boolean) {
-        if (!isConnected) {
-            Toast.makeText(this, "No internet connection", Toast.LENGTH_LONG).show()
-        } else {
-            Toast.makeText(this, "Internet connection available", Toast.LENGTH_LONG).show()
         }
     }
 }
