@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -49,13 +51,14 @@ fun SettingsInfo(modifier: Modifier) {
     val context = LocalContext.current
     Column(
         modifier = modifier
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Top,
+            .padding(5.dp)
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.Top
     ) {
         Text(
             text = "Settings",
             textAlign = TextAlign.Start,
-            style = MaterialTheme.typography.displaySmall,
+            style = MaterialTheme.typography.labelLarge,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 10.dp, bottom = 30.dp)
@@ -67,7 +70,7 @@ fun SettingsInfo(modifier: Modifier) {
             Text(
                 text = "Personal Details",
                 textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
@@ -83,7 +86,7 @@ fun SettingsInfo(modifier: Modifier) {
             Text(
                 text = "Preferences",
                 textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
@@ -99,7 +102,7 @@ fun SettingsInfo(modifier: Modifier) {
             Text(
                 text = "Information",
                 textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
@@ -115,7 +118,7 @@ fun SettingsInfo(modifier: Modifier) {
             Text(
                 text = "Accessibility",
                 textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
@@ -131,7 +134,7 @@ fun SettingsInfo(modifier: Modifier) {
             Text(
                 text = "Privacy",
                 textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
@@ -147,7 +150,7 @@ fun SettingsInfo(modifier: Modifier) {
             Text(
                 text = "Security",
                 textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
@@ -163,7 +166,7 @@ fun SettingsInfo(modifier: Modifier) {
             Text(
                 text = "Updates",
                 textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
@@ -179,7 +182,7 @@ fun SettingsInfo(modifier: Modifier) {
             Text(
                 text = "FAQ",
                 textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
@@ -195,7 +198,7 @@ fun SettingsInfo(modifier: Modifier) {
             Text(
                 text = "Contact",
                 textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
@@ -205,7 +208,7 @@ fun SettingsInfo(modifier: Modifier) {
             MinimalDialog("Contact Page") { contactState = false }
         }
         HorizontalDivider()
-        Spacer(modifier = Modifier.padding(bottom = 50.dp))
+        Spacer(modifier = Modifier.padding(bottom = 10.dp))
         OutlinedButton(
             onClick = {
                 dialogState = true
