@@ -47,6 +47,12 @@ class YelpViewModel(
             } else {
                 businesses?.filter { business ->
                     business.name.contains(text)
+                    business.location.address1.contains(text)
+                    business.location.city.contains(text)
+                    business.location.state.contains(text)
+                    business.location.country.contains(text)
+                    business.location.zipCode?.contains(text) ?: ""
+                    business.phone?.contains(text) ?: false
                 }.also {
                     delay(1500L)
                     getBusinesses(text)
@@ -72,7 +78,7 @@ class YelpViewModel(
                 val response = repository.searchBusinesses(
                     BEARER,
                     query,
-                    DEFAULT_LOCATION,
+                    query,
                     DEFAULT_LIMIT,
                     DEFAULT_OFFSET
                 )) {
@@ -96,11 +102,10 @@ class YelpViewModel(
     }
 
     init {
-        getBusinesses("")
+        getBusinesses(Constants.YELP_SEARCH_QUERY)
     }
 
     companion object {
-        const val DEFAULT_LOCATION = "Tampa"
         private const val BEARER = "Bearer ${Constants.YELP_API_KEY}"
         private const val DEFAULT_LIMIT: UInt = 50U
         private const val DEFAULT_OFFSET: UInt = 0U
