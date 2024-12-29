@@ -1,7 +1,7 @@
 ## **Recipe Compose**
 
 ## **Introduction**
-This app uses `TheMealDB`, `YelpFusion`, and `Google Maps` APIs to allow users to preview meals by way of their ingredients, and categories, and even gives access to random meals. I have leveraged most of the Jetpack Components to create this application and further explore Jetpack Compose. A user can save their favorite meals, visit the source of the meals, watch how to prepare the meals on YouTube, search for restaurants in the Tampa area using the Yelp API (had to specify location unfortunately), and more. I also added Firebase for authentication, firestore, analytics, and performance metrics to familiarize myself with Jetpack Compose. I'm still exploring Compose so this project introduced and reinforced concepts I haven't worked with. I tracked my progress and created issues similar to a regular workflow to show progression. I'm looking to add more progressively so I'm open to collaboration!
+This app uses `TheMealDB`, `YelpFusion`, and `Google Maps` APIs to allow users to preview meals by way of their ingredients, and categories, and even gives access to random meals. I have leveraged most of the Jetpack Components to create this application and further explore Jetpack Compose. A user can save their favorite meals, visit the source of the meals, watch how to prepare the meals on YouTube, search for businesses in the area, and more. I also added Firebase for authentication, firestore, analytics, and performance metrics. I tracked my progress and created issues similar to a regular workflow to show progression. I'm looking to add more progressively so I'm open to collaboration!
 
 ## **Installation**
  
