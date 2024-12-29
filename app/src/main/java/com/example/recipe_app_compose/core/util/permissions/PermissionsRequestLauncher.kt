@@ -1,4 +1,4 @@
-package com.example.recipe_app_compose.features.location.presentation.view
+package com.example.recipe_app_compose.core.util.permissions
 
 import android.Manifest
 import android.app.Activity
@@ -10,13 +10,12 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
-import com.example.recipe_app_compose.core.util.PermissionUtils
 import com.example.recipe_app_compose.features.location.presentation.viewmodel.LocationViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun RequestLocationPermissions() {
+fun PermissionsRequestLauncher() {
 
     // context
     val context = LocalContext.current

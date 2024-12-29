@@ -1,4 +1,4 @@
-package com.example.recipe_app_compose.core.util
+package com.example.recipe_app_compose.core.util.permissions
 
 import android.annotation.SuppressLint
 import android.content.Context

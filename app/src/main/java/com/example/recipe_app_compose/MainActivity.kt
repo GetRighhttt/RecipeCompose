@@ -64,8 +64,8 @@ import com.example.recipe_app_compose.core.navigation.RecipeApp
 import com.example.recipe_app_compose.features.categories.presentation.view.CategoryRecipeScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.IngredientScreen
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
-import com.example.recipe_app_compose.features.location.presentation.view.RequestLocationPermissions
-import com.example.recipe_app_compose.features.location.presentation.view.RequestNetworkPermissions
+import com.example.recipe_app_compose.core.util.permissions.PermissionsRequestLauncher
+import com.example.recipe_app_compose.core.util.permissions.RequestNetworkPermissions
 import com.example.recipe_app_compose.features.location.presentation.view.YelpScreen
 import com.example.recipe_app_compose.ui.theme.Recipe_App_ComposeTheme
 import kotlinx.coroutines.Job
@@ -81,7 +81,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             // request permissions
             RequestNetworkPermissions()
-            RequestLocationPermissions()
+            PermissionsRequestLauncher()
 
             val sheetState = rememberModalBottomSheetState()
             var showBottomSheet by remember { mutableStateOf(false) }

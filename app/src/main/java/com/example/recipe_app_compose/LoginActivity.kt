@@ -11,7 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.example.recipe_app_compose.core.components.AlertDialogExample
-import com.example.recipe_app_compose.core.util.PermissionUtils
+import com.example.recipe_app_compose.core.util.permissions.PermissionUtils
 import com.example.recipe_app_compose.features.categories.presentation.view.LoginForm
 import com.example.recipe_app_compose.ui.theme.MyLoginApplicationTheme
 

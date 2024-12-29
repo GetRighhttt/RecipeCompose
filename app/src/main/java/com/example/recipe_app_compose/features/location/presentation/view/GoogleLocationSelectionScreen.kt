@@ -15,7 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.recipe_app_compose.core.util.PermissionUtils
+import com.example.recipe_app_compose.core.util.permissions.PermissionUtils
 import com.example.recipe_app_compose.features.location.domain.model.location.LocationData
 import com.example.recipe_app_compose.features.location.presentation.viewmodel.LocationViewModel
 import com.google.android.gms.maps.model.CameraPosition
