@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import com.example.recipe_app_compose.ui.theme.Recipe_App_ComposeTheme
 
 @SuppressLint("CustomSplashScreen")
 class SplashScreenActivity : ComponentActivity() {
@@ -26,7 +27,9 @@ class SplashScreenActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            SplashScreen()
+            Recipe_App_ComposeTheme {
+                SplashScreen()
+            }
         }
     }
 }
