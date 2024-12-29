@@ -48,6 +48,9 @@ https://github.com/user-attachments/assets/88aa379a-1c77-440e-a97b-c4a69b418e03
 ### **Google Maps**
 https://github.com/user-attachments/assets/c375fd36-1e0d-4bea-b857-26e4dd622d43
 
+### Monitoring Connectivity
+https://github.com/user-attachments/assets/cf60fb7d-6bd4-4ee7-af13-73e4a18118d8
+
 ## **Contact**
 
 If you have any questions or comments, please contact **stefanbusiness95@gmail.com**.
