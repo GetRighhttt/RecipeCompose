@@ -218,14 +218,6 @@ class MainActivity : ComponentActivity() {
                             },
                             actions = {
                                 IconButton(onClick = {
-                                    showBottomSheet = true
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.Default.KeyboardArrowUp,
-                                        contentDescription = "Up"
-                                    )
-                                }
-                                IconButton(onClick = {
                                     showSearchDialog = true
                                 }) {
                                     Icon(
@@ -307,12 +299,10 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                             IconButton(onClick = {
-                                navController.navigate(CategoryScreen.SettingsScreen.route) {
-                                    launchSingleTop = true
-                                }
+                                showBottomSheet = true
                             }) {
                                 Icon(
-                                    imageVector = Icons.Default.Settings,
+                                    imageVector = Icons.Default.KeyboardArrowUp,
                                     contentDescription = "Settings"
                                 )
                             }
