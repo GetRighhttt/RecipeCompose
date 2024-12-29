@@ -319,7 +319,7 @@ class MainActivity : ComponentActivity() {
                                             }
                                         })
                                 }) { innerPadding ->
-                                    Spacer(modifier = Modifier.padding(top = 20.dp))
+                                    Spacer(modifier = Modifier.padding(innerPadding))
                                     Column(modifier = Modifier.padding(innerPadding)) {
                                         CategoryRecipeScreen(modifier = Modifier.fillMaxSize())
                                     }
