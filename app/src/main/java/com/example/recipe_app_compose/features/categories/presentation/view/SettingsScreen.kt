@@ -25,8 +25,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.MinimalDialog
 
@@ -229,12 +231,13 @@ fun SettingsInfo(modifier: Modifier) {
         }
         if (dialogState) {
             AlertDialogExample(
-                dialogTitle = "Delete Account",
-                dialogText = "Are you sure you want to delete your account?",
+                dialogTitle = stringResource(R.string.delete_account),
+                dialogText = stringResource(R.string.are_you_sure_you_want_to_delete_your_account),
                 onDismissRequest = { dialogState = false },
                 onConfirmation = {
                     dialogState = false
-                    Toast.makeText(context, "Your account has been deleted", LENGTH_LONG).show()
+                    Toast.makeText(context,
+                        context.getString(R.string.your_account_has_been_deleted), LENGTH_LONG).show()
                 },
             )
         }

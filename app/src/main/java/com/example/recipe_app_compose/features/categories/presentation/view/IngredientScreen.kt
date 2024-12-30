@@ -45,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -57,6 +58,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
+import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.MessageCard
 import com.example.recipe_app_compose.core.components.VerticalScrollingWithFixedHeightTextDemo
@@ -221,7 +223,7 @@ fun IngredientMealItem(category: Ingredient) {
                                     }) {
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                        contentDescription = "Back"
+                                        contentDescription = stringResource(R.string.back)
                                     )
                                 }
                             }
@@ -253,14 +255,14 @@ fun IngredientMealItem(category: Ingredient) {
                                 imageLoader = ImageLoader.Builder(LocalContext.current)
                                     .crossfade(400).build()
                             ),
-                            contentDescription = "Image",
+                            contentDescription = stringResource(R.string.image),
                             modifier = Modifier
                                 .aspectRatio(0.9F)
                         )
 
                         Spacer(modifier = Modifier.padding(top = 5.dp))
                         Text(
-                            text = "Details",
+                            text = stringResource(R.string.details),
                             style = MaterialTheme.typography.titleLarge,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth()

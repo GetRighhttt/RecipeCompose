@@ -42,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -49,6 +50,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
+import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.MessageCard
 import com.example.recipe_app_compose.core.components.VerticalScrollingWithFixedHeightTextDemo
@@ -94,13 +96,13 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                             }) {
                             Icon(
                                 imageVector = if (favoriteViewState) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                                contentDescription = "Favorite"
+                                contentDescription = stringResource(R.string.favorites)
                             )
                         }
                         if (favoriteDialogState) {
                             AlertDialogExample(
-                                dialogTitle = "Favorite",
-                                dialogText = "Would you like to add this to your favorites?",
+                                dialogTitle = stringResource(R.string.favorites),
+                                dialogText = stringResource(R.string.would_you_like_to_add_this_to_your_favorites),
                                 onDismissRequest = {
                                     favoriteDialogState = false
                                     favoriteViewState = false
@@ -130,7 +132,7 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                             }) {
                             Icon(
                                 imageVector = Icons.Default.Refresh,
-                                contentDescription = "Refresh"
+                                contentDescription = stringResource(R.string.refresh)
                             )
                         }
                     }
@@ -147,7 +149,7 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
 
                 randomViewState.error != null ->
                     AlertDialogExample(
-                        dialogTitle = "Error",
+                        dialogTitle = stringResource(R.string.error),
                         dialogText = "Error occurred: ${randomViewState.error}",
                         onDismissRequest = { alertDialogState = false },
                         onConfirmation = {
@@ -199,7 +201,7 @@ fun RandomMealItem(category: RandomMeal) {
                 category.strMealThumb ?: "",
                 imageLoader = ImageLoader.Builder(LocalContext.current).crossfade(400).build()
             ),
-            contentDescription = "Image",
+            contentDescription = stringResource(R.string.image),
             modifier = Modifier
                 .fillMaxSize()
                 .aspectRatio(0.9f)
@@ -207,7 +209,7 @@ fun RandomMealItem(category: RandomMeal) {
 
         Spacer(modifier = Modifier.padding(top = 5.dp))
         Text(
-            text = "Details",
+            text = stringResource(R.string.details),
             style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )

@@ -21,11 +21,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
+import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.DialogWithImage
 import com.example.recipe_app_compose.features.categories.domain.model.categorymeal.CategoryMeal
@@ -48,7 +50,7 @@ fun CategoryRecipeScreen(modifier: Modifier = Modifier) {
             )
 
             viewState.error != null -> AlertDialogExample(
-                dialogTitle = "Error",
+                dialogTitle = stringResource(R.string.error),
                 dialogText = "Error occurred: ${viewState.error}",
                 onDismissRequest = { alertDialogState = false },
                 onConfirmation = {
@@ -89,7 +91,7 @@ fun CategoryMealItem(category: CategoryMeal) {
                 category.strMealThumb,
                 imageLoader = ImageLoader.Builder(context).crossfade(1500).build()
             ),
-            contentDescription = "Image",
+            contentDescription = stringResource(R.string.image),
             modifier = Modifier
                 .fillMaxSize()
                 .aspectRatio(1f)
@@ -104,7 +106,7 @@ fun CategoryMealItem(category: CategoryMeal) {
                     category.strMealThumb,
                     imageLoader = ImageLoader.Builder(context).crossfade(500).build()
                 ),
-                imageDescription = "Image",
+                imageDescription = stringResource(R.string.image),
                 onDismissRequest = { alertState = false },
                 onConfirmation = { alertState = false },
                 modifier = Modifier
