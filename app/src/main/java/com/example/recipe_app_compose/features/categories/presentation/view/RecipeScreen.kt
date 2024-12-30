@@ -54,9 +54,12 @@ fun RecipeScreen(
                 viewState.loading -> CircularProgressIndicator(modifier.align(Alignment.Center))
                 viewState.error != null -> {
                     viewModel.fetchCategories()
-                    Log.d(stringResource(R.string.recipe_screen),
-                        stringResource(R.string.error_in_recipe_screen))
+                    Log.d(
+                        stringResource(R.string.recipe_screen),
+                        stringResource(R.string.error_in_recipe_screen)
+                    )
                 }
+
                 else -> {
                     // display list of categories
                     CategoryScreen(categories = viewState.list ?: emptyList(), navigateToDetail)

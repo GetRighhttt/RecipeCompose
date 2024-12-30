@@ -154,7 +154,10 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                 randomViewState.error != null ->
                     AlertDialogExample(
                         dialogTitle = stringResource(R.string.error),
-                        dialogText = stringResource(R.string.error_occurred, randomViewState.error ?: ""),
+                        dialogText = stringResource(
+                            R.string.error_occurred,
+                            randomViewState.error ?: ""
+                        ),
                         onDismissRequest = { alertDialogState = false },
                         onConfirmation = {
                             viewModel.fetchRandomMeal()

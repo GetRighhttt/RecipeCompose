@@ -44,7 +44,8 @@ fun GoogleLocationSelectionScreen(
     val isLoading = locationViewModel.isLoading.collectAsState()
 
     // location states
-    val businessLocation = remember { mutableStateOf(LatLng(location.latitude, location.longitude)) }
+    val businessLocation =
+        remember { mutableStateOf(LatLng(location.latitude, location.longitude)) }
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(businessLocation.value, 12f)
     }

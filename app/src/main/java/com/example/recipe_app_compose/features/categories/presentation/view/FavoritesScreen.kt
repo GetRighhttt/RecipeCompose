@@ -102,15 +102,20 @@ fun MealDBScreen(meals: List<RandomMeal>) {
         ElevatedButton(
             onClick = {
                 viewModel.executeDeleteAll.invoke()
-                Toast.makeText(context,
-                    context.getString(R.string.all_meals_deleted), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.all_meals_deleted), Toast.LENGTH_SHORT
+                ).show()
             },
             modifier = Modifier
                 .padding(15.dp)
                 .align(Alignment.CenterHorizontally),
             elevation = ButtonDefaults.buttonElevation(15.dp)
         ) {
-            Text(stringResource(R.string.delete_all_meals), style = MaterialTheme.typography.bodyMedium)
+            Text(
+                stringResource(R.string.delete_all_meals),
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }
@@ -180,8 +185,10 @@ fun MealDBItem(meal: RandomMeal) {
                         imageDescription = stringResource(R.string.image),
                         onDismissRequest = {
                             viewModel.executeDeleteMeal.invoke(meal)
-                            Toast.makeText(context,
-                                context.getString(R.string.meal_deleted), Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.meal_deleted), Toast.LENGTH_SHORT
+                            ).show()
                             alertState = false
                         },
                         onConfirmation = { alertState = false },

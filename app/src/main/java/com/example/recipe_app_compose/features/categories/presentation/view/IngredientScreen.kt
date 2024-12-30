@@ -311,7 +311,10 @@ fun IngredientMealItem(category: Ingredient) {
                         HorizontalDivider(thickness = 2.dp)
                         Spacer(modifier = Modifier.padding(top = 5.dp, bottom = 5.dp))
 
-                        Text(stringResource(R.string.instructions), style = MaterialTheme.typography.bodyMedium)
+                        Text(
+                            stringResource(R.string.instructions),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
 
                         Spacer(modifier = Modifier.padding(top = 3.dp))
                         VerticalScrollingWithFixedHeightTextDemo(category.strInstructions ?: "")
@@ -319,7 +322,10 @@ fun IngredientMealItem(category: Ingredient) {
                         Spacer(modifier = Modifier.padding(bottom = 5.dp))
                         HorizontalDivider(thickness = 2.dp)
                         Spacer(modifier = Modifier.padding(bottom = 5.dp))
-                        Text(stringResource(R.string.ingredients), style = MaterialTheme.typography.bodyMedium)
+                        Text(
+                            stringResource(R.string.ingredients),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
 
                         Spacer(modifier = Modifier.padding(top = 8.dp, bottom = 2.dp))
                         Box {

@@ -236,8 +236,10 @@ fun SettingsInfo(modifier: Modifier) {
                 onDismissRequest = { dialogState = false },
                 onConfirmation = {
                     dialogState = false
-                    Toast.makeText(context,
-                        context.getString(R.string.your_account_has_been_deleted), LENGTH_LONG).show()
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.your_account_has_been_deleted), LENGTH_LONG
+                    ).show()
                 },
             )
         }
