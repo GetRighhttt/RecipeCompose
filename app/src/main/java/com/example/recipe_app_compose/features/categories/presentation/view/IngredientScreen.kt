@@ -42,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -189,6 +190,7 @@ fun IngredientMealItem(category: Ingredient) {
             modifier = Modifier
                 .fillMaxSize()
                 .aspectRatio(1f)
+                .clip(RoundedCornerShape(10.dp))
                 .clickable(enabled = true, onClick = {
                     alertState = true
                 })
@@ -258,6 +260,7 @@ fun IngredientMealItem(category: Ingredient) {
                             contentDescription = stringResource(R.string.image),
                             modifier = Modifier
                                 .aspectRatio(0.9F)
+                                .clip(RoundedCornerShape(10.dp))
                         )
 
                         Spacer(modifier = Modifier.padding(top = 5.dp))

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.Delete
 import androidx.compose.material3.ButtonDefaults
@@ -35,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -162,6 +164,7 @@ fun MealDBItem(meal: RandomMeal) {
                     modifier = Modifier
                         .fillMaxSize()
                         .aspectRatio(1f)
+                        .clip(RoundedCornerShape(10.dp))
                         .clickable {
                             alertState = true
                         })
@@ -183,6 +186,7 @@ fun MealDBItem(meal: RandomMeal) {
                         },
                         onConfirmation = { alertState = false },
                         modifier = Modifier
+                            .clip(RoundedCornerShape(10.dp))
                     )
                 }
                 Text(

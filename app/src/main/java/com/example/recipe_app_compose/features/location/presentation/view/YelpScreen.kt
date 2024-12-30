@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -184,6 +185,7 @@ fun YelpItem(category: YelpBusinesses) {
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .aspectRatio(1F)
+                .clip(RoundedCornerShape(10.dp))
                 .clickable(enabled = true, onClick = {
                     alertState = true
                 })
