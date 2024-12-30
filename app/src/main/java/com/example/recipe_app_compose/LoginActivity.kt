@@ -1,5 +1,6 @@
 package com.example.recipe_app_compose
 
+import AppTheme
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -8,6 +9,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -38,7 +41,6 @@ import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.LoginField
 import com.example.recipe_app_compose.core.components.PasswordField
 import com.example.recipe_app_compose.core.util.permissions.PermissionUtils
-import com.example.recipe_app_compose.ui.theme.AppTheme
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 
@@ -76,68 +78,68 @@ class LoginActivity : ComponentActivity() {
                         onConfirmation = { showDialog = false }
                     )
                     Box(
-                        modifier = Modifier.fillMaxSize().padding(top=250.dp),
+                        modifier = Modifier.fillMaxSize().padding(top=250.dp).background(color = MaterialTheme.colorScheme.tertiaryContainer),
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator()
                     }
                 } else {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 30.dp, vertical = 100.dp)
-                    ) {
-                        Image(
-                            painter = rememberAsyncImagePainter(
-                                R.drawable.dining_two,
-                                imageLoader = ImageLoader.Builder(context).crossfade(1000).build()
-                            ),
-                            contentDescription = stringResource(R.string.image),
+                    Scaffold(
+                        modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.tertiaryContainer)
+                    ) { innerPadding ->
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier
-                                .height(150.dp)
-                                .aspectRatio(1f)
-                        )
-                        Spacer(modifier = Modifier.height(30.dp))
-                        Text(
-                            stringResource(R.string.favorite_cuisines),
-                            style = MaterialTheme.typography.headlineMedium,
-                            textAlign = TextAlign.Start,
-                            modifier = Modifier
-                                .padding(bottom = 20.dp)
-                                .fillMaxWidth()
-                        )
-                        LoginField(
-                            value = email,
-                            onChange = { email = it },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Spacer(modifier = Modifier.height(10.dp))
-                        PasswordField(
-                            value = password,
-                            onChange = { password = it },
-                            submit = {},
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Button(
-                            onClick = {
-                                if (user == null) {
-                                    createAccount(email, password, context = this@LoginActivity)
-                                    Toast.makeText(
-                                        this@LoginActivity,
-                                        getString(R.string.account_created),
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                } else {
-                                    signIn(email, password, context = this@LoginActivity)
-                                }
-                            },
-                            enabled = password.isNotEmpty(),
-                            shape = RoundedCornerShape(5.dp),
-                            modifier = Modifier.fillMaxWidth()
+                                .fillMaxSize()
+                                .padding(horizontal = 30.dp, vertical = 100.dp)
                         ) {
-                            Text(stringResource(R.string.login))
+                            Image(
+                                painter = rememberAsyncImagePainter(
+                                    R.drawable.dining_two,
+                                    imageLoader = ImageLoader.Builder(context).crossfade(1000).build()
+                                ),
+                                contentDescription = stringResource(R.string.image),
+                                modifier = Modifier
+                                    .height(150.dp)
+                                    .aspectRatio(1f)
+                                    .padding(innerPadding)
+                            )
+                            Spacer(modifier = Modifier.height(30.dp))
+                            Text(
+                                stringResource(R.string.favorite_cuisines),
+                                style = MaterialTheme.typography.headlineMedium,
+                                textAlign = TextAlign.Start,
+                                modifier = Modifier
+                                    .padding(bottom = 20.dp)
+                                    .fillMaxWidth()
+                            )
+                            LoginField(
+                                value = email,
+                                onChange = { email = it },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            PasswordField(
+                                value = password,
+                                onChange = { password = it },
+                                submit = {},
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Button(
+                                onClick = {
+                                    if (user == null) {
+                                        createAccount(email, password, context = this@LoginActivity)
+                                    } else {
+                                        signIn(email, password, context = this@LoginActivity)
+                                    }
+                                },
+                                enabled = password.isNotEmpty(),
+                                shape = RoundedCornerShape(5.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(stringResource(R.string.login))
+                            }
                         }
                     }
                 }

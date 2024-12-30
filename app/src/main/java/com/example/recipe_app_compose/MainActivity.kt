@@ -1,5 +1,6 @@
 package com.example.recipe_app_compose
 
+import AppTheme
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -73,7 +74,6 @@ import com.example.recipe_app_compose.features.categories.presentation.view.Cate
 import com.example.recipe_app_compose.features.categories.presentation.view.IngredientScreen
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 import com.example.recipe_app_compose.features.location.presentation.view.YelpScreen
-import com.example.recipe_app_compose.ui.theme.AppTheme
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -246,7 +246,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                 })
                         }, bottomBar = {
-                            MyBottomAppBar(modifier = Modifier.fillMaxWidth(), content = {
+                            MyBottomAppBar(modifier = Modifier.fillMaxWidth(), containerColor = MaterialTheme.colorScheme.tertiaryContainer, content = {
                                 IconButton(onClick = {
                                     // share an email about the application or other things
                                     val intent = Intent(Intent.ACTION_SEND).apply {
