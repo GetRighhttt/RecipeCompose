@@ -50,6 +50,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
@@ -100,15 +101,15 @@ class MainActivity : ComponentActivity() {
 
                 val items = listOf(
                     NavigationItem(
-                        title = "Home",
+                        title = stringResource(R.string.home),
                         selectedIcon = Icons.Filled.Home,
                         unselectedIcon = Icons.Outlined.Home,
                     ), NavigationItem(
-                        title = "Settings",
+                        title = stringResource(R.string.settings),
                         selectedIcon = Icons.Filled.Settings,
                         unselectedIcon = Icons.Outlined.Settings,
                     ), NavigationItem(
-                        title = "Info",
+                        title = stringResource(R.string.info),
                         selectedIcon = Icons.Filled.Info,
                         unselectedIcon = Icons.Outlined.Info
                     )
@@ -170,7 +171,7 @@ class MainActivity : ComponentActivity() {
                         TopAppBar(
                             title = {
                                 Text(
-                                    "Favorite Cuisines",
+                                    stringResource(R.string.favorite_cuisines),
                                     style = MaterialTheme.typography.titleLarge
                                 )
                             },
@@ -191,7 +192,7 @@ class MainActivity : ComponentActivity() {
                                 }) {
                                     Icon(
                                         imageVector = Icons.Default.Menu,
-                                        contentDescription = "Menu"
+                                        contentDescription = stringResource(R.string.menu)
                                     )
                                 }
                             },
@@ -201,7 +202,7 @@ class MainActivity : ComponentActivity() {
                                 }) {
                                     Icon(
                                         imageVector = Icons.Default.Search,
-                                        contentDescription = "Search"
+                                        contentDescription = stringResource(R.string.search)
                                     )
                                     if (showSearchDialog) {
                                         ReusableFullScreenDialog({
@@ -220,15 +221,16 @@ class MainActivity : ComponentActivity() {
                                     type = "text/plain"
                                     putExtra(
                                         Intent.EXTRA_EMAIL, arrayOf(
-                                            "stefanbayne@gmail.com"
+                                            getString(R.string.stefanbayne_gmail_com)
                                         )
                                     )
                                     putExtra(
-                                        Intent.EXTRA_SUBJECT, "Sharing application"
+                                        Intent.EXTRA_SUBJECT,
+                                        getString(R.string.sharing_application)
                                     )
                                     putExtra(
                                         Intent.EXTRA_TEXT,
-                                        "https://github.com/GetRighhttt/RecipeCompose"
+                                        getString(R.string.https_github_com_getrighhttt_recipecompose)
                                     )
                                 }
                                 // another approach to error handling with resolve activity
@@ -238,7 +240,7 @@ class MainActivity : ComponentActivity() {
                             }) {
                                 Icon(
                                     imageVector = Icons.Default.Share,
-                                    contentDescription = "Share"
+                                    contentDescription = stringResource(R.string.share)
                                 )
                             }
                             IconButton(onClick = {
@@ -246,7 +248,7 @@ class MainActivity : ComponentActivity() {
                             }) {
                                 Icon(
                                     imageVector = Icons.Default.ShoppingCart,
-                                    contentDescription = "Shops"
+                                    contentDescription = stringResource(R.string.shops)
                                 )
                                 if (showYelpDialogBox) {
                                     ReusableFullScreenDialog({ YelpScreen(modifier = Modifier) }) {
@@ -261,7 +263,7 @@ class MainActivity : ComponentActivity() {
                             }) {
                                 Icon(
                                     imageVector = Icons.Default.Favorite,
-                                    contentDescription = "Favorites"
+                                    contentDescription = stringResource(R.string.favorites)
                                 )
                             }
                             IconButton(onClick = {
@@ -269,7 +271,7 @@ class MainActivity : ComponentActivity() {
                             }) {
                                 Icon(
                                     imageVector = Icons.Default.PlayArrow,
-                                    contentDescription = "Play"
+                                    contentDescription = stringResource(R.string.play)
                                 )
                             }
                             if (showFullDialogBox) {
@@ -282,7 +284,7 @@ class MainActivity : ComponentActivity() {
                             }) {
                                 Icon(
                                     imageVector = Icons.Default.KeyboardArrowUp,
-                                    contentDescription = "Settings"
+                                    contentDescription = stringResource(R.string.settings)
                                 )
                             }
                         })
@@ -299,7 +301,7 @@ class MainActivity : ComponentActivity() {
                                 Scaffold(topBar = {
                                     CenterAlignedTopAppBar(title = {
                                         Text(
-                                            "See Our Best Dishes!",
+                                            stringResource(R.string.see_our_best_dishes),
                                             style = MaterialTheme.typography.titleLarge
                                         )
                                     },
@@ -309,7 +311,7 @@ class MainActivity : ComponentActivity() {
                                             }) {
                                                 Icon(
                                                     imageVector = Icons.Default.Refresh,
-                                                    contentDescription = "Refresh"
+                                                    contentDescription = stringResource(R.string.refresh)
                                                 )
                                             }
                                             if (showCategoryMealDialogBox) {

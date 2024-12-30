@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.Delete
 import androidx.compose.material3.ButtonDefaults
@@ -35,13 +36,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
+import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.DatabaseDialogWithImage
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
@@ -63,8 +67,8 @@ fun FavoritesScreen(
     ) {
         when {
             viewState.loading -> CircularProgressIndicator(modifier.align(Alignment.Center))
-            viewState.error != null -> AlertDialogExample(dialogTitle = "Error",
-                dialogText = "Error occurred: ${viewState.error}",
+            viewState.error != null -> AlertDialogExample(dialogTitle = stringResource(R.string.error),
+                dialogText = stringResource(R.string.error_occurred, viewState.error ?: ""),
                 onDismissRequest = { alertDialogState = false },
                 onConfirmation = {
                     viewModel.executeGetAllMeals()
@@ -98,14 +102,20 @@ fun MealDBScreen(meals: List<RandomMeal>) {
         ElevatedButton(
             onClick = {
                 viewModel.executeDeleteAll.invoke()
-                Toast.makeText(context, "All Meals Deleted", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.all_meals_deleted), Toast.LENGTH_SHORT
+                ).show()
             },
             modifier = Modifier
                 .padding(15.dp)
                 .align(Alignment.CenterHorizontally),
             elevation = ButtonDefaults.buttonElevation(15.dp)
         ) {
-            Text("Delete All Meals", style = MaterialTheme.typography.bodyMedium)
+            Text(
+                stringResource(R.string.delete_all_meals),
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }
@@ -155,10 +165,11 @@ fun MealDBItem(meal: RandomMeal) {
                     meal.strMealThumb,
                     imageLoader = ImageLoader.Builder(context).crossfade(500).build()
                 ),
-                    contentDescription = "Image",
+                    contentDescription = stringResource(R.string.image),
                     modifier = Modifier
                         .fillMaxSize()
                         .aspectRatio(1f)
+                        .clip(RoundedCornerShape(10.dp))
                         .clickable {
                             alertState = true
                         })
@@ -171,14 +182,18 @@ fun MealDBItem(meal: RandomMeal) {
                             meal.strMealThumb ?: "",
                             imageLoader = ImageLoader.Builder(context).crossfade(500).build()
                         ),
-                        imageDescription = "Image",
+                        imageDescription = stringResource(R.string.image),
                         onDismissRequest = {
                             viewModel.executeDeleteMeal.invoke(meal)
-                            Toast.makeText(context, "Meal Deleted", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.meal_deleted), Toast.LENGTH_SHORT
+                            ).show()
                             alertState = false
                         },
                         onConfirmation = { alertState = false },
                         modifier = Modifier
+                            .clip(RoundedCornerShape(10.dp))
                     )
                 }
                 Text(
@@ -208,7 +223,7 @@ fun DismissBackground(dismissState: SwipeToDismissBoxState, meal: RandomMeal) {
         if (dismissState.progress > 0.3F) {
             Icon(
                 Icons.Sharp.Delete,
-                contentDescription = "delete"
+                contentDescription = stringResource(R.string.delete)
             )
             Text(
                 text = if (dismissState.progress > 0.3F) "Delete ${meal.strMeal}?" else "",

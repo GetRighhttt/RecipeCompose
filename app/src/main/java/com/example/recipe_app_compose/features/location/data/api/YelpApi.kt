@@ -8,12 +8,12 @@ import retrofit2.http.Query
 
 interface YelpApi {
 
-        @GET("businesses/search")
-        suspend fun searchBusinesses(
-            @Header("Authorization") authHeader: String,
-            @Query("term") searchTerm: String,
-            @Query("location") location: String,
-            @Query("limit") limit: UInt,
-            @Query("offset") offset: UInt
-        ) : Response<YelpSearchResult>
+    @GET("businesses/search")
+    suspend fun searchBusinesses(
+        @Header("Authorization") authHeader: String,
+        @Query("term") searchTerm: String,
+        @Query("location") location: String,
+        @Query("limit") limit: UInt,
+        @Query("offset") offset: UInt
+    ): Response<YelpSearchResult>
 }

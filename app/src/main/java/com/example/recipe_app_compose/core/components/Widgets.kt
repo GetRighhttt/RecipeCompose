@@ -427,6 +427,7 @@ fun MessageCard(msg: String) {
         }
     }
 }
+
 @Composable
 fun LoginField(
     value: String,

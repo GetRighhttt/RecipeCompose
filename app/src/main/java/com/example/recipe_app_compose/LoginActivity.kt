@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.ImageLoader
@@ -84,14 +85,14 @@ class LoginActivity : ComponentActivity() {
                                 R.drawable.dining_two,
                                 imageLoader = ImageLoader.Builder(context).crossfade(1000).build()
                             ),
-                            contentDescription = "Image",
+                            contentDescription = stringResource(R.string.image),
                             modifier = Modifier
                                 .height(150.dp)
                                 .aspectRatio(1f)
                         )
                         Spacer(modifier = Modifier.height(30.dp))
                         Text(
-                            "Favorite Cuisines...",
+                            stringResource(R.string.favorite_cuisines),
                             style = MaterialTheme.typography.headlineMedium,
                             textAlign = TextAlign.Start,
                             modifier = Modifier
@@ -117,7 +118,7 @@ class LoginActivity : ComponentActivity() {
                                     createAccount(email, password, context = this@LoginActivity)
                                     Toast.makeText(
                                         this@LoginActivity,
-                                        "Account Created",
+                                        getString(R.string.account_created),
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 } else {
@@ -128,7 +129,7 @@ class LoginActivity : ComponentActivity() {
                             shape = RoundedCornerShape(5.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Login")
+                            Text(stringResource(R.string.login))
                         }
                     }
                 }

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -18,11 +19,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
+import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.features.categories.domain.model.category.Category
 import com.example.recipe_app_compose.features.categories.domain.states.RecipeState
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
@@ -50,8 +54,12 @@ fun RecipeScreen(
                 viewState.loading -> CircularProgressIndicator(modifier.align(Alignment.Center))
                 viewState.error != null -> {
                     viewModel.fetchCategories()
-                    Log.d("RECIPE_SCREEN", "Error in Recipe Screen")
+                    Log.d(
+                        stringResource(R.string.recipe_screen),
+                        stringResource(R.string.error_in_recipe_screen)
+                    )
                 }
+
                 else -> {
                     // display list of categories
                     CategoryScreen(categories = viewState.list ?: emptyList(), navigateToDetail)
@@ -85,10 +93,11 @@ fun CategoryItem(category: Category, navigateToDetail: (Category) -> Unit) {
             category.strCategoryThumb,
             imageLoader = ImageLoader.Builder(context).crossfade(500).build()
         ),
-            contentDescription = "Image",
+            contentDescription = stringResource(R.string.image),
             modifier = Modifier
                 .fillMaxSize()
                 .aspectRatio(1f)
+                .clip(RoundedCornerShape(10.dp))
                 .clickable {
                     navigateToDetail(category)
                 })

@@ -123,16 +123,17 @@ class PermissionUtils(private val context: Context) {
         data object Unavailable : NetworkConnectionState
     }
 
-    internal fun networkCallback(callback: (NetworkConnectionState) -> Unit): ConnectivityManager.NetworkCallback = object : ConnectivityManager.NetworkCallback() {
-        // network is available for use
-        override fun onAvailable(network: Network) {
-            callback(NetworkConnectionState.Available)
-        }
+    internal fun networkCallback(callback: (NetworkConnectionState) -> Unit): ConnectivityManager.NetworkCallback =
+        object : ConnectivityManager.NetworkCallback() {
+            // network is available for use
+            override fun onAvailable(network: Network) {
+                callback(NetworkConnectionState.Available)
+            }
 
-        override fun onLost(network: Network) {
-            callback(NetworkConnectionState.Unavailable)
+            override fun onLost(network: Network) {
+                callback(NetworkConnectionState.Unavailable)
+            }
         }
-    }
 
     private fun getCurrentConnectivityState(connectivityManager: ConnectivityManager): NetworkConnectionState {
         val network = connectivityManager.activeNetwork
@@ -145,7 +146,8 @@ class PermissionUtils(private val context: Context) {
     }
 
     private fun Context.observeConnectivityAsFlow(): Flow<NetworkConnectionState> = callbackFlow {
-        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivityManager =
+            getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
         val callback = networkCallback { connectionState ->
             trySend(connectionState)
@@ -167,7 +169,8 @@ class PermissionUtils(private val context: Context) {
 
     private val Context.currentConnectivityState: NetworkConnectionState
         get() {
-            val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val connectivityManager =
+                getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
             return getCurrentConnectivityState(connectivityManager)
         }

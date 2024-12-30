@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -41,7 +42,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -49,6 +52,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
+import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.MessageCard
 import com.example.recipe_app_compose.core.components.VerticalScrollingWithFixedHeightTextDemo
@@ -94,13 +98,13 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                             }) {
                             Icon(
                                 imageVector = if (favoriteViewState) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                                contentDescription = "Favorite"
+                                contentDescription = stringResource(R.string.favorites)
                             )
                         }
                         if (favoriteDialogState) {
                             AlertDialogExample(
-                                dialogTitle = "Favorite",
-                                dialogText = "Would you like to add this to your favorites?",
+                                dialogTitle = stringResource(R.string.favorites),
+                                dialogText = stringResource(R.string.would_you_like_to_add_this_to_your_favorites),
                                 onDismissRequest = {
                                     favoriteDialogState = false
                                     favoriteViewState = false
@@ -114,8 +118,10 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                                     )
                                     Toast.makeText(
                                         context,
-                                        "${randomViewState.item?.first()?.strMeal.toString()} " +
-                                                "added to favorites",
+                                        buildString {
+                                            append("${randomViewState.item?.first()?.strMeal.toString()} ")
+                                            append(context.getString(R.string.added_to_favorites))
+                                        },
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }
@@ -130,7 +136,7 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                             }) {
                             Icon(
                                 imageVector = Icons.Default.Refresh,
-                                contentDescription = "Refresh"
+                                contentDescription = stringResource(R.string.refresh)
                             )
                         }
                     }
@@ -147,8 +153,11 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
 
                 randomViewState.error != null ->
                     AlertDialogExample(
-                        dialogTitle = "Error",
-                        dialogText = "Error occurred: ${randomViewState.error}",
+                        dialogTitle = stringResource(R.string.error),
+                        dialogText = stringResource(
+                            R.string.error_occurred,
+                            randomViewState.error ?: ""
+                        ),
                         onDismissRequest = { alertDialogState = false },
                         onConfirmation = {
                             viewModel.fetchRandomMeal()
@@ -199,15 +208,16 @@ fun RandomMealItem(category: RandomMeal) {
                 category.strMealThumb ?: "",
                 imageLoader = ImageLoader.Builder(LocalContext.current).crossfade(400).build()
             ),
-            contentDescription = "Image",
+            contentDescription = stringResource(R.string.image),
             modifier = Modifier
                 .fillMaxSize()
                 .aspectRatio(0.9f)
+                .clip(RoundedCornerShape(10.dp))
         )
 
         Spacer(modifier = Modifier.padding(top = 5.dp))
         Text(
-            text = "Details",
+            text = stringResource(R.string.details),
             style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
@@ -215,32 +225,44 @@ fun RandomMealItem(category: RandomMeal) {
         Spacer(modifier = Modifier.padding(top = 20.dp))
 
         Text(
-            text = "Type : " + " ${category.strCategory ?: ""} ",
+            text = buildString {
+                append(stringResource(R.string.type))
+                append(" ${category.strCategory ?: ""} ")
+            },
             style = MaterialTheme.typography.bodyMedium,
         )
 
         Spacer(modifier = Modifier.padding(top = 5.dp))
         Text(
-            text = "Originated : " + " ${category.strArea ?: ""} ",
+            text = buildString {
+                append(stringResource(R.string.originated))
+                append(" ${category.strArea ?: ""} ")
+            },
             style = MaterialTheme.typography.bodyMedium,
         )
 
         Spacer(modifier = Modifier.padding(top = 5.dp))
         Text(
-            text = "Source : " + " ${category.strSource ?: ""} ",
+            text = buildString {
+                append(stringResource(R.string.source))
+                append(" ${category.strSource ?: ""} ")
+            },
             style = MaterialTheme.typography.bodyMedium,
         )
 
         Spacer(modifier = Modifier.padding(top = 5.dp))
         Text(
-            text = "YouTube :  " + " ${category.strYoutube ?: ""} ",
+            text = buildString {
+                append(stringResource(R.string.youtube))
+                append(" ${category.strYoutube ?: ""} ")
+            },
             style = MaterialTheme.typography.bodyMedium,
         )
         Spacer(modifier = Modifier.padding(top = 5.dp))
         HorizontalDivider(thickness = 2.dp)
         Spacer(modifier = Modifier.padding(top = 5.dp, bottom = 5.dp))
 
-        Text("Instructions: ", style = MaterialTheme.typography.bodyMedium)
+        Text(stringResource(R.string.instructions), style = MaterialTheme.typography.bodyMedium)
 
         Spacer(modifier = Modifier.padding(top = 3.dp))
         VerticalScrollingWithFixedHeightTextDemo(category.strInstructions ?: "")
@@ -248,7 +270,7 @@ fun RandomMealItem(category: RandomMeal) {
         Spacer(modifier = Modifier.padding(bottom = 5.dp))
         HorizontalDivider(thickness = 2.dp)
         Spacer(modifier = Modifier.padding(bottom = 5.dp))
-        Text("Ingredients: ", style = MaterialTheme.typography.bodyMedium)
+        Text(stringResource(R.string.ingredients), style = MaterialTheme.typography.bodyMedium)
 
         Spacer(modifier = Modifier.padding(top = 8.dp, bottom = 2.dp))
         Box {

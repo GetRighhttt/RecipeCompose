@@ -91,7 +91,7 @@ fun RequestNetworkPermissions() {
                 && permissions[Manifest.permission.ACCESS_WIFI_STATE] == true
                 && permissions[Manifest.permission.INTERNET] == true
             ) {
-                networkUtils.networkCallback{}
+                networkUtils.networkCallback {}
             } else {
                 val rationaleRequired = ActivityCompat.shouldShowRequestPermissionRationale(
                     context as Activity,
@@ -123,7 +123,7 @@ fun RequestNetworkPermissions() {
         })
 
     SideEffect {
-        if(!networkUtils.hasNetworkPermissions(context)) {
+        if (!networkUtils.hasNetworkPermissions(context)) {
             networkRequestPermissionLauncher.launch(
                 arrayOf(
                     Manifest.permission.INTERNET,

@@ -28,10 +28,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -42,6 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
+import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.ReusableFullScreenDialog
 import com.example.recipe_app_compose.core.util.Constants
@@ -83,8 +86,8 @@ fun YelpScreen(modifier: Modifier = Modifier) {
                 )
 
                 viewState.error != null -> AlertDialogExample(
-                    dialogTitle = "Error",
-                    dialogText = "Error occurred: ${viewState.error}",
+                    dialogTitle = stringResource(R.string.error),
+                    dialogText = stringResource(R.string.error_occurred, viewState.error ?: ""),
                     onDismissRequest = { alertDialogState = false },
                     onConfirmation = {
                         alertDialogState = false
@@ -117,7 +120,7 @@ fun YelpScreen(modifier: Modifier = Modifier) {
                                 }
                             ),
                             maxLines = 3,
-                            placeholder = { Text("Enter name, location, etc. of business") },
+                            placeholder = { Text(stringResource(R.string.enter_name_location_etc_of_business)) },
                             enabled = true,
                             shape = RoundedCornerShape(30.dp),
                             modifier = Modifier
@@ -134,7 +137,7 @@ fun YelpScreen(modifier: Modifier = Modifier) {
                         } else if (viewState.list.isNullOrEmpty() || searchResults?.isNotEmpty() == true) {
                             Box(modifier = Modifier.fillMaxSize()) {
                                 Text(
-                                    text = "No results found",
+                                    text = stringResource(R.string.no_results_found),
                                     textAlign = TextAlign.Center,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 30.sp,
@@ -178,10 +181,11 @@ fun YelpItem(category: YelpBusinesses) {
                 category.imageUrl,
                 imageLoader = ImageLoader.Builder(context).crossfade(500).build()
             ),
-            contentDescription = "Image",
+            contentDescription = stringResource(R.string.image),
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .aspectRatio(1F)
+                .clip(RoundedCornerShape(10.dp))
                 .clickable(enabled = true, onClick = {
                     alertState = true
                 })
