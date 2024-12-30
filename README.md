@@ -38,15 +38,10 @@ This app uses `TheMealDB`, `YelpFusion`, and `Google Maps` APIs to allow users t
 8. Submit a pull request.
 
 ## **Demo**
+### **Slow Playback Speed Down**
 ### Recent Design Refactor 12/29/2024
 
-https://github.com/user-attachments/assets/696022be-aaa8-4cfd-aacb-48cbe506de7b
-
-### **Slow Playback Speed Down**
-
-https://github.com/user-attachments/assets/a831f9f5-f571-4027-b85e-4542936bf09e
-
-https://github.com/user-attachments/assets/9272f3ba-72a5-403f-bcfc-da8735dccdb2
+https://github.com/user-attachments/assets/471a4c36-3430-4303-ac4d-3d97941ac137
 
 ###Maps
 
