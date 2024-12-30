@@ -7,6 +7,8 @@ import com.example.recipe_app_compose.features.categories.domain.model.categorym
 import com.example.recipe_app_compose.features.categories.domain.model.ingredient.IngredientResponse
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMealResponse
 import com.example.recipe_app_compose.features.categories.domain.repository.RecipeRepository
+import kotlinx.coroutines.ensureActive
+import kotlin.coroutines.coroutineContext
 
 class RecipeRepositoryImpl : RecipeRepository {
 
@@ -20,6 +22,7 @@ class RecipeRepositoryImpl : RecipeRepository {
                 Resource.Error(response.message())
             }
         } catch (e: Exception) {
+            coroutineContext.ensureActive()
             Resource.Error(e.message ?: "Unable to retrieve Categories.")
         }
     }
@@ -34,6 +37,7 @@ class RecipeRepositoryImpl : RecipeRepository {
                 Resource.Error(response.message())
             }
         } catch (e: Exception) {
+            coroutineContext.ensureActive()
             Resource.Error(e.message ?: "Unable to retrieve Category Meals.")
         }
     }
@@ -48,6 +52,7 @@ class RecipeRepositoryImpl : RecipeRepository {
                 Resource.Error(response.message())
             }
         } catch (e: Exception) {
+            coroutineContext.ensureActive()
             Resource.Error(e.message ?: "Unable to retrieve Random Meal.")
         }
     }
@@ -62,6 +67,7 @@ class RecipeRepositoryImpl : RecipeRepository {
                 Resource.Error(response.message())
             }
         } catch (e: Exception) {
+            coroutineContext.ensureActive()
             Resource.Error(e.message ?: "Unable to retrieve Ingredient.")
         }
     }

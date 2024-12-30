@@ -125,9 +125,7 @@ class MainActivity : ComponentActivity() {
                 }
             } else {
                 AppTheme {
-                    /*
-                    Navigation Drawer Code
-                     */
+                    /* Navigation Drawer Code */
                     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                     val scope = rememberCoroutineScope()
                     var selectedItemIndex by rememberSaveable { mutableIntStateOf(0) }

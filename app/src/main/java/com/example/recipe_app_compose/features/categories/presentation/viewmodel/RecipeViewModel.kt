@@ -81,13 +81,6 @@ class RecipeViewModel(
         _searchQuery.update { text }
     }
 
-    /*
-    viewModelScope.launch{} executes on the main thread by default; added in the Dispatcher to
-    explicitly illustrate this.
-    We use functions instead of variable function types here because we set these methods in the
-    init block of the viewModel.
-    */
-
     internal val fetchCategories: () -> Job = {
         viewModelScope.launch(Dispatchers.Main) {
             when (val response = repository.getCategories()) {
