@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     // Existing plugins
     alias(libs.plugins.compose.compiler)
@@ -23,8 +25,17 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        val properties = Properties()
+        properties.load(project.rootProject.file("local.properties").inputStream())
+        buildConfigField("String", "YELP_API_KEY",properties.getProperty("YELP_API_KEY"))
+        buildConfigField("String","YELP_BASE_URL",properties.getProperty("YELP_BASE_URL"))
+        buildConfigField("String","BASE_URL",properties.getProperty("BASE_URL"))
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -102,6 +113,9 @@ dependencies {
 
     // splash screen
     implementation(libs.androidx.core.splashscreen)
+
+    // material 3
+    implementation(libs.androidx.material3)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

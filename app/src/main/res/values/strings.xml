@@ -28,7 +28,7 @@
     <string name="delete">delete</string>
     <string name="delete_all_meals">Delete All Meals</string>
     <string name="all_meals_deleted">All Meals Deleted</string>
-    <string name="delete_account">Delete Account</string>
+    <string name="delete_account">Delete Account?</string>
     <string name="are_you_sure_you_want_to_delete_your_account">Are you sure you want to delete your account?</string>
     <string name="your_account_has_been_deleted">Your account has been deleted</string>
     <string name="contact_page">Contact Page</string>
@@ -76,4 +76,8 @@
     <string name="click_here_for_youtube">Click here for YouTube</string>
     <string name="network_unavailable">Network Unavailable</string>
     <string name="please_connect_to_a_network_service_to_proceed_further">Please connect to a network service to proceed further.</string>
+    <string name="sign_out">Sign Out?</string>
+    <string name="are_you_sure_you_want_to_sign_out_of_your_account">Are you sure you want to sign out of your account?</string>
+    <string name="sign_out_successful">Sign Out Successful</string>
+    <string name="delete_successful">Delete Successful</string>
 </resources>

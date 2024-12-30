@@ -1,5 +1,6 @@
 package com.example.recipe_app_compose
 
+import AppTheme
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
@@ -9,8 +10,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -20,7 +23,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import com.example.recipe_app_compose.ui.theme.Recipe_App_ComposeTheme
 
 @SuppressLint("CustomSplashScreen")
 class SplashScreenActivity : ComponentActivity() {
@@ -28,7 +30,7 @@ class SplashScreenActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            Recipe_App_ComposeTheme {
+            AppTheme {
                 SplashScreen()
             }
         }
@@ -48,7 +50,7 @@ fun SplashScreen() {
         context.startActivity(Intent(context, LoginActivity::class.java))
     })
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.tertiaryContainer),
         contentAlignment = Alignment.Center
     ) {
         Image(

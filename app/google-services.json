@@ -2,7 +2,7 @@
   "project_info": {
     "project_number": "760751252809",
     "project_id": "meal-app-9736d",
-    "storage_bucket": "meal-app-9736d.appspot.com"
+    "storage_bucket": "meal-app-9736d.firebasestorage.app"
   },
   "client": [
     {
@@ -12,7 +12,20 @@
           "package_name": "com.example.recipe_app_compose"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "760751252809-16khefvvmp5babe9va9jpa92pva56fbo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.recipe_app_compose",
+            "certificate_hash": "24ac48844dec7c811c60bcbf8cf08d2c59188ceb"
+          }
+        },
+        {
+          "client_id": "760751252809-pfu46uv0734bsifr10phrgo0lv74lbta.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBNJqxz88dKdwzPdhPZQPfddQPtBnxzD0M"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "760751252809-pfu46uv0734bsifr10phrgo0lv74lbta.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
