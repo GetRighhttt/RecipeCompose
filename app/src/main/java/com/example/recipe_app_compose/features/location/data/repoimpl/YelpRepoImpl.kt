@@ -4,6 +4,7 @@ import com.example.recipe_app_compose.core.util.Resource
 import com.example.recipe_app_compose.features.location.data.retrofit.YelpRetrofitInstance.yelpApiService
 import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpSearchResult
 import com.example.recipe_app_compose.features.location.domain.repo.YelpRepository
+import kotlin.coroutines.cancellation.CancellationException
 
 class YelpRepImpl : YelpRepository {
     override suspend fun searchBusinesses(
@@ -28,6 +29,9 @@ class YelpRepImpl : YelpRepository {
                 Resource.Error(response.message())
             }
         } catch (e: Exception) {
+            // throw cancellation exception to signal cancellation to parent coroutine
+            if(e is CancellationException) throw e
+            // could also do coroutineContext.ensureActive()
             Resource.Error(e.message ?: "Unable to retrieve Businesses.")
         }
     }
