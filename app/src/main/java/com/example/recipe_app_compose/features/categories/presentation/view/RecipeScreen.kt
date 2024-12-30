@@ -19,10 +19,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
+import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.features.categories.domain.model.category.Category
 import com.example.recipe_app_compose.features.categories.domain.states.RecipeState
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
@@ -50,7 +52,8 @@ fun RecipeScreen(
                 viewState.loading -> CircularProgressIndicator(modifier.align(Alignment.Center))
                 viewState.error != null -> {
                     viewModel.fetchCategories()
-                    Log.d("RECIPE_SCREEN", "Error in Recipe Screen")
+                    Log.d(stringResource(R.string.recipe_screen),
+                        stringResource(R.string.error_in_recipe_screen))
                 }
                 else -> {
                     // display list of categories
@@ -85,7 +88,7 @@ fun CategoryItem(category: Category, navigateToDetail: (Category) -> Unit) {
             category.strCategoryThumb,
             imageLoader = ImageLoader.Builder(context).crossfade(500).build()
         ),
-            contentDescription = "Image",
+            contentDescription = stringResource(R.string.image),
             modifier = Modifier
                 .fillMaxSize()
                 .aspectRatio(1f)

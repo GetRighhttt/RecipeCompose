@@ -51,7 +51,7 @@ fun CategoryRecipeScreen(modifier: Modifier = Modifier) {
 
             viewState.error != null -> AlertDialogExample(
                 dialogTitle = stringResource(R.string.error),
-                dialogText = "Error occurred: ${viewState.error}",
+                dialogText = stringResource(R.string.error_occurred, viewState.error ?: ""),
                 onDismissRequest = { alertDialogState = false },
                 onConfirmation = {
                     viewModel.fetchCategoryMeals()

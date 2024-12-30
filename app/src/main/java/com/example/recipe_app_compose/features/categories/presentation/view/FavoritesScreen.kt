@@ -66,7 +66,7 @@ fun FavoritesScreen(
         when {
             viewState.loading -> CircularProgressIndicator(modifier.align(Alignment.Center))
             viewState.error != null -> AlertDialogExample(dialogTitle = stringResource(R.string.error),
-                dialogText = "Error occurred: ${viewState.error}",
+                dialogText = stringResource(R.string.error_occurred, viewState.error ?: ""),
                 onDismissRequest = { alertDialogState = false },
                 onConfirmation = {
                     viewModel.executeGetAllMeals()
@@ -177,7 +177,8 @@ fun MealDBItem(meal: RandomMeal) {
                         imageDescription = stringResource(R.string.image),
                         onDismissRequest = {
                             viewModel.executeDeleteMeal.invoke(meal)
-                            Toast.makeText(context, "Meal Deleted", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context,
+                                context.getString(R.string.meal_deleted), Toast.LENGTH_SHORT).show()
                             alertState = false
                         },
                         onConfirmation = { alertState = false },

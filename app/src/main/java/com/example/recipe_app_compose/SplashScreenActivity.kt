@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import com.example.recipe_app_compose.ui.theme.Recipe_App_ComposeTheme
 
 @SuppressLint("CustomSplashScreen")
@@ -53,7 +54,7 @@ fun SplashScreen() {
         Image(
             modifier = Modifier.alpha(alpha = alpha.value),
             painter = painterResource(R.drawable.dining_two),
-            contentDescription = null
+            contentDescription = stringResource(R.string.image)
         )
     }
 }

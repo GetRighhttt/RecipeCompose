@@ -14,7 +14,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.util.permissions.PermissionUtils
 import com.example.recipe_app_compose.features.location.domain.model.location.LocationData
 import com.example.recipe_app_compose.features.location.presentation.viewmodel.LocationViewModel
@@ -94,14 +96,14 @@ fun GoogleLocationSelectionScreen(
                 if (markerStateValue) {
                     Marker(
                         state = newMarkerState,
-                        title = "You Clicked Here:",
+                        title = stringResource(R.string.you_clicked_here),
                         draggable = true,
                         snippet = newAddress
                     )
                 } else {
                     Marker(
                         state = MarkerState(position = businessLocation.value),
-                        title = "Business Location",
+                        title = stringResource(R.string.business_location),
                         snippet = businessAddress
                     )
                 }

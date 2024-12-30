@@ -116,8 +116,10 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                                     )
                                     Toast.makeText(
                                         context,
-                                        "${randomViewState.item?.first()?.strMeal.toString()} " +
-                                                "added to favorites",
+                                        buildString {
+                                            append("${randomViewState.item?.first()?.strMeal.toString()} ")
+                                            append(context.getString(R.string.added_to_favorites))
+                                        },
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }
@@ -150,7 +152,7 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                 randomViewState.error != null ->
                     AlertDialogExample(
                         dialogTitle = stringResource(R.string.error),
-                        dialogText = "Error occurred: ${randomViewState.error}",
+                        dialogText = stringResource(R.string.error_occurred, randomViewState.error ?: ""),
                         onDismissRequest = { alertDialogState = false },
                         onConfirmation = {
                             viewModel.fetchRandomMeal()
@@ -217,32 +219,44 @@ fun RandomMealItem(category: RandomMeal) {
         Spacer(modifier = Modifier.padding(top = 20.dp))
 
         Text(
-            text = "Type : " + " ${category.strCategory ?: ""} ",
+            text = buildString {
+                append(stringResource(R.string.type))
+                append(" ${category.strCategory ?: ""} ")
+            },
             style = MaterialTheme.typography.bodyMedium,
         )
 
         Spacer(modifier = Modifier.padding(top = 5.dp))
         Text(
-            text = "Originated : " + " ${category.strArea ?: ""} ",
+            text = buildString {
+                append(stringResource(R.string.originated))
+                append(" ${category.strArea ?: ""} ")
+            },
             style = MaterialTheme.typography.bodyMedium,
         )
 
         Spacer(modifier = Modifier.padding(top = 5.dp))
         Text(
-            text = "Source : " + " ${category.strSource ?: ""} ",
+            text = buildString {
+                append(stringResource(R.string.source))
+                append(" ${category.strSource ?: ""} ")
+            },
             style = MaterialTheme.typography.bodyMedium,
         )
 
         Spacer(modifier = Modifier.padding(top = 5.dp))
         Text(
-            text = "YouTube :  " + " ${category.strYoutube ?: ""} ",
+            text = buildString {
+                append(stringResource(R.string.youtube))
+                append(" ${category.strYoutube ?: ""} ")
+            },
             style = MaterialTheme.typography.bodyMedium,
         )
         Spacer(modifier = Modifier.padding(top = 5.dp))
         HorizontalDivider(thickness = 2.dp)
         Spacer(modifier = Modifier.padding(top = 5.dp, bottom = 5.dp))
 
-        Text("Instructions: ", style = MaterialTheme.typography.bodyMedium)
+        Text(stringResource(R.string.instructions), style = MaterialTheme.typography.bodyMedium)
 
         Spacer(modifier = Modifier.padding(top = 3.dp))
         VerticalScrollingWithFixedHeightTextDemo(category.strInstructions ?: "")
@@ -250,7 +264,7 @@ fun RandomMealItem(category: RandomMeal) {
         Spacer(modifier = Modifier.padding(bottom = 5.dp))
         HorizontalDivider(thickness = 2.dp)
         Spacer(modifier = Modifier.padding(bottom = 5.dp))
-        Text("Ingredients: ", style = MaterialTheme.typography.bodyMedium)
+        Text(stringResource(R.string.ingredients), style = MaterialTheme.typography.bodyMedium)
 
         Spacer(modifier = Modifier.padding(top = 8.dp, bottom = 2.dp))
         Box {

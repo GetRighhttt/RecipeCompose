@@ -93,8 +93,8 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
                 )
 
                 viewState.error != null -> AlertDialogExample(
-                    dialogTitle = "Error",
-                    dialogText = "Error occurred: ${viewState.error}",
+                    dialogTitle = stringResource(R.string.error),
+                    dialogText = stringResource(R.string.error_occurred, viewState.error ?: ""),
                     onDismissRequest = { alertDialogState = false },
                     onConfirmation = {
                         alertDialogState = false
@@ -126,7 +126,7 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
                                 }
                             ),
                             maxLines = 1,
-                            placeholder = { Text("Search for specific meals") },
+                            placeholder = { Text(stringResource(R.string.search_for_specific_meals)) },
                             enabled = true,
                             shape = RoundedCornerShape(30.dp),
                             modifier = Modifier
@@ -143,7 +143,7 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
                         } else if (viewState.list.isNullOrEmpty() || searchResults?.isNotEmpty() == true) {
                             Box(modifier = Modifier.fillMaxSize()) {
                                 Text(
-                                    text = "No results found",
+                                    text = stringResource(R.string.no_results_found),
                                     textAlign = TextAlign.Center,
                                     fontWeight = FontWeight.Bold,
                                     style = MaterialTheme.typography.displayLarge,
@@ -271,32 +271,44 @@ fun IngredientMealItem(category: Ingredient) {
                         Spacer(modifier = Modifier.padding(top = 20.dp))
 
                         Text(
-                            text = "Type : " + " ${category.strCategory ?: ""} ",
+                            text = buildString {
+                                append(stringResource(R.string.type))
+                                append(" ${category.strCategory ?: ""} ")
+                            },
                             style = MaterialTheme.typography.bodyMedium,
                         )
 
                         Spacer(modifier = Modifier.padding(top = 5.dp))
                         Text(
-                            text = "Originated : " + " ${category.strArea ?: ""} ",
+                            text = buildString {
+                                append(stringResource(R.string.originated))
+                                append(" ${category.strArea ?: ""} ")
+                            },
                             style = MaterialTheme.typography.bodyMedium,
                         )
 
                         Spacer(modifier = Modifier.padding(top = 5.dp))
                         Text(
-                            text = "Source : " + " ${category.strSource ?: ""} ",
+                            text = buildString {
+                                append(stringResource(R.string.source))
+                                append(" ${category.strSource ?: ""} ")
+                            },
                             style = MaterialTheme.typography.bodyMedium,
                         )
 
                         Spacer(modifier = Modifier.padding(top = 5.dp))
                         Text(
-                            text = "YouTube :  " + " ${category.strYoutube ?: ""} ",
+                            text = buildString {
+                                append(stringResource(R.string.youtube))
+                                append(" ${category.strYoutube ?: ""} ")
+                            },
                             style = MaterialTheme.typography.bodyMedium,
                         )
                         Spacer(modifier = Modifier.padding(top = 5.dp))
                         HorizontalDivider(thickness = 2.dp)
                         Spacer(modifier = Modifier.padding(top = 5.dp, bottom = 5.dp))
 
-                        Text("Instructions: ", style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(R.string.instructions), style = MaterialTheme.typography.bodyMedium)
 
                         Spacer(modifier = Modifier.padding(top = 3.dp))
                         VerticalScrollingWithFixedHeightTextDemo(category.strInstructions ?: "")
@@ -304,7 +316,7 @@ fun IngredientMealItem(category: Ingredient) {
                         Spacer(modifier = Modifier.padding(bottom = 5.dp))
                         HorizontalDivider(thickness = 2.dp)
                         Spacer(modifier = Modifier.padding(bottom = 5.dp))
-                        Text("Ingredients: ", style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(R.string.ingredients), style = MaterialTheme.typography.bodyMedium)
 
                         Spacer(modifier = Modifier.padding(top = 8.dp, bottom = 2.dp))
                         Box {
