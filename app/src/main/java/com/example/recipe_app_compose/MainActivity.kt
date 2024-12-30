@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -51,6 +52,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -109,12 +111,17 @@ class MainActivity : ComponentActivity() {
                 Recipe_App_ComposeTheme {
                     showDialog = true
                     AlertDialogExample(
-                        dialogTitle = "Network Unavailable",
-                        dialogText = "Please connect to a network service to proceed further.",
+                        dialogTitle = stringResource(R.string.network_unavailable),
+                        dialogText = stringResource(R.string.please_connect_to_a_network_service_to_proceed_further),
                         onDismissRequest = { showDialog = false },
                         onConfirmation = { showDialog = false }
                     )
-                    CircularProgressIndicator()
+                    Box(
+                        modifier = Modifier.fillMaxSize().padding(top=250.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
             } else {
                 Recipe_App_ComposeTheme {

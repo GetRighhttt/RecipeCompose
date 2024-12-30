@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -69,12 +70,17 @@ class LoginActivity : ComponentActivity() {
                 if (!isConnected) {
                     showDialog = true
                     AlertDialogExample(
-                        dialogTitle = "Network Unavailable",
-                        dialogText = "Please connect to a network service to proceed further.",
+                        dialogTitle = stringResource(R.string.network_unavailable),
+                        dialogText = stringResource(R.string.please_connect_to_a_network_service_to_proceed_further),
                         onDismissRequest = { showDialog = false },
                         onConfirmation = { showDialog = false }
                     )
-                    CircularProgressIndicator()
+                    Box(
+                        modifier = Modifier.fillMaxSize().padding(top=250.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 } else {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
