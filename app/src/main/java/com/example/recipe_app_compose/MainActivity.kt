@@ -27,6 +27,7 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -113,6 +114,7 @@ class MainActivity : ComponentActivity() {
                         onDismissRequest = { showDialog = false },
                         onConfirmation = { showDialog = false }
                     )
+                    CircularProgressIndicator()
                 }
             } else {
                 Recipe_App_ComposeTheme {
