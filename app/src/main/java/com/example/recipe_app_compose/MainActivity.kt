@@ -299,7 +299,7 @@ class MainActivity : ComponentActivity() {
                                 Scaffold(topBar = {
                                     CenterAlignedTopAppBar(title = {
                                         Text(
-                                            "Explore Our Best Dishes!",
+                                            "See Our Best Dishes!",
                                             style = MaterialTheme.typography.titleLarge
                                         )
                                     },
