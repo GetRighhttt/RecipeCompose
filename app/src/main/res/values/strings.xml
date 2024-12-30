@@ -74,4 +74,6 @@
     <string name="search_for_specific_meals">Search for specific meals</string>
     <string name="click_here_for_website">Click here for website</string>
     <string name="click_here_for_youtube">Click here for YouTube</string>
+    <string name="network_unavailable">Network Unavailable</string>
+    <string name="please_connect_to_a_network_service_to_proceed_further">Please connect to a network service to proceed further.</string>
 </resources>
