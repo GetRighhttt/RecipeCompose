@@ -39,7 +39,7 @@
         <!-- API KEY -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBheQhaCfZSd0DgC7g_EBF23q3rWW1EHAc" /> <!-- Google Services Performance -->
+            android:value="AIzaSyBheQhaCfZSd0DgC7g_EBF23q3rWW1EHAc"/> <!-- Google Services Performance -->
         <meta-data
             android:name="firebase_performance_logcat_enabled"
             android:value="true" />
