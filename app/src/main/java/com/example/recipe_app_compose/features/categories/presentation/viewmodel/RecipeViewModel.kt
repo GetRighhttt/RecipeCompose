@@ -164,7 +164,7 @@ class RecipeViewModel(
         }
     }
 
-    private fun fetchIngredients(query: String) = viewModelScope.launch(Dispatchers.Main) {
+    internal fun fetchIngredients(query: String) = viewModelScope.launch(Dispatchers.Main) {
         when (val response = repository.getIngredient(query)) {
             is Resource.Error -> _ingredientMealState.update {
                 _ingredientMealState.value.copy(
@@ -189,7 +189,7 @@ class RecipeViewModel(
 
     internal companion object {
         // initial search value
-        const val SEARCH_DEFAULT = ""
+        const val SEARCH_DEFAULT = "A"
     }
 }
 

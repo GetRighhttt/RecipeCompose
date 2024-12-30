@@ -1,21 +1,35 @@
 package com.example.recipe_app_compose.features.categories.presentation.view
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -35,13 +49,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.core.components.AlertDialogExample
-import com.example.recipe_app_compose.core.components.DialogWithImage
+import com.example.recipe_app_compose.core.components.MessageCard
+import com.example.recipe_app_compose.core.components.VerticalScrollingWithFixedHeightTextDemo
 import com.example.recipe_app_compose.features.categories.domain.model.ingredient.Ingredient
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 
@@ -78,6 +96,7 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
                     onDismissRequest = { alertDialogState = false },
                     onConfirmation = {
                         alertDialogState = false
+                        viewModel.fetchIngredients("chicken")
                     },
                 )
 
@@ -105,7 +124,7 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
                                 }
                             ),
                             maxLines = 1,
-                            placeholder = { Text("Search Meals By Their Ingredients") },
+                            placeholder = { Text("Search for specific meals") },
                             enabled = true,
                             shape = RoundedCornerShape(30.dp),
                             modifier = Modifier
@@ -148,6 +167,7 @@ fun IngredientMealScreen(categories: List<Ingredient>) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IngredientMealItem(category: Ingredient) {
     val context = LocalContext.current
@@ -160,9 +180,9 @@ fun IngredientMealItem(category: Ingredient) {
     ) {
         Image(
             painter = rememberAsyncImagePainter(
-                category.strMealThumb,
+                category.strMealThumb ?: "",
                 imageLoader = ImageLoader.Builder(context).crossfade(500).build()
-                ),
+            ),
             contentDescription = "Image",
             modifier = Modifier
                 .fillMaxSize()
@@ -172,20 +192,136 @@ fun IngredientMealItem(category: Ingredient) {
                 })
         )
         if (alertState) {
-            DialogWithImage(
-                text = category.strMeal,
-                painter = rememberAsyncImagePainter(
-                    category.strMealThumb,
-                    imageLoader = ImageLoader.Builder(context).crossfade(500).build()
-                ),
-                imageDescription = "Image",
+            // define list for Lazy Column
+            Dialog(
                 onDismissRequest = { alertState = false },
-                onConfirmation = { alertState = false },
-                modifier = Modifier
-            )
+                properties = DialogProperties(
+                    usePlatformDefaultWidth = false,
+                    dismissOnBackPress = true,
+                ),
+            ) {
+                Scaffold(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    topBar = {
+                        CenterAlignedTopAppBar(
+                            title = {
+                                Text(
+                                    category.strMeal ?: "",
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 2,
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+                            },
+                            navigationIcon = {
+                                IconButton(
+                                    onClick = {
+                                        alertState = false
+                                    }) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                        contentDescription = "Back"
+                                    )
+                                }
+                            }
+                        )
+                    }
+                ) { innerPadding ->
+
+                    val listOfIngredients = listOf(
+                        category.strIngredient1,
+                        category.strIngredient2,
+                        category.strIngredient3,
+                        category.strIngredient4,
+                        category.strIngredient5,
+                        category.strIngredient6,
+                        category.strIngredient7,
+                        category.strIngredient8,
+                        category.strIngredient9
+                    )
+
+                    Column(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState()),
+                    ) {
+                        Image(
+                            painter = rememberAsyncImagePainter(
+                                category.strMealThumb ?: "",
+                                imageLoader = ImageLoader.Builder(LocalContext.current)
+                                    .crossfade(400).build()
+                            ),
+                            contentDescription = "Image",
+                            modifier = Modifier
+                                .aspectRatio(0.9F)
+                        )
+
+                        Spacer(modifier = Modifier.padding(top = 5.dp))
+                        Text(
+                            text = "Details",
+                            style = MaterialTheme.typography.titleLarge,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        HorizontalDivider(thickness = 2.dp)
+                        Spacer(modifier = Modifier.padding(top = 20.dp))
+
+                        Text(
+                            text = "Type : " + " ${category.strCategory ?: ""} ",
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+
+                        Spacer(modifier = Modifier.padding(top = 5.dp))
+                        Text(
+                            text = "Originated : " + " ${category.strArea ?: ""} ",
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+
+                        Spacer(modifier = Modifier.padding(top = 5.dp))
+                        Text(
+                            text = "Source : " + " ${category.strSource ?: ""} ",
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+
+                        Spacer(modifier = Modifier.padding(top = 5.dp))
+                        Text(
+                            text = "YouTube :  " + " ${category.strYoutube ?: ""} ",
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        Spacer(modifier = Modifier.padding(top = 5.dp))
+                        HorizontalDivider(thickness = 2.dp)
+                        Spacer(modifier = Modifier.padding(top = 5.dp, bottom = 5.dp))
+
+                        Text("Instructions: ", style = MaterialTheme.typography.bodyMedium)
+
+                        Spacer(modifier = Modifier.padding(top = 3.dp))
+                        VerticalScrollingWithFixedHeightTextDemo(category.strInstructions ?: "")
+
+                        Spacer(modifier = Modifier.padding(bottom = 5.dp))
+                        HorizontalDivider(thickness = 2.dp)
+                        Spacer(modifier = Modifier.padding(bottom = 5.dp))
+                        Text("Ingredients: ", style = MaterialTheme.typography.bodyMedium)
+
+                        Spacer(modifier = Modifier.padding(top = 8.dp, bottom = 2.dp))
+                        Box {
+                            LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(80.dp)
+                            ) {
+                                items(listOfIngredients) { msg ->
+                                    MessageCard(msg?.uppercase() ?: "")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
         Text(
-            text = category.strMeal,
+            text = category.strMeal ?: "",
             style = MaterialTheme.typography.labelLarge,
             modifier = Modifier.padding(4.dp)
         )

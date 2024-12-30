@@ -29,7 +29,7 @@ interface ApiService {
     // ?i=chicken_breast
     @GET(INGREDIENT_ENDPOINT)
     suspend fun getIngredient(
-        @Query("i") i: String
+        @Query("s") s: String
     ): Response<IngredientResponse>
 }
 
