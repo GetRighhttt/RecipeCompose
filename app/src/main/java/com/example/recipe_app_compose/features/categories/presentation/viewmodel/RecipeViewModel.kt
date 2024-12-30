@@ -11,6 +11,7 @@ import com.example.recipe_app_compose.features.categories.domain.states.RandomMe
 import com.example.recipe_app_compose.features.categories.domain.states.RecipeState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -63,7 +64,7 @@ class RecipeViewModel(
                 ingredients?.filter { ingredient ->
                     ingredient.doesMatchSearchQuery(text)
                 }.also {
-                    fetchIngredients(text)
+                    fetchIngredients.invoke(text)
                     delay(400L)
                 }
             }
@@ -80,13 +81,6 @@ class RecipeViewModel(
         _searchQuery.update { text }
     }
 
-    init {
-        fetchCategories()
-        fetchCategoryMeals()
-        fetchRandomMeal()
-        fetchIngredients(SEARCH_DEFAULT)
-    }
-
     /*
     viewModelScope.launch{} executes on the main thread by default; added in the Dispatcher to
     explicitly illustrate this.
@@ -94,97 +88,116 @@ class RecipeViewModel(
     init block of the viewModel.
     */
 
-    internal fun fetchCategories() = viewModelScope.launch(Dispatchers.Main) {
-        when (val response = repository.getCategories()) {
-            is Resource.Error -> _categoriesState.update {
-                _categoriesState.value.copy(
-                    loading = false,
-                    error = "Error fetching categories."
-                )
-            }
+    internal val fetchCategories: () -> Job = {
+        viewModelScope.launch(Dispatchers.Main) {
+            when (val response = repository.getCategories()) {
+                is Resource.Error -> _categoriesState.update {
+                    _categoriesState.value.copy(
+                        loading = false,
+                        error = "Error fetching categories."
+                    )
+                }
 
-            is Resource.Loading -> _categoriesState.update {
-                _categoriesState.value.copy(loading = true)
-            }
+                is Resource.Loading -> _categoriesState.update {
+                    _categoriesState.value.copy(loading = true)
+                }
 
-            is Resource.Success -> _categoriesState.update {
-                _categoriesState.value.copy(
-                    loading = false,
-                    list = response.data?.categories ?: emptyList(),
-                    error = null
-                )
-            }
-        }
-    }
-
-
-    internal fun fetchCategoryMeals() = viewModelScope.launch(Dispatchers.Main) {
-        when (val response = repository.getCategoriesMeal()) {
-            is Resource.Error -> _categoryMealState.update {
-                _categoryMealState.value.copy(
-                    loading = false,
-                    error = "Error fetching category meals."
-                )
-            }
-
-            is Resource.Loading -> _categoryMealState.update {
-                _categoryMealState.value.copy(loading = true)
-            }
-
-            is Resource.Success -> _categoryMealState.update {
-                _categoryMealState.value.copy(
-                    loading = false,
-                    list = response.data?.meals ?: emptyList(),
-                    error = null
-                )
+                is Resource.Success -> _categoriesState.update {
+                    _categoriesState.value.copy(
+                        loading = false,
+                        list = response.data?.categories ?: emptyList(),
+                        error = null
+                    )
+                }
             }
         }
     }
 
-    internal fun fetchRandomMeal() = viewModelScope.launch(Dispatchers.Main) {
-        when (val response = repository.getRandomMeal()) {
-            is Resource.Error -> _randomMealState.update {
-                _randomMealState.value.copy(
-                    loading = false,
-                    error = "Error fetching random meal."
-                )
-            }
 
-            is Resource.Loading -> _randomMealState.update {
-                _randomMealState.value.copy(loading = true)
-            }
+    internal val fetchCategoryMeals: () -> Job = {
+        viewModelScope.launch(Dispatchers.Main) {
+            when (val response = repository.getCategoriesMeal()) {
+                is Resource.Error -> _categoryMealState.update {
+                    _categoryMealState.value.copy(
+                        loading = false,
+                        error = "Error fetching category meals."
+                    )
+                }
 
-            is Resource.Success -> _randomMealState.update {
-                _randomMealState.value.copy(
-                    loading = false,
-                    item = response.data?.meals ?: emptyList(),
-                    error = null
-                )
+                is Resource.Loading -> _categoryMealState.update {
+                    _categoryMealState.value.copy(loading = true)
+                }
+
+                is Resource.Success -> _categoryMealState.update {
+                    _categoryMealState.value.copy(
+                        loading = false,
+                        list = response.data?.meals ?: emptyList(),
+                        error = null
+                    )
+                }
             }
         }
     }
 
-    internal fun fetchIngredients(query: String) = viewModelScope.launch(Dispatchers.Main) {
-        when (val response = repository.getIngredient(query)) {
-            is Resource.Error -> _ingredientMealState.update {
-                _ingredientMealState.value.copy(
-                    loading = false,
-                    error = "Error fetching random ingredients."
-                )
-            }
+    internal val fetchRandomMeal: () -> Job = {
+        viewModelScope.launch(Dispatchers.Main) {
+            when (val response = repository.getRandomMeal()) {
+                is Resource.Error -> _randomMealState.update {
+                    _randomMealState.value.copy(
+                        loading = false,
+                        error = "Error fetching random meal."
+                    )
+                }
 
-            is Resource.Loading -> _ingredientMealState.update {
-                _ingredientMealState.value.copy(loading = true)
-            }
+                is Resource.Loading -> _randomMealState.update {
+                    _randomMealState.value.copy(loading = true)
+                }
 
-            is Resource.Success -> _ingredientMealState.update {
-                _ingredientMealState.value.copy(
-                    loading = false,
-                    list = response.data?.meals ?: emptyList(),
-                    error = null
-                )
+                is Resource.Success -> _randomMealState.update {
+                    _randomMealState.value.copy(
+                        loading = false,
+                        item = response.data?.meals ?: emptyList(),
+                        error = null
+                    )
+                }
             }
         }
+    }
+
+    internal val fetchIngredients: (String) -> Job = { query ->
+        viewModelScope.launch(Dispatchers.Main) {
+            when (val response = repository.getIngredient(query)) {
+                is Resource.Error -> _ingredientMealState.update {
+                    _ingredientMealState.value.copy(
+                        loading = false,
+                        error = "Error fetching random ingredients."
+                    )
+                }
+
+                is Resource.Loading -> _ingredientMealState.update {
+                    _ingredientMealState.value.copy(loading = true)
+                }
+
+                is Resource.Success -> _ingredientMealState.update {
+                    _ingredientMealState.value.copy(
+                        loading = false,
+                        list = response.data?.meals ?: emptyList(),
+                        error = null
+                    )
+                }
+            }
+        }
+    }
+
+    private fun updateMeals() = viewModelScope.launch {
+        fetchCategories.invoke()
+        fetchCategoryMeals.invoke()
+        fetchRandomMeal.invoke()
+        fetchIngredients.invoke(SEARCH_DEFAULT)
+    }
+
+    init {
+        updateMeals()
     }
 
     internal companion object {
