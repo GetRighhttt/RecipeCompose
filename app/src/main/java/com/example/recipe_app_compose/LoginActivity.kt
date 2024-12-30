@@ -38,7 +38,7 @@ import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.LoginField
 import com.example.recipe_app_compose.core.components.PasswordField
 import com.example.recipe_app_compose.core.util.permissions.PermissionUtils
-import com.example.recipe_app_compose.ui.theme.MyLoginApplicationTheme
+import com.example.recipe_app_compose.ui.theme.AppTheme
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 
@@ -50,7 +50,7 @@ class LoginActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            MyLoginApplicationTheme {
+            AppTheme {
                 val user = auth.currentUser
 
                 val context = LocalContext.current

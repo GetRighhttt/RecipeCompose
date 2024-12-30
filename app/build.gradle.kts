@@ -114,6 +114,9 @@ dependencies {
     // splash screen
     implementation(libs.androidx.core.splashscreen)
 
+    // material 3
+    implementation(libs.androidx.material3)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

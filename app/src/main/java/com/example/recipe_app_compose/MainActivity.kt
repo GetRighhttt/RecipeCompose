@@ -73,7 +73,7 @@ import com.example.recipe_app_compose.features.categories.presentation.view.Cate
 import com.example.recipe_app_compose.features.categories.presentation.view.IngredientScreen
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 import com.example.recipe_app_compose.features.location.presentation.view.YelpScreen
-import com.example.recipe_app_compose.ui.theme.Recipe_App_ComposeTheme
+import com.example.recipe_app_compose.ui.theme.AppTheme
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -108,7 +108,7 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
 
             if (!isConnected) {
-                Recipe_App_ComposeTheme {
+                AppTheme {
                     showDialog = true
                     AlertDialogExample(
                         dialogTitle = stringResource(R.string.network_unavailable),
@@ -124,7 +124,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             } else {
-                Recipe_App_ComposeTheme {
+                AppTheme {
                     /*
                     Navigation Drawer Code
                      */
