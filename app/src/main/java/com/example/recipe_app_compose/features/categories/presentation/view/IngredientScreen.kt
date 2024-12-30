@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -61,6 +62,7 @@ import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
+import com.example.recipe_app_compose.core.components.HyperlinkText
 import com.example.recipe_app_compose.core.components.MessageCard
 import com.example.recipe_app_compose.core.components.VerticalScrollingWithFixedHeightTextDemo
 import com.example.recipe_app_compose.features.categories.domain.model.ingredient.Ingredient
@@ -291,22 +293,25 @@ fun IngredientMealItem(category: Ingredient) {
                         )
 
                         Spacer(modifier = Modifier.padding(top = 5.dp))
-                        Text(
-                            text = buildString {
-                                append(stringResource(R.string.source))
-                                append(" ${category.strSource ?: ""} ")
-                            },
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
+                        Row {
+                            Text(stringResource(R.string.source), style = MaterialTheme.typography.bodyMedium)
+                            HyperlinkText(
+                                text = "Source",
+                                linkText = listOf(stringResource(R.string.click_here_for_website)),
+                                hyperlinks = listOf(category.strSource ?: "")
+                            )
+                        }
 
                         Spacer(modifier = Modifier.padding(top = 5.dp))
-                        Text(
-                            text = buildString {
-                                append(stringResource(R.string.youtube))
-                                append(" ${category.strYoutube ?: ""} ")
-                            },
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
+                        Row {
+                            Text(stringResource(R.string.youtube), style = MaterialTheme.typography.bodyMedium)
+                            HyperlinkText(
+                                text = "Youtube",
+                                linkText = listOf(stringResource(R.string.click_here_for_youtube)),
+                                hyperlinks = listOf(category.strYoutube ?: "")
+                            )
+                        }
+
                         Spacer(modifier = Modifier.padding(top = 5.dp))
                         HorizontalDivider(thickness = 2.dp)
                         Spacer(modifier = Modifier.padding(top = 5.dp, bottom = 5.dp))

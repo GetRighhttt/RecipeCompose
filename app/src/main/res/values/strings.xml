@@ -51,8 +51,8 @@
     <string name="personal_details">Personal Details</string>
     <string name="you_clicked_here">You Clicked Here:</string>
     <string name="business_location">Business Location</string>
-    <string name="youtube">"YouTube :  "</string>
-    <string name="source">"Source : "</string>
+    <string name="youtube">"YouTube -> "</string>
+    <string name="source">"Source -> "</string>
     <string name="originated">"Originated : "</string>
     <string name="instructions">"Instructions: "</string>
     <string name="ingredients">"Ingredients: "</string>
@@ -72,4 +72,6 @@
     <string name="error_in_recipe_screen">Error in Recipe Screen</string>
     <string name="error_occurred">Error occurred: %1$s</string>
     <string name="search_for_specific_meals">Search for specific meals</string>
+    <string name="click_here_for_website">Click here for website</string>
+    <string name="click_here_for_youtube">Click here for YouTube</string>
 </resources>
