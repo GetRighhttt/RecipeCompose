@@ -47,7 +47,6 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.ReusableFullScreenDialog
-import com.example.recipe_app_compose.core.util.Constants
 import com.example.recipe_app_compose.features.location.domain.model.location.LocationData
 import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpBusinesses
 import com.example.recipe_app_compose.features.location.presentation.viewmodel.YelpViewModel
@@ -91,7 +90,7 @@ fun YelpScreen(modifier: Modifier = Modifier) {
                     onDismissRequest = { alertDialogState = false },
                     onConfirmation = {
                         alertDialogState = false
-                        viewModel.getBusinesses(Constants.YELP_SEARCH_QUERY)
+                        viewModel::getBusinesses.invoke()
                     },
                 )
 
@@ -100,7 +99,7 @@ fun YelpScreen(modifier: Modifier = Modifier) {
                         // set up searchbar with outline text field
                         OutlinedTextField(
                             value = searchText,
-                            onValueChange = viewModel.onSearchTextChange,
+                            onValueChange = viewModel::onSearchTextChange.invoke(),
                             keyboardOptions = KeyboardOptions(
                                 imeAction = ImeAction.Search,
                                 keyboardType = KeyboardType.Email,

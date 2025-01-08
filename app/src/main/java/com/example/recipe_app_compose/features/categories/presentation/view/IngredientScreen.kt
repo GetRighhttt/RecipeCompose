@@ -101,7 +101,7 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
                     onDismissRequest = { alertDialogState = false },
                     onConfirmation = {
                         alertDialogState = false
-                        viewModel.fetchIngredients("chicken")
+                        viewModel::fetchIngredients.invoke()
                     },
                 )
 
@@ -109,7 +109,7 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
                     Column(modifier = Modifier.fillMaxSize()) {
                         OutlinedTextField(
                             value = searchText,
-                            onValueChange = viewModel.onSearchTextChange,
+                            onValueChange = viewModel::onSearchTextChange.invoke(),
                             keyboardOptions = KeyboardOptions(
                                 imeAction = ImeAction.Search,
                                 keyboardType = KeyboardType.Email,
