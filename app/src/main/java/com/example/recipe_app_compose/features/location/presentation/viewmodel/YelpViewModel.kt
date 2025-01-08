@@ -39,7 +39,7 @@ class YelpViewModel(
 
     @OptIn(FlowPreview::class)
     internal val businessList = searchQuery
-        .debounce(1000L)
+        .debounce(500L)
         .onEach { _isSearching.update { true } }
         .combine(_businessList) { text, businesses ->
             if (text.isBlank()) {
@@ -53,6 +53,8 @@ class YelpViewModel(
                     business.location.country.contains(text)
                     business.location.zipCode?.contains(text) ?: ""
                     business.phone?.contains(text) ?: false
+                    business.coordinates.latitude.toString().contains(text)
+                    business.coordinates.longitude.toString().contains(text)
                 }.also {
                     delay(1500L)
                     getBusinesses(text)

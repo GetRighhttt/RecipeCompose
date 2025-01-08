@@ -55,8 +55,10 @@ class RecipeViewModel(
 
     @OptIn(FlowPreview::class)
     internal val ingredientsList = searchQuery
-        .debounce(1000L)
+        // delay text when searching
+        .debounce(500L)
         .onEach { _isSearching.update { true } }
+        // combine elements and emit new recently emitted values
         .combine(_ingredientsList) { text, ingredients ->
             if (text.isBlank()) {
                 ingredients
@@ -68,9 +70,8 @@ class RecipeViewModel(
                     delay(400L)
                 }
             }
-            // convert to State FLow
         }.onEach { _isSearching.update { false } }
-        .stateIn(
+        .stateIn( // convert to State FLow
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = _ingredientsList.value
