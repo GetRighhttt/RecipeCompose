@@ -108,7 +108,7 @@ class YelpViewModel(
     }
 
     companion object {
-        private const val BEARER = "Bearer ${Constants.YELP_API_KEY}"
+        private val BEARER = "Bearer ${Constants.YELP_API_KEY}"
         private const val DEFAULT_LIMIT: UInt = 50U
         private const val DEFAULT_OFFSET: UInt = 0U
     }

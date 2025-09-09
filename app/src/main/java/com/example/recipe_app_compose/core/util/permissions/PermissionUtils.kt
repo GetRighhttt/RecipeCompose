@@ -112,12 +112,6 @@ class PermissionUtils(private val context: Context) {
 
     }
 
-    internal val networkRequest = NetworkRequest.Builder()
-        .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-        .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-        .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
-        .build()
-
     sealed interface NetworkConnectionState {
         data object Available : NetworkConnectionState
         data object Unavailable : NetworkConnectionState
