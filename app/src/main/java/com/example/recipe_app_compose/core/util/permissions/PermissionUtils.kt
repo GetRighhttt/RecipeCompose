@@ -119,7 +119,6 @@ class PermissionUtils(private val context: Context) {
 
     internal fun networkCallback(callback: (NetworkConnectionState) -> Unit): ConnectivityManager.NetworkCallback =
         object : ConnectivityManager.NetworkCallback() {
-            // network is available for use
             override fun onAvailable(network: Network) {
                 callback(NetworkConnectionState.Available)
             }
