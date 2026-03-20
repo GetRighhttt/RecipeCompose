@@ -13,7 +13,6 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface ApiService {
-
     @GET(CATEGORY_ENDPOINT)
     suspend fun getCategories(): Response<CategoryResponse>
 
@@ -50,5 +49,5 @@ fun getRandomCategoryMeals(): String {
         "Vegan",
         "Vegetarian"
     )
-    return listOfFoods.random().toString()
+    return listOfFoods.random()
 }

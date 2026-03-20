@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,50 +32,56 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 
-@SuppressLint("StateFlowValueCalledInComposition")
+@SuppressLint(
+    "StateFlowValueCalledInComposition",
+    "ViewModelConstructorInComposable",
+    "UnrememberedMutableState",
+)
 @Composable
 fun GoogleLocationSelectionScreen(
     location: LocationData
 ) {
-    // context
     val context = LocalContext.current
-
-    // viewmodel states
     val locationViewModel = LocationViewModel()
+    val locationUtils = PermissionUtils(context)
     val isLoading = locationViewModel.isLoading.collectAsState()
 
-    // location states
-    val businessLocation =
-        remember { mutableStateOf(LatLng(location.latitude, location.longitude)) }
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(businessLocation.value, 12f)
-    }
     val uiSettings by remember { mutableStateOf(MapUiSettings(zoomControlsEnabled = true)) }
     val properties by remember { mutableStateOf(MapProperties(mapType = MapType.HYBRID)) }
-    val locationUtils = PermissionUtils(context)
-
-    // draggable state markers
     var markerStateValue by remember { mutableStateOf(false) }
     val newMarkerState = rememberMarkerState()
 
-    // use geocode method to get addresses
-    val businessAddress = locationUtils.reverseGeocodeLocation(
-        LocationData(
-            businessLocation.value.latitude,
-            businessLocation.value.longitude
-        )
-    )
+    val businessLocation =
+        remember { mutableStateOf(LatLng(location.latitude, location.longitude)) }
 
-    val newAddress = locationUtils.reverseGeocodeLocation(
-        LocationData(
-            newMarkerState.position.latitude,
-            newMarkerState.position.longitude
-        )
-    )
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(businessLocation.value, 12f)
+    }
+    val businessMarkerState = remember {
+        MarkerState(position = businessLocation.value)
+    }
 
-    // UI
+    var businessAddress by remember { mutableStateOf("") }
+    LaunchedEffect(businessMarkerState.position) {
+        businessAddress = locationUtils.reverseGeocodeLocation(
+            LocationData(
+                businessMarkerState.position.latitude,
+                businessMarkerState.position.longitude
+            )
+        )
+    }
+
+    var newAddress by remember { mutableStateOf("") }
+    LaunchedEffect(newMarkerState.position) {
+        newAddress = locationUtils.reverseGeocodeLocation(
+            LocationData(
+                newMarkerState.position.latitude,
+                newMarkerState.position.longitude
+            )
+        )
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
-
         if (isLoading.value) {
             CircularProgressIndicator(
                 modifier = Modifier

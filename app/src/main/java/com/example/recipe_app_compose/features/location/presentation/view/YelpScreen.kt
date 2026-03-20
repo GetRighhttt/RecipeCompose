@@ -56,12 +56,8 @@ import com.example.recipe_app_compose.features.location.presentation.viewmodel.Y
 @Composable
 fun YelpScreen(modifier: Modifier = Modifier) {
 
-    // declare view model and state variable
     val viewModel: YelpViewModel = viewModel()
     val viewState by viewModel.yelpState.collectAsStateWithLifecycle()
-    var alertDialogState by remember { mutableStateOf(true) }
-
-    // search stuff
     val searchText by viewModel.searchQuery.collectAsStateWithLifecycle()
     val isSearching by viewModel.isSearching.collectAsStateWithLifecycle()
     val searchResults by viewModel.businessList.collectAsStateWithLifecycle()
@@ -87,9 +83,8 @@ fun YelpScreen(modifier: Modifier = Modifier) {
                 viewState.error != null -> AlertDialogExample(
                     dialogTitle = stringResource(R.string.error),
                     dialogText = stringResource(R.string.error_occurred, viewState.error ?: ""),
-                    onDismissRequest = { alertDialogState = false },
+                    onDismissRequest = { },
                     onConfirmation = {
-                        alertDialogState = false
                         viewModel::getBusinesses.invoke()
                     },
                 )

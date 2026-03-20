@@ -45,7 +45,8 @@ fun RecipeApp(navController: NavHostController, modifier: Modifier) {
                     ) {
                         launchSingleTop = true
                     }
-                })
+                }
+            )
         }
         composable(
             route = CategoryScreen.DetailScreen.route

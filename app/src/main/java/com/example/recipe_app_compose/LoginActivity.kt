@@ -64,19 +64,17 @@ class LoginActivity : ComponentActivity() {
                         connectionState === PermissionUtils.NetworkConnectionState.Available
                     }
                 }
-                var showDialog by remember { mutableStateOf(false) }
 
                 var email by remember { mutableStateOf("") }
                 var password by remember { mutableStateOf("") }
 
 
                 if (!isConnected) {
-                    showDialog = true
                     AlertDialogExample(
                         dialogTitle = stringResource(R.string.network_unavailable),
                         dialogText = stringResource(R.string.please_connect_to_a_network_service_to_proceed_further),
-                        onDismissRequest = { showDialog = false },
-                        onConfirmation = { showDialog = false }
+                        onDismissRequest = { },
+                        onConfirmation = { }
                     )
                     Box(
                         modifier = Modifier.fillMaxSize().padding(top=250.dp).background(color = MaterialTheme.colorScheme.tertiaryContainer),
