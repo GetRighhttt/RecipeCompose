@@ -29,35 +29,34 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.google.maps.android.compose.rememberMarkerState
+import com.google.maps.android.compose.rememberUpdatedMarkerState
 
-@SuppressLint("StateFlowValueCalledInComposition")
+@SuppressLint(
+    "StateFlowValueCalledInComposition",
+    "ViewModelConstructorInComposable",
+    "UnrememberedMutableState",
+)
 @Composable
 fun GoogleLocationSelectionScreen(
     location: LocationData
 ) {
-    // context
     val context = LocalContext.current
-
-    // viewmodel states
     val locationViewModel = LocationViewModel()
+    val locationUtils = PermissionUtils(context)
     val isLoading = locationViewModel.isLoading.collectAsState()
 
-    // location states
+    val uiSettings by remember { mutableStateOf(MapUiSettings(zoomControlsEnabled = true)) }
+    val properties by remember { mutableStateOf(MapProperties(mapType = MapType.HYBRID)) }
+    var markerStateValue by remember { mutableStateOf(false) }
+    val newMarkerState = rememberUpdatedMarkerState()
+
     val businessLocation =
         remember { mutableStateOf(LatLng(location.latitude, location.longitude)) }
+
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(businessLocation.value, 12f)
     }
-    val uiSettings by remember { mutableStateOf(MapUiSettings(zoomControlsEnabled = true)) }
-    val properties by remember { mutableStateOf(MapProperties(mapType = MapType.HYBRID)) }
-    val locationUtils = PermissionUtils(context)
 
-    // draggable state markers
-    var markerStateValue by remember { mutableStateOf(false) }
-    val newMarkerState = rememberMarkerState()
-
-    // use geocode method to get addresses
     val businessAddress = locationUtils.reverseGeocodeLocation(
         LocationData(
             businessLocation.value.latitude,
@@ -72,9 +71,7 @@ fun GoogleLocationSelectionScreen(
         )
     )
 
-    // UI
     Column(modifier = Modifier.fillMaxSize()) {
-
         if (isLoading.value) {
             CircularProgressIndicator(
                 modifier = Modifier
