@@ -97,7 +97,6 @@ class MainActivity : ComponentActivity() {
                     connectionState === PermissionUtils.NetworkConnectionState.Available
                 }
             }
-            var showDialog by remember { mutableStateOf(false) }
 
             val sheetState = rememberModalBottomSheetState()
             var showBottomSheet by remember { mutableStateOf(false) }
@@ -109,15 +108,16 @@ class MainActivity : ComponentActivity() {
 
             if (!isConnected) {
                 AppTheme {
-                    showDialog = true
                     AlertDialogExample(
                         dialogTitle = stringResource(R.string.network_unavailable),
                         dialogText = stringResource(R.string.please_connect_to_a_network_service_to_proceed_further),
-                        onDismissRequest = { showDialog = false },
-                        onConfirmation = { showDialog = false }
+                        onDismissRequest = { },
+                        onConfirmation = { }
                     )
                     Box(
-                        modifier = Modifier.fillMaxSize().padding(top=250.dp),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = 250.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator()
@@ -244,80 +244,83 @@ class MainActivity : ComponentActivity() {
                                     }
                                 })
                         }, bottomBar = {
-                            MyBottomAppBar(modifier = Modifier.fillMaxWidth(), containerColor = MaterialTheme.colorScheme.tertiaryContainer, content = {
-                                IconButton(onClick = {
-                                    // share an email about the application or other things
-                                    val intent = Intent(Intent.ACTION_SEND).apply {
-                                        type = "text/plain"
-                                        putExtra(
-                                            Intent.EXTRA_EMAIL, arrayOf(
-                                                getString(R.string.stefanbayne_gmail_com)
+                            MyBottomAppBar(
+                                modifier = Modifier.fillMaxWidth(),
+                                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                content = {
+                                    IconButton(onClick = {
+                                        // share an email about the application or other things
+                                        val intent = Intent(Intent.ACTION_SEND).apply {
+                                            type = "text/plain"
+                                            putExtra(
+                                                Intent.EXTRA_EMAIL, arrayOf(
+                                                    getString(R.string.stefanbayne_gmail_com)
+                                                )
                                             )
-                                        )
-                                        putExtra(
-                                            Intent.EXTRA_SUBJECT,
-                                            getString(R.string.sharing_application)
-                                        )
-                                        putExtra(
-                                            Intent.EXTRA_TEXT,
-                                            getString(R.string.https_github_com_getrighhttt_recipecompose)
+                                            putExtra(
+                                                Intent.EXTRA_SUBJECT,
+                                                getString(R.string.sharing_application)
+                                            )
+                                            putExtra(
+                                                Intent.EXTRA_TEXT,
+                                                getString(R.string.https_github_com_getrighhttt_recipecompose)
+                                            )
+                                        }
+                                        // another approach to error handling with resolve activity
+                                        if (intent.resolveActivity(packageManager) != null) {
+                                            startActivity(intent)
+                                        }
+                                    }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Share,
+                                            contentDescription = stringResource(R.string.share)
                                         )
                                     }
-                                    // another approach to error handling with resolve activity
-                                    if (intent.resolveActivity(packageManager) != null) {
-                                        startActivity(intent)
-                                    }
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Share,
-                                        contentDescription = stringResource(R.string.share)
-                                    )
-                                }
-                                IconButton(onClick = {
-                                    showYelpDialogBox = true
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.Default.ShoppingCart,
-                                        contentDescription = stringResource(R.string.shops)
-                                    )
-                                    if (showYelpDialogBox) {
-                                        ReusableFullScreenDialog({ YelpScreen(modifier = Modifier) }) {
-                                            showYelpDialogBox = false
+                                    IconButton(onClick = {
+                                        showYelpDialogBox = true
+                                    }) {
+                                        Icon(
+                                            imageVector = Icons.Default.ShoppingCart,
+                                            contentDescription = stringResource(R.string.shops)
+                                        )
+                                        if (showYelpDialogBox) {
+                                            ReusableFullScreenDialog({ YelpScreen(modifier = Modifier) }) {
+                                                showYelpDialogBox = false
+                                            }
                                         }
                                     }
-                                }
-                                IconButton(onClick = {
-                                    navController.navigate(CategoryScreen.FavoriteScreen.route) {
-                                        launchSingleTop = true
+                                    IconButton(onClick = {
+                                        navController.navigate(CategoryScreen.FavoriteScreen.route) {
+                                            launchSingleTop = true
+                                        }
+                                    }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Favorite,
+                                            contentDescription = stringResource(R.string.favorites)
+                                        )
                                     }
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Favorite,
-                                        contentDescription = stringResource(R.string.favorites)
-                                    )
-                                }
-                                IconButton(onClick = {
-                                    showFullDialogBox = true
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.Default.PlayArrow,
-                                        contentDescription = stringResource(R.string.play)
-                                    )
-                                }
-                                if (showFullDialogBox) {
-                                    FullScreenDialog {
-                                        showFullDialogBox = false
+                                    IconButton(onClick = {
+                                        showFullDialogBox = true
+                                    }) {
+                                        Icon(
+                                            imageVector = Icons.Default.PlayArrow,
+                                            contentDescription = stringResource(R.string.play)
+                                        )
                                     }
-                                }
-                                IconButton(onClick = {
-                                    showBottomSheet = true
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.Default.KeyboardArrowUp,
-                                        contentDescription = stringResource(R.string.settings)
-                                    )
-                                }
-                            })
+                                    if (showFullDialogBox) {
+                                        FullScreenDialog {
+                                            showFullDialogBox = false
+                                        }
+                                    }
+                                    IconButton(onClick = {
+                                        showBottomSheet = true
+                                    }) {
+                                        Icon(
+                                            imageVector = Icons.Default.KeyboardArrowUp,
+                                            contentDescription = stringResource(R.string.settings)
+                                        )
+                                    }
+                                })
                         }) { innerPadding ->
                             if (showBottomSheet) {
                                 ModalBottomSheet(
@@ -329,12 +332,13 @@ class MainActivity : ComponentActivity() {
                                     modifier = Modifier.padding(8.dp)
                                 ) {
                                     Scaffold(topBar = {
-                                        CenterAlignedTopAppBar(title = {
-                                            Text(
-                                                stringResource(R.string.see_our_best_dishes),
-                                                style = MaterialTheme.typography.titleLarge
-                                            )
-                                        },
+                                        CenterAlignedTopAppBar(
+                                            title = {
+                                                Text(
+                                                    stringResource(R.string.see_our_best_dishes),
+                                                    style = MaterialTheme.typography.titleLarge
+                                                )
+                                            },
                                             actions = {
                                                 IconButton(onClick = {
                                                     showCategoryMealDialogBox = true
