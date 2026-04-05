@@ -27,6 +27,10 @@ class DatabaseViewModel(
         viewModelScope.launch { databaseRepository.executeDeleteMeal(meal = meal) }
     }
 
+    internal val executeDeleteAll: () -> Job = {
+        viewModelScope.launch { databaseRepository.executeDeleteAll() }
+    }
+
     internal val executeGetAllMeals: () -> Job = {
         viewModelScope.launch {
             databaseRepository.executeGetAllMeals().collectLatest { meal ->
@@ -39,10 +43,6 @@ class DatabaseViewModel(
                 }
             }
         }
-    }
-
-    internal val executeDeleteAll: () -> Job = {
-        viewModelScope.launch { databaseRepository.executeDeleteAll() }
     }
 
     init { executeGetAllMeals.invoke() }
