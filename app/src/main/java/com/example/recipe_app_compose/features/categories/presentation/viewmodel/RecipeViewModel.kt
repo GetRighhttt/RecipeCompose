@@ -173,15 +173,15 @@ class RecipeViewModel(
         }
     }
 
+    init {
+        updateMeals()
+    }
+
     private fun updateMeals() = viewModelScope.launch {
         fetchCategories.invoke()
         fetchCategoryMeals.invoke()
         fetchRandomMeal.invoke()
         fetchIngredients.invoke(SEARCH_DEFAULT)
-    }
-
-    init {
-        updateMeals()
     }
 
     internal companion object {

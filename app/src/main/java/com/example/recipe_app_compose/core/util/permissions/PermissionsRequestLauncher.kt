@@ -7,6 +7,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
@@ -17,17 +18,11 @@ import kotlinx.coroutines.launch
 @Composable
 fun PermissionsRequestLauncher() {
 
-    // context
     val context = LocalContext.current
-
-    // viewmodel states
-    val locationViewModel = LocationViewModel()
+    val locationViewModel: LocationViewModel =  remember { LocationViewModel() }
     val locationUtils = PermissionUtils(context)
-    val networkUtils = PermissionUtils(context)
-
     val scope = rememberCoroutineScope()
 
-    // request
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
         onResult = { permissions ->
@@ -79,8 +74,6 @@ fun PermissionsRequestLauncher() {
 
 @Composable
 fun RequestNetworkPermissions() {
-
-    // context
     val context = LocalContext.current
     val networkUtils = PermissionUtils(context)
 

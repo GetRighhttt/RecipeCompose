@@ -33,6 +33,7 @@ class YelpViewModel(
     val isSearching = _isSearching.asStateFlow()
 
     private val _businessList = MutableStateFlow(_yelpState.value.list)
+
     @OptIn(FlowPreview::class)
     internal val businessList = searchQuery
         .debounce(500L)
@@ -70,14 +71,17 @@ class YelpViewModel(
 
     internal val getBusinesses: (String) -> Unit = { query ->
         viewModelScope.launch {
-            when (
-                val response = repository.searchBusinesses(
-                    BEARER,
-                    query,
-                    query,
-                    DEFAULT_LIMIT,
-                    DEFAULT_OFFSET
-                )) {
+            val response = repository.searchBusinesses(
+                BEARER,
+                query,
+                query,
+                DEFAULT_LIMIT,
+                DEFAULT_OFFSET
+            )
+
+            when (response) {
+                is Resource.Loading -> _yelpState.update { _yelpState.value.copy(loading = true) }
+
                 is Resource.Error -> _yelpState.update {
                     _yelpState.value.copy(
                         loading = false,
@@ -85,7 +89,6 @@ class YelpViewModel(
                     )
                 }
 
-                is Resource.Loading -> _yelpState.update { _yelpState.value.copy(loading = true) }
                 is Resource.Success -> _yelpState.update {
                     _yelpState.value.copy(
                         loading = false,
