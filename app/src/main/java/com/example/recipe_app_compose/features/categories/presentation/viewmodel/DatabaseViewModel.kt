@@ -3,13 +3,10 @@ package com.example.recipe_app_compose.features.categories.presentation.viewmode
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipe_app_compose.di.DependencyInjector
+import com.example.recipe_app_compose.features.categories.data.local.repoimpl.DatabaseRepoImpl
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
-import com.example.recipe_app_compose.features.categories.domain.repository.DatabaseRepository
 import com.example.recipe_app_compose.features.categories.domain.states.DatabaseState
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -17,57 +14,36 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class DatabaseViewModel(
-    // must default for dependency injection
-    private val databaseRepository: DatabaseRepository = DependencyInjector.databaseRepo
+    private val databaseRepository: DatabaseRepoImpl = DependencyInjector.databaseRepo
 ) : ViewModel() {
-
-    // Collecting flow data in LiveData variable
     private val _currentState = MutableStateFlow(DatabaseState())
     val currentState = _currentState.asStateFlow()
 
     internal val executeInsertMeal: (RandomMeal) -> Job = { meal ->
-        viewModelScope.launch(Dispatchers.IO) {
-            val insertMeal = async { databaseRepository.executeInsertMeal(meal = meal) }
-            delay(500)
-            insertMeal.await()
-        }
+        viewModelScope.launch { databaseRepository.executeInsertMeal(meal = meal) }
     }
 
     internal val executeDeleteMeal: (RandomMeal) -> Job = { meal ->
-        viewModelScope.launch(Dispatchers.IO) {
-            val deleteMeal = async { databaseRepository.executeDeleteMeal(meal = meal) }
-            delay(500)
-            deleteMeal.await()
-        }
+        viewModelScope.launch { databaseRepository.executeDeleteMeal(meal = meal) }
     }
 
     internal val executeGetAllMeals: () -> Job = {
         viewModelScope.launch {
-            val getAllMeals = async {
-                databaseRepository.executeGetAllMeals().collectLatest { meal ->
-                    _currentState.update {
-                        _currentState.value.copy(
-                            loading = false,
-                            list = meal,
-                            error = null
-                        )
-                    }
+            databaseRepository.executeGetAllMeals().collectLatest { meal ->
+                _currentState.update {
+                    _currentState.value.copy(
+                        loading = false,
+                        list = meal,
+                        error = null
+                    )
                 }
             }
-            delay(500)
-            getAllMeals.await()
         }
     }
 
     internal val executeDeleteAll: () -> Job = {
-        viewModelScope.launch(Dispatchers.IO) {
-            val executeDeleteMeal = async { databaseRepository.executeDeleteAll() }
-            delay(500)
-            executeDeleteMeal.await()
-        }
+        viewModelScope.launch { databaseRepository.executeDeleteAll() }
     }
 
-    init {
-        executeGetAllMeals.invoke()
-    }
+    init { executeGetAllMeals.invoke() }
 }
