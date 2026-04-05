@@ -6,6 +6,6 @@ import kotlinx.coroutines.flow.Flow
 interface DatabaseRepository {
     suspend fun executeInsertMeal(meal: RandomMeal)
     suspend fun executeGetAllMeals(): Flow<List<RandomMeal>>
-    fun executeDeleteAll()
+    suspend fun executeDeleteAll()
     suspend fun executeDeleteMeal(meal: RandomMeal)
 }

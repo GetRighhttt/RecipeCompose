@@ -18,7 +18,7 @@ interface RandomMealDAO {
     fun getAllMeals(): Flow<List<RandomMeal>>
 
     @Query("DELETE FROM random_meal_table")
-    fun deleteAll()
+    suspend fun deleteAll()
 
     @Delete
     suspend fun deleteMeal(meal: RandomMeal)
