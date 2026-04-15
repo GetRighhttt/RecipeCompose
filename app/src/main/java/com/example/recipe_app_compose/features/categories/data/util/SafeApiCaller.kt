@@ -8,21 +8,21 @@ import retrofit2.Response
 suspend inline fun <T> safeApiCall(
     crossinline call: suspend () -> Response<T>,
     defaultError: String
-): Resource<T> = runCatching {
-    call()
-}.fold(
-    onSuccess = { response ->
-        val body = response.body()
-        if (response.isSuccessful && body != null) {
-            Resource.Success(body)
-        } else {
-            Resource.Error(
-                response.message().takeIf { it.isNotBlank() } ?: defaultError
-            )
-        }
-    },
-    onFailure = { throwable ->
-        currentCoroutineContext().ensureActive()
-        Resource.Error(throwable.message ?: defaultError)
-    }
-)
+): Resource<T> =
+    runCatching { call() }
+        .fold(
+            onSuccess = { response ->
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    Resource.Success(body)
+                } else {
+                    Resource.Error(
+                        response.message().takeIf { it.isNotBlank() } ?: defaultError
+                    )
+                }
+            },
+            onFailure = { throwable ->
+                currentCoroutineContext().ensureActive()
+                Resource.Error(throwable.message ?: defaultError)
+            }
+        )

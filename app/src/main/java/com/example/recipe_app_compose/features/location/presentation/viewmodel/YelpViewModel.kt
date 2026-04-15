@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.recipe_app_compose.core.util.Constants
 import com.example.recipe_app_compose.core.util.Resource
 import com.example.recipe_app_compose.di.DependencyInjector
-import com.example.recipe_app_compose.features.location.data.repoimpl.YelpRepImpl
+import com.example.recipe_app_compose.features.location.domain.repo.YelpRepository
 import com.example.recipe_app_compose.features.location.domain.states.YelpStates
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class YelpViewModel(
-    private val repository: YelpRepImpl = DependencyInjector.yelpRepo
+    private val repository: YelpRepository = DependencyInjector.yelpRepo
 ) : ViewModel() {
 
     private val _yelpState = MutableStateFlow(YelpStates())

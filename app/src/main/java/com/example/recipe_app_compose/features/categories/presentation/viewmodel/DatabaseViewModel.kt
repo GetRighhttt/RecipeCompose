@@ -3,8 +3,8 @@ package com.example.recipe_app_compose.features.categories.presentation.viewmode
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipe_app_compose.di.DependencyInjector
-import com.example.recipe_app_compose.features.categories.data.local.repoimpl.DatabaseRepoImpl
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
+import com.example.recipe_app_compose.features.categories.domain.repository.DatabaseRepository
 import com.example.recipe_app_compose.features.categories.domain.states.DatabaseState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class DatabaseViewModel(
-    private val databaseRepository: DatabaseRepoImpl = DependencyInjector.databaseRepo
+    private val databaseRepository: DatabaseRepository = DependencyInjector.databaseRepo
 ) : ViewModel() {
     private val _currentState = MutableStateFlow(DatabaseState())
     val currentState = _currentState.asStateFlow()
