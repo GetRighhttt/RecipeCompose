@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipe_app_compose.core.util.Resource
 import com.example.recipe_app_compose.di.DependencyInjector
-import com.example.recipe_app_compose.features.categories.data.remote.repoimpl.RecipeRepositoryImpl
+import com.example.recipe_app_compose.features.categories.domain.repository.RecipeRepository
 import com.example.recipe_app_compose.features.categories.domain.states.CategoryMealState
 import com.example.recipe_app_compose.features.categories.domain.states.IngredientMealState
 import com.example.recipe_app_compose.features.categories.domain.states.RandomMealState
@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class RecipeViewModel(
-    private val repository: RecipeRepositoryImpl = DependencyInjector.repository
+    private val repository: RecipeRepository = DependencyInjector.repository
 ) : ViewModel() {
 
     private val _categoriesState = MutableStateFlow(RecipeState())

@@ -90,7 +90,7 @@ fun CategoryItem(category: Category, navigateToDetail: (Category) -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(painter = rememberAsyncImagePainter(
-            category.strCategoryThumb,
+            category.strCategoryThumb.value,
             imageLoader = ImageLoader.Builder(context).crossfade(500).build()
         ),
             contentDescription = stringResource(R.string.image),
@@ -102,7 +102,7 @@ fun CategoryItem(category: Category, navigateToDetail: (Category) -> Unit) {
                     navigateToDetail(category)
                 })
         Text(
-            text = category.strCategory,
+            text = category.strCategory.value,
             style = MaterialTheme.typography.labelLarge,
             modifier = Modifier.padding(4.dp)
         )

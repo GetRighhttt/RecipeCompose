@@ -36,13 +36,13 @@ fun DetailScreen(category: Category) {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = category.strCategory,
+            text = category.strCategory.value,
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.titleLarge
         )
         Image(
             painter = rememberAsyncImagePainter(
-                category.strCategoryThumb,
+                category.strCategoryThumb.value,
                 imageLoader = ImageLoader.Builder(context).crossfade(500).build()
             ), modifier = Modifier
                 .wrapContentSize() // wrap in layout
@@ -54,7 +54,7 @@ fun DetailScreen(category: Category) {
         )
         HorizontalDivider(modifier = Modifier.padding(bottom = 10.dp))
         VerticalScrollingWithFixedHeightTextDemo(
-            category.strCategoryDescription,
+            category.strCategoryDescription.value,
             height = 225.dp,
             size = 15.sp
         )

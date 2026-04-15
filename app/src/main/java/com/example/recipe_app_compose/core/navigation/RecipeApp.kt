@@ -9,6 +9,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.recipe_app_compose.features.categories.domain.model.category.Category
+import com.example.recipe_app_compose.features.categories.domain.model.category.CategoryDescription
+import com.example.recipe_app_compose.features.categories.domain.model.category.CategoryId
+import com.example.recipe_app_compose.features.categories.domain.model.category.CategoryName
+import com.example.recipe_app_compose.features.categories.domain.model.category.CategoryThumb
 import com.example.recipe_app_compose.features.categories.presentation.view.DetailScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.FavoritesScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.InfoScreen
@@ -55,10 +59,10 @@ fun RecipeApp(navController: NavHostController, modifier: Modifier) {
                 navController
                     .previousBackStackEntry?.savedStateHandle?.get<Category>("nav")
                     ?: Category(
-                        "",
-                        "",
-                        "",
-                        ""
+                        idCategory = CategoryId(""),
+                        strCategory = CategoryName(""),
+                        strCategoryThumb = CategoryThumb(""),
+                        strCategoryDescription = CategoryDescription("")
                     )
             DetailScreen(category = category)
         }
