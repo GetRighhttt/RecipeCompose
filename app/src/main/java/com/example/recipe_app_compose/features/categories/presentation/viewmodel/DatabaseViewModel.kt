@@ -33,7 +33,7 @@ class DatabaseViewModel(
 
     internal val executeGetAllMeals: () -> Job = {
         viewModelScope.launch {
-            databaseRepository.executeGetAllMeals().collectLatest { meal ->
+            databaseRepository.executeGetMeals().collectLatest { meal ->
                 _currentState.update {
                     _currentState.value.copy(
                         loading = false,

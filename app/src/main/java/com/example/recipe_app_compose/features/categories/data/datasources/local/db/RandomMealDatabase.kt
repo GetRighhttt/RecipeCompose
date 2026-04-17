@@ -1,4 +1,4 @@
-package com.example.recipe_app_compose.features.categories.data.local.db
+package com.example.recipe_app_compose.features.categories.data.datasources.local.db
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
