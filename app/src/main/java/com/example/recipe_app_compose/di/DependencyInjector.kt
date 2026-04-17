@@ -4,9 +4,9 @@ package com.example.recipe_app_compose.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.recipe_app_compose.features.categories.data.local.db.RandomMealDatabase
-import com.example.recipe_app_compose.features.categories.data.local.repoimpl.DatabaseRepoImpl
-import com.example.recipe_app_compose.features.categories.data.remote.repoimpl.RecipeRepositoryImpl
+import com.example.recipe_app_compose.features.categories.data.datasources.local.db.RandomMealDatabase
+import com.example.recipe_app_compose.features.categories.data.datasources.local.repoimpl.DatabaseRepoImpl
+import com.example.recipe_app_compose.features.categories.data.datasources.remote.repoimpl.RecipeRepositoryImpl
 import com.example.recipe_app_compose.features.location.data.repoimpl.YelpRepImpl
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.internal.synchronized
