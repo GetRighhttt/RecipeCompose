@@ -1,8 +1,7 @@
 package com.example.recipe_app_compose.features.categories.data.util
 
 import com.example.recipe_app_compose.core.util.Resource
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.CancellationException
 import retrofit2.Response
 
 suspend inline fun <T> safeApiCall(
@@ -22,7 +21,7 @@ suspend inline fun <T> safeApiCall(
                 }
             },
             onFailure = { throwable ->
-                currentCoroutineContext().ensureActive()
+                if (throwable is CancellationException) throw throwable
                 Resource.Error(throwable.message ?: defaultError)
             }
         )
