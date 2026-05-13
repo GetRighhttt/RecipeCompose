@@ -28,8 +28,6 @@ File for Navigation.
  */
 @Composable
 fun RecipeApp(navController: NavHostController, modifier: Modifier) {
-
-    // necessary to know what category the user has clicked on
     val recipeViewModel: RecipeViewModel = viewModel()
     val navState by recipeViewModel.categoriesState.collectAsState()
 

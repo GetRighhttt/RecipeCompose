@@ -5,6 +5,7 @@ import com.example.recipe_app_compose.features.categories.domain.model.randommea
 import com.example.recipe_app_compose.features.categories.domain.repository.DatabaseRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 
 class DatabaseRepoImpl(private val randomMealDAO: RandomMealDAO) : DatabaseRepository {
@@ -16,9 +17,9 @@ class DatabaseRepoImpl(private val randomMealDAO: RandomMealDAO) : DatabaseRepos
         randomMealDAO.deleteMeal(meal = meal)
     }
 
-    override suspend fun executeGetMeals(): Flow<List<RandomMeal>> = withContext(Dispatchers.IO) {
-            randomMealDAO.getAllMeals()
-        }
+    override suspend fun executeGetMeals(): Flow<List<RandomMeal>> {
+        return randomMealDAO.getAllMeals().flowOn(Dispatchers.IO)
+    }
 
     override suspend fun executeDeleteAll() = withContext(Dispatchers.IO) {
         randomMealDAO.deleteAll()

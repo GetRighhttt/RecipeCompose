@@ -37,7 +37,6 @@ fun RecipeScreen(
     viewState: RecipeState,
     navigateToDetail: (Category) -> Unit
 ) {
-    // declare view model and state variable
     val viewModel: RecipeViewModel = viewModel()
 
     Scaffold(
@@ -89,10 +88,11 @@ fun CategoryItem(category: Category, navigateToDetail: (Category) -> Unit) {
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(painter = rememberAsyncImagePainter(
-            category.strCategoryThumb.value,
-            imageLoader = ImageLoader.Builder(context).crossfade(500).build()
-        ),
+        Image(
+            painter = rememberAsyncImagePainter(
+                category.strCategoryThumb.value,
+                imageLoader = ImageLoader.Builder(context).crossfade(500).build()
+            ),
             contentDescription = stringResource(R.string.image),
             modifier = Modifier
                 .fillMaxSize()
@@ -100,7 +100,8 @@ fun CategoryItem(category: Category, navigateToDetail: (Category) -> Unit) {
                 .clip(RoundedCornerShape(10.dp))
                 .clickable {
                     navigateToDetail(category)
-                })
+                }
+        )
         Text(
             text = category.strCategory.value,
             style = MaterialTheme.typography.labelLarge,
