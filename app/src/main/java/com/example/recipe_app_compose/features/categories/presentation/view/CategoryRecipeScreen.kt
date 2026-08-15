@@ -15,6 +15,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,7 +42,11 @@ fun CategoryRecipeScreen(modifier: Modifier = Modifier) {
     // declare view model and state variable
     val viewModel: RecipeViewModel = viewModel()
     val viewState by viewModel.categoryMealState.collectAsStateWithLifecycle()
-    var alertDialogState by remember { mutableStateOf(true) }
+    var showErrorDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(viewState.error) {
+        showErrorDialog = viewState.error != null
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
         when {
@@ -51,13 +56,13 @@ fun CategoryRecipeScreen(modifier: Modifier = Modifier) {
                     .aspectRatio(0.3f)
             )
 
-            viewState.error != null -> AlertDialogExample(
+            viewState.error != null && showErrorDialog -> AlertDialogExample(
                 dialogTitle = stringResource(R.string.error),
                 dialogText = stringResource(R.string.error_occurred, viewState.error ?: ""),
-                onDismissRequest = { alertDialogState = false },
+                onDismissRequest = { showErrorDialog = false },
                 onConfirmation = {
+                    showErrorDialog = false
                     viewModel.fetchCategoryMeals()
-                    alertDialogState = false
                 },
             )
 

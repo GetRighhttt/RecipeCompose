@@ -36,6 +36,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -75,7 +76,11 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
     // declare view model and state variable
     val viewModel: RecipeViewModel = viewModel()
     val viewState by viewModel.ingredientMealState.collectAsStateWithLifecycle()
-    var alertDialogState by remember { mutableStateOf(true) }
+    var showErrorDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(viewState.error) {
+        showErrorDialog = viewState.error != null
+    }
 
     // search stuff
     val searchText by viewModel.searchQuery.collectAsStateWithLifecycle()
@@ -95,13 +100,13 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
                         .padding(innerPadding)
                 )
 
-                viewState.error != null -> AlertDialogExample(
+                viewState.error != null && showErrorDialog -> AlertDialogExample(
                     dialogTitle = stringResource(R.string.error),
                     dialogText = stringResource(R.string.error_occurred, viewState.error ?: ""),
-                    onDismissRequest = { alertDialogState = false },
+                    onDismissRequest = { showErrorDialog = false },
                     onConfirmation = {
-                        alertDialogState = false
-                        viewModel::fetchIngredients.invoke()
+                        showErrorDialog = false
+                        viewModel.fetchIngredients(searchText.ifBlank { RecipeViewModel.SEARCH_DEFAULT })
                     },
                 )
 
@@ -109,7 +114,7 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
                     Column(modifier = Modifier.fillMaxSize()) {
                         OutlinedTextField(
                             value = searchText,
-                            onValueChange = viewModel::onSearchTextChange.invoke(),
+                            onValueChange = viewModel::onSearchTextChange,
                             keyboardOptions = KeyboardOptions(
                                 imeAction = ImeAction.Search,
                                 keyboardType = KeyboardType.Email,
@@ -143,7 +148,7 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
                                     modifier = Modifier.align(Alignment.Center)
                                 )
                             }
-                        } else if (viewState.list.isNullOrEmpty() || searchResults?.isNotEmpty() == true) {
+                        } else if (searchResults.isEmpty()) {
                             Box(modifier = Modifier.fillMaxSize()) {
                                 Text(
                                     text = stringResource(R.string.no_results_found),
@@ -154,7 +159,7 @@ fun IngredientScreen(modifier: Modifier = Modifier) {
                                 )
                             }
                         } else {
-                            IngredientMealScreen(categories = viewState.list ?: emptyList())
+                            IngredientMealScreen(categories = searchResults)
                         }
                     }
                 }
@@ -294,7 +299,10 @@ fun IngredientMealItem(category: Ingredient) {
 
                         Spacer(modifier = Modifier.padding(top = 5.dp))
                         Row {
-                            Text(stringResource(R.string.source), style = MaterialTheme.typography.bodyMedium)
+                            Text(
+                                stringResource(R.string.source),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
                             HyperlinkText(
                                 text = "Source",
                                 linkText = listOf(stringResource(R.string.click_here_for_website)),
@@ -304,7 +312,10 @@ fun IngredientMealItem(category: Ingredient) {
 
                         Spacer(modifier = Modifier.padding(top = 5.dp))
                         Row {
-                            Text(stringResource(R.string.youtube), style = MaterialTheme.typography.bodyMedium)
+                            Text(
+                                stringResource(R.string.youtube),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
                             HyperlinkText(
                                 text = "Youtube",
                                 linkText = listOf(stringResource(R.string.click_here_for_youtube)),

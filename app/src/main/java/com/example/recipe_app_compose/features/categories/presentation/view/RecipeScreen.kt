@@ -1,6 +1,5 @@
 package com.example.recipe_app_compose.features.categories.presentation.view
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -23,23 +22,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
+import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.features.categories.domain.model.category.Category
 import com.example.recipe_app_compose.features.categories.domain.states.RecipeState
-import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 
 @Composable
 fun RecipeScreen(
     modifier: Modifier = Modifier,
     viewState: RecipeState,
-    navigateToDetail: (Category) -> Unit
+    navigateToDetail: (Category) -> Unit,
+    onRetry: () -> Unit
 ) {
-    // declare view model and state variable
-    val viewModel: RecipeViewModel = viewModel()
-
     Scaffold(
         modifier = modifier
             .fillMaxSize()
@@ -52,13 +48,12 @@ fun RecipeScreen(
         ) {
             when {
                 viewState.loading -> CircularProgressIndicator(modifier.align(Alignment.Center))
-                viewState.error != null -> {
-                    viewModel.fetchCategories()
-                    Log.d(
-                        stringResource(R.string.recipe_screen),
-                        stringResource(R.string.error_in_recipe_screen)
-                    )
-                }
+                viewState.error != null -> AlertDialogExample(
+                    dialogTitle = stringResource(R.string.error),
+                    dialogText = stringResource(R.string.error_occurred, viewState.error.orEmpty()),
+                    onDismissRequest = onRetry,
+                    onConfirmation = onRetry
+                )
 
                 else -> {
                     // display list of categories
@@ -89,10 +84,11 @@ fun CategoryItem(category: Category, navigateToDetail: (Category) -> Unit) {
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(painter = rememberAsyncImagePainter(
-            category.strCategoryThumb.value,
-            imageLoader = ImageLoader.Builder(context).crossfade(500).build()
-        ),
+        Image(
+            painter = rememberAsyncImagePainter(
+                category.strCategoryThumb.value,
+                imageLoader = ImageLoader.Builder(context).crossfade(500).build()
+            ),
             contentDescription = stringResource(R.string.image),
             modifier = Modifier
                 .fillMaxSize()
@@ -100,7 +96,8 @@ fun CategoryItem(category: Category, navigateToDetail: (Category) -> Unit) {
                 .clip(RoundedCornerShape(10.dp))
                 .clickable {
                     navigateToDetail(category)
-                })
+                }
+        )
         Text(
             text = category.strCategory.value,
             style = MaterialTheme.typography.labelLarge,

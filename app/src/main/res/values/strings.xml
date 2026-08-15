@@ -74,10 +74,14 @@
     <string name="search_for_specific_meals">Search for specific meals</string>
     <string name="click_here_for_website">Click here for website</string>
     <string name="click_here_for_youtube">Click here for YouTube</string>
-    <string name="network_unavailable">Network Unavailable</string>
-    <string name="please_connect_to_a_network_service_to_proceed_further">Please connect to a network service to proceed further.</string>
+    <string name="network_unavailable">You’re offline</string>
+    <string name="network_unavailable_message">Check your connection and try again. Recipe Compose will continue automatically when you’re back online.</string>
+    <string name="try_again">Try again</string>
+    <string name="open_network_settings">Network settings</string>
     <string name="sign_out">Sign Out?</string>
     <string name="are_you_sure_you_want_to_sign_out_of_your_account">Are you sure you want to sign out of your account?</string>
     <string name="sign_out_successful">Sign Out Successful</string>
     <string name="delete_successful">Delete Successful</string>
+    <string name="open_driving_directions">Directions</string>
+    <string name="unable_to_open_google_maps">Unable to open Google Maps or a web browser.</string>
 </resources>

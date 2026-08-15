@@ -7,95 +7,84 @@ import com.example.recipe_app_compose.core.util.Resource
 import com.example.recipe_app_compose.di.DependencyInjector
 import com.example.recipe_app_compose.features.location.domain.repo.YelpRepository
 import com.example.recipe_app_compose.features.location.domain.states.YelpStates
-import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 class YelpViewModel(
     private val repository: YelpRepository = DependencyInjector.yelpRepo
 ) : ViewModel() {
 
-    private val _yelpState = MutableStateFlow(YelpStates())
-    val yelpState = _yelpState.asStateFlow()
+    val yelpState: StateFlow<YelpStates>
+        field: MutableStateFlow<YelpStates> = MutableStateFlow(YelpStates())
 
-    private val _searchQuery = MutableStateFlow("")
-    val searchQuery = _searchQuery.asStateFlow()
+    val searchQuery: StateFlow<String>
+        field: MutableStateFlow<String> = MutableStateFlow("")
 
-    private val _isSearching = MutableStateFlow(false)
-    val isSearching = _isSearching.asStateFlow()
+    val isSearching: StateFlow<Boolean>
+        field: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
-    private val _businessList = MutableStateFlow(_yelpState.value.list)
+    private var businessSearchJob: Job? = null
 
-    @OptIn(FlowPreview::class)
-    internal val businessList = searchQuery
-        .debounce(500L)
-        .onEach { _isSearching.update { true } }
-        .combine(_businessList) { text, businesses ->
-            if (text.isBlank()) {
-                businesses
-            } else {
-                businesses?.filter { business ->
-                    business.name.contains(text)
-                    business.location.address1.contains(text)
-                    business.location.city.contains(text)
-                    business.location.state.contains(text)
-                    business.location.country.contains(text)
-                    business.location.zipCode?.contains(text) ?: ""
-                    business.phone?.contains(text) ?: false
-                    business.coordinates.latitude.toString().contains(text)
-                    business.coordinates.longitude.toString().contains(text)
-                }.also {
-                    delay(1500L)
-                    getBusinesses(text)
-                    delay(1500L)
-                }
-            }
-        }.onEach { _isSearching.update { false } }
+    internal val businessList = yelpState
+        .map { it.list.orEmpty() }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = _businessList.value
+            initialValue = emptyList()
         )
 
-    internal val onSearchTextChange: (String) -> Unit = { text ->
-        _searchQuery.update { text }
+    internal fun onSearchTextChange(text: String) {
+        searchQuery.value = text
+        businessSearchJob?.cancel()
+
+        if (text.isBlank()) {
+            isSearching.value = false
+            return
+        }
+
+        businessSearchJob = viewModelScope.launch {
+            isSearching.value = true
+            delay(500L.milliseconds)
+            loadBusinesses(text)
+            isSearching.value = false
+        }
     }
 
-    internal val getBusinesses: (String) -> Unit = { query ->
+    internal fun getBusinesses(query: String = Constants.YELP_SEARCH_QUERY) {
         viewModelScope.launch {
-            val response = repository.searchBusinesses(
-                BEARER,
-                query,
-                query,
-                DEFAULT_LIMIT,
-                DEFAULT_OFFSET
-            )
+            loadBusinesses(query)
+        }
+    }
 
-            when (response) {
-                is Resource.Loading -> _yelpState.update { _yelpState.value.copy(loading = true) }
+    private suspend fun loadBusinesses(query: String) {
+        yelpState.update { it.copy(loading = true, error = null) }
+        when (val response = repository.searchBusinesses(
+            BEARER,
+            query,
+            query,
+            DEFAULT_LIMIT,
+            DEFAULT_OFFSET
+        )) {
+            is Resource.Loading -> Unit
 
-                is Resource.Error -> _yelpState.update {
-                    _yelpState.value.copy(
-                        loading = false,
-                        error = response.message ?: ""
-                    )
-                }
+            is Resource.Error -> yelpState.update {
+                it.copy(loading = false, error = response.message ?: "Error fetching businesses.")
+            }
 
-                is Resource.Success -> _yelpState.update {
-                    _yelpState.value.copy(
-                        loading = false,
-                        list = response.data?.restaurants ?: emptyList(),
-                        error = null
-                    )
-                }
+            is Resource.Success -> yelpState.update {
+                it.copy(
+                    loading = false,
+                    list = response.data?.restaurants.orEmpty(),
+                    error = null
+                )
             }
         }
     }

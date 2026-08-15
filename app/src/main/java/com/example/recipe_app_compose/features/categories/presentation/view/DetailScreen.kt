@@ -45,7 +45,7 @@ fun DetailScreen(category: Category) {
                 category.strCategoryThumb.value,
                 imageLoader = ImageLoader.Builder(context).crossfade(500).build()
             ), modifier = Modifier
-                .wrapContentSize() // wrap in layout
+                .wrapContentSize()
                 .height(225.dp)
                 .padding(15.dp)
                 .aspectRatio(1F)

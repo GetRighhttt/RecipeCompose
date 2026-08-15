@@ -6,7 +6,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,7 +28,6 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -45,7 +43,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -53,28 +50,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
-import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.FullScreenDialog
 import com.example.recipe_app_compose.core.components.MyBottomAppBar
+import com.example.recipe_app_compose.core.components.NetworkUnavailableScreen
 import com.example.recipe_app_compose.core.components.ReusableFullScreenDialog
 import com.example.recipe_app_compose.core.navigation.CategoryScreen
 import com.example.recipe_app_compose.core.navigation.NavigationItem
 import com.example.recipe_app_compose.core.navigation.RecipeApp
-import com.example.recipe_app_compose.core.util.permissions.PermissionUtils
-import com.example.recipe_app_compose.core.util.permissions.PermissionsRequestLauncher
-import com.example.recipe_app_compose.core.util.permissions.RequestNetworkPermissions
+import com.example.recipe_app_compose.core.util.connectivity.ConnectivityStatus
+import com.example.recipe_app_compose.core.util.connectivity.openNetworkSettings
+import com.example.recipe_app_compose.core.util.connectivity.rememberConnectivityMonitor
 import com.example.recipe_app_compose.features.categories.presentation.view.CategoryRecipeScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.IngredientScreen
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 import com.example.recipe_app_compose.features.location.presentation.view.YelpScreen
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -85,45 +81,27 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            // request permissions
-            RequestNetworkPermissions()
-            PermissionsRequestLauncher()
-
             val context = LocalContext.current
-            val permissionUtils = PermissionUtils(context)
-            val connectionState by permissionUtils.rememberConnectivityState()
-            val isConnected by remember(connectionState) {
-                derivedStateOf {
-                    connectionState === PermissionUtils.NetworkConnectionState.Available
-                }
-            }
+            val connectivityMonitor = rememberConnectivityMonitor()
+            val connectionState by connectivityMonitor.status.collectAsStateWithLifecycle()
+            val isConnected = connectionState == ConnectivityStatus.Available
 
             val sheetState = rememberModalBottomSheetState()
             var showBottomSheet by remember { mutableStateOf(false) }
             var showFullDialogBox by remember { mutableStateOf(false) }
             var showYelpDialogBox by remember { mutableStateOf(false) }
             var showSearchDialog by remember { mutableStateOf(false) }
-            var showCategoryMealDialogBox by remember { mutableStateOf(false) }
             val navController = rememberNavController()
 
             if (!isConnected) {
                 AppTheme {
-                    AlertDialogExample(
-                        dialogTitle = stringResource(R.string.network_unavailable),
-                        dialogText = stringResource(R.string.please_connect_to_a_network_service_to_proceed_further),
-                        onDismissRequest = { },
-                        onConfirmation = { }
+                    NetworkUnavailableScreen(
+                        onRetry = connectivityMonitor::refresh,
+                        onOpenNetworkSettings = context::openNetworkSettings,
                     )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(top = 250.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
                 }
             } else {
+                val recipeViewModel: RecipeViewModel = viewModel()
                 AppTheme {
                     /* Navigation Drawer Code */
                     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -159,7 +137,7 @@ class MainActivity : ComponentActivity() {
                                         },
                                         selected = index == selectedItemIndex,
                                         onClick = {
-                                            val closeDrawer: Job = scope.launch {
+                                            scope.launch {
                                                 drawerState.close()
                                             }
                                             selectedItemIndex = index
@@ -167,17 +145,14 @@ class MainActivity : ComponentActivity() {
                                             when (index) {
                                                 0 -> {
                                                     navController.navigate(CategoryScreen.RecipeScreen.route)
-                                                    closeDrawer.isActive
                                                 }
 
                                                 1 -> {
                                                     navController.navigate(CategoryScreen.SettingsScreen.route)
-                                                    closeDrawer.isActive
                                                 }
 
                                                 2 -> {
                                                     navController.navigate(CategoryScreen.InfoScreen.route)
-                                                    closeDrawer.isActive
                                                 }
                                             }
                                         },
@@ -341,17 +316,12 @@ class MainActivity : ComponentActivity() {
                                             },
                                             actions = {
                                                 IconButton(onClick = {
-                                                    showCategoryMealDialogBox = true
+                                                    recipeViewModel.fetchCategoryMeals()
                                                 }) {
                                                     Icon(
                                                         imageVector = Icons.Default.Refresh,
                                                         contentDescription = stringResource(R.string.refresh)
                                                     )
-                                                }
-                                                if (showCategoryMealDialogBox) {
-                                                    showCategoryMealDialogBox = false
-                                                    val viewModel: RecipeViewModel = viewModel()
-                                                    viewModel.fetchCategoryMeals()
                                                 }
                                             })
                                     }) { innerPadding ->

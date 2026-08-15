@@ -1,7 +1,6 @@
 package com.example.recipe_app_compose.features.location.domain.model.yelp
 
 import android.os.Parcelable
-import androidx.compose.runtime.Composable
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 
@@ -23,12 +22,10 @@ data class YelpBusinesses(
     val distance: Double // meters
 ) : Parcelable {
 
-    @Composable
     fun displayRating(): String {
         return rating.toInt().toString()
     }
 
-    @Composable
     fun displayPhoneNumber(): String {
         return if (phone?.isNotBlank() == true) {
             "(${phone.drop(2).dropLast(7)}) ${phone.drop(5).dropLast(4)} - ${phone.drop(8)}"
@@ -37,4 +34,3 @@ data class YelpBusinesses(
         }
     }
 }
-

@@ -1,25 +1,21 @@
-@file:Suppress("DEPRECATION")
-
-import java.util.Properties
-
 plugins {
     // Existing plugins
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    id("kotlin-parcelize")
+    alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.secrets.gradle)
     id("com.google.devtools.ksp") // ksp
     id("com.google.gms.google-services") // google-services
 }
 
 android {
     namespace = "com.example.recipe_app_compose"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.example.recipe_app_compose"
         minSdk = 28
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0"
 
@@ -28,12 +24,6 @@ android {
             useSupportLibrary = true
         }
 
-        val properties = Properties()
-        properties.load(project.rootProject.file("local.properties").inputStream())
-
-        buildConfigField("String", "YELP_API_KEY", "\"${properties.getProperty("YELP_API_KEY")}\"")
-        buildConfigField("String", "YELP_BASE_URL", "\"${properties.getProperty("YELP_BASE_URL")}\"")
-        buildConfigField("String", "BASE_URL", "\"${properties.getProperty("BASE_URL")}\"")
     }
 
     buildFeatures {
@@ -56,17 +46,24 @@ android {
         targetCompatibility = JavaVersion.VERSION_18
     }
 
-    kotlin {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_18)
-        }
-    }
-
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+}
+
+kotlin {
+    compilerOptions {
+        languageVersion = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_4
+        freeCompilerArgs.add("-Xexplicit-backing-fields")
+    }
+}
+
+secrets {
+    propertiesFileName = "local.properties"
+    defaultPropertiesFileName = "local.defaults.properties"
+    ignoreList.add("sdk.dir")
 }
 
 dependencies {
@@ -94,7 +91,6 @@ dependencies {
     implementation(libs.firebase.auth) // authentication
 
     // Google play - Maps
-    implementation(libs.play.services.location)
     implementation(libs.play.services.maps)
     implementation(libs.maps.compose)
 
