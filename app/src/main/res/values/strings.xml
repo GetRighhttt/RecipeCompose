@@ -84,4 +84,6 @@
     <string name="delete_successful">Delete Successful</string>
     <string name="open_driving_directions">Directions</string>
     <string name="unable_to_open_google_maps">Unable to open Google Maps or a web browser.</string>
+    <string name="business_location_unavailable">This business does not have a valid map location.</string>
+    <string name="address_not_found">Address not found.</string>
 </resources>

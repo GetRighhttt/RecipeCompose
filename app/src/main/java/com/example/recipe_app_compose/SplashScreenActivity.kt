@@ -20,7 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 
@@ -31,15 +30,19 @@ class SplashScreenActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AppTheme {
-                SplashScreen()
+                SplashScreen(
+                    onFinished = {
+                        startActivity(Intent(this, LoginActivity::class.java))
+                        finish()
+                    }
+                )
             }
         }
     }
 }
 
 @Composable
-fun SplashScreen() {
-    val context = LocalContext.current
+fun SplashScreen(onFinished: () -> Unit) {
     val alpha = remember {
         Animatable(0F)
     }
@@ -47,7 +50,7 @@ fun SplashScreen() {
     // Coroutine Launcher that initiates when composables are composed
     LaunchedEffect(key1 = true, block = {
         alpha.animateTo(1F, animationSpec = tween(1000))
-        context.startActivity(Intent(context, LoginActivity::class.java))
+        onFinished()
     })
     Box(
         modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.tertiaryContainer),

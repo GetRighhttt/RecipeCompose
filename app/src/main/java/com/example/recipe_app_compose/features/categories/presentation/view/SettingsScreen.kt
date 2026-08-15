@@ -53,26 +53,29 @@ fun SettingsInfo(modifier: Modifier) {
     var contactState by remember { mutableStateOf(false) }
     var deleteState by remember { mutableStateOf(false) }
     var signOutState by remember { mutableStateOf(false) }
-    val contextLocal = LocalContext.current
+    val context = LocalContext.current
+    val signOutSuccessfulMessage = stringResource(R.string.sign_out_successful)
+    val deleteSuccessfulMessage = stringResource(R.string.delete_successful)
 
     // Firebase
     val auth = Firebase.auth
     val signOutFirebase: () -> Unit = {
         auth.signOut()
         Toast.makeText(
-            contextLocal,
-            contextLocal.getString(R.string.sign_out_successful), Toast.LENGTH_SHORT
+            context,
+            signOutSuccessfulMessage,
+            Toast.LENGTH_SHORT,
         ).show()
     }
     val deleteFirebase: () -> Unit = {
         auth.currentUser?.delete()
         Toast.makeText(
-            contextLocal,
-            contextLocal.getString(R.string.delete_successful), Toast.LENGTH_SHORT
+            context,
+            deleteSuccessfulMessage,
+            Toast.LENGTH_SHORT,
         ).show()
     }
 
-    val context = LocalContext.current
     Column(
         modifier = modifier
             .padding(5.dp)

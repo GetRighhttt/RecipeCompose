@@ -9,15 +9,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Directions
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -25,7 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.example.recipe_app_compose.R
-import com.example.recipe_app_compose.core.util.permissions.PermissionUtils
+import com.example.recipe_app_compose.core.util.location.ReverseGeocoder
 import com.example.recipe_app_compose.features.location.domain.model.location.LocationData
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -34,108 +38,136 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.rememberUpdatedMarkerState
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
 
 @Composable
 fun GoogleLocationSelectionScreen(
-    location: LocationData
+    location: LocationData,
 ) {
-    val context = LocalContext.current
-    val locationUtils = remember(context) { PermissionUtils(context) }
-
-    val uiSettings = remember {
-        MapUiSettings(
-            zoomControlsEnabled = true,
-            mapToolbarEnabled = false
-        )
+    if (!location.hasValidCoordinates()) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Text(
+                text = stringResource(R.string.business_location_unavailable),
+                modifier = Modifier.align(Alignment.Center),
+            )
+        }
+        return
     }
-    val properties = remember { MapProperties(mapType = MapType.HYBRID) }
-    var markerStateValue by remember { mutableStateOf(false) }
-    val newMarkerState = remember { MarkerState() }
 
-    val businessLocation = LatLng(location.latitude, location.longitude)
-
+    val context = LocalContext.current
+    val reverseGeocoder = remember(context) { ReverseGeocoder(context) }
+    val addressNotFound = stringResource(R.string.address_not_found)
+    val businessLocation = remember(location.latitude, location.longitude) {
+        LatLng(location.latitude, location.longitude)
+    }
+    var selectedLatitude by rememberSaveable(location.latitude, location.longitude) {
+        mutableDoubleStateOf(location.latitude)
+    }
+    var selectedLongitude by rememberSaveable(location.latitude, location.longitude) {
+        mutableDoubleStateOf(location.longitude)
+    }
+    val selectedLocation = remember(selectedLatitude, selectedLongitude) {
+        LatLng(selectedLatitude, selectedLongitude)
+    }
+    val markerState = rememberUpdatedMarkerState(position = selectedLocation)
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(businessLocation, 12f)
     }
-    val businessMarkerState = remember {
-        MarkerState(position = businessLocation)
-    }
-
-    var businessAddress by remember { mutableStateOf("") }
-    LaunchedEffect(businessMarkerState.position) {
-        businessAddress = locationUtils.reverseGeocodeLocation(
-            LocationData(
-                businessMarkerState.position.latitude,
-                businessMarkerState.position.longitude
-            )
+    val uiSettings = remember {
+        MapUiSettings(
+            zoomControlsEnabled = true,
+            mapToolbarEnabled = false,
         )
     }
+    val properties = remember { MapProperties(mapType = MapType.NORMAL) }
 
-    var newAddress by remember { mutableStateOf("") }
-    LaunchedEffect(markerStateValue, newMarkerState.position) {
-        if (markerStateValue) {
-            newAddress = locationUtils.reverseGeocodeLocation(
-                LocationData(
-                    newMarkerState.position.latitude,
-                    newMarkerState.position.longitude
-                )
-            )
+    var address by remember { mutableStateOf("") }
+    var isMapLoaded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(markerState) {
+        snapshotFlow { markerState.position to markerState.isDragging }
+            .filter { (_, isDragging) -> isDragging }
+            .map { (position, _) -> position }
+            .distinctUntilChanged()
+            .collect { position ->
+                selectedLatitude = position.latitude
+                selectedLongitude = position.longitude
+            }
+    }
+
+    LaunchedEffect(markerState, reverseGeocoder) {
+        snapshotFlow {
+            if (markerState.isDragging) {
+                null
+            } else {
+                LatLng(selectedLatitude, selectedLongitude)
+            }
         }
+            .filterNotNull()
+            .distinctUntilChanged()
+            .collectLatest { position ->
+                address = reverseGeocoder.reverseGeocodeLocation(
+                    LocationData(position.latitude, position.longitude)
+                ) ?: addressNotFound
+            }
+    }
+
+    val markerTitle = if (selectedLocation == businessLocation) {
+        stringResource(R.string.business_location)
+    } else {
+        stringResource(R.string.you_clicked_here)
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
         GoogleMap(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 8.dp),
+            modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
             properties = properties,
             uiSettings = uiSettings,
-            onMapClick = { location ->
-                markerStateValue = true
-                newMarkerState.position = location
-            }
+            onMapClick = { position ->
+                selectedLatitude = position.latitude
+                selectedLongitude = position.longitude
+            },
+            onMapLoaded = { isMapLoaded = true },
         ) {
-            if (markerStateValue) {
-                Marker(
-                    state = newMarkerState,
-                    title = stringResource(R.string.you_clicked_here),
-                    draggable = true,
-                    snippet = newAddress
-                )
-            } else {
-                Marker(
-                    state = businessMarkerState,
-                    title = stringResource(R.string.business_location),
-                    snippet = businessAddress
-                )
-            }
+            Marker(
+                state = markerState,
+                title = markerTitle,
+                snippet = address,
+                contentDescription = markerTitle,
+                draggable = true,
+            )
+        }
+
+        if (!isMapLoaded) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
 
         ExtendedFloatingActionButton(
-            onClick = {
-                val destination = if (markerStateValue) {
-                    newMarkerState.position
-                } else {
-                    businessMarkerState.position
-                }
-                context.openDrivingDirections(destination)
-            },
+            onClick = { context.openDrivingDirections(selectedLocation) },
             icon = {
                 Icon(
                     imageVector = Icons.Filled.Directions,
-                    contentDescription = null
+                    contentDescription = null,
                 )
             },
             text = { Text(stringResource(R.string.open_driving_directions)) },
             modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(end = 16.dp, bottom = 96.dp)
+                .align(Alignment.BottomStart)
+                .padding(16.dp),
         )
     }
 }
+
+private fun LocationData.hasValidCoordinates(): Boolean =
+    latitude.isFinite() && latitude in -90.0..90.0 &&
+        longitude.isFinite() && longitude in -180.0..180.0
 
 private fun Context.openDrivingDirections(destination: LatLng) {
     val directionsUri = "https://www.google.com/maps/dir/".toUri()

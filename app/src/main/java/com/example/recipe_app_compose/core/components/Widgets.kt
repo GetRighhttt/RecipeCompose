@@ -1,19 +1,19 @@
 package com.example.recipe_app_compose.core.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -70,45 +70,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.example.recipe_app_compose.features.categories.presentation.view.RandomMealPage
-
-@Composable
-fun FullScreenDialog(onDismissRequest: () -> Unit) {
-    Dialog(
-        onDismissRequest = { onDismissRequest() },
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false,
-            dismissOnBackPress = true,
-        ),
-    ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surfaceVariant),
-        ) {
-            RandomMealPage(modifier = Modifier.fillMaxSize())
-        }
-    }
-}
-
-@Composable
-fun ReusableFullScreenDialog(content: @Composable () -> Unit, onDismissRequest: () -> Unit) {
-    Dialog(
-        onDismissRequest = { onDismissRequest() },
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false,
-            dismissOnBackPress = true,
-        ),
-    ) {
-        Surface(
-            modifier = Modifier
-                .height(800.dp)
-                .background(MaterialTheme.colorScheme.surfaceVariant),
-        ) {
-            content()
-        }
-    }
-}
 
 @Composable
 fun AlertDialogExample(
@@ -153,16 +114,16 @@ fun MinimalDialog(text: String, onDismissRequest: () -> Unit) {
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
             modifier = Modifier
+                .widthIn(max = 480.dp)
                 .fillMaxWidth()
-                .height(200.dp)
                 .padding(16.dp),
             shape = RoundedCornerShape(16.dp),
         ) {
             Text(
                 text = text,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .wrapContentSize(Alignment.Center),
+                    .fillMaxWidth()
+                    .padding(24.dp),
                 textAlign = TextAlign.Center,
             )
         }
@@ -178,49 +139,55 @@ fun DialogWithImage(
     text: String,
     modifier: Modifier
 ) {
-    Dialog(onDismissRequest = { onDismissRequest() }) {
-        // Draw a rectangle shape with rounded corners inside the dialog
+    Dialog(
+        onDismissRequest = onDismissRequest,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
         Card(
             modifier = modifier
+                .widthIn(max = 560.dp)
                 .fillMaxWidth()
-                .height(450.dp)
+                .heightIn(max = 720.dp)
                 .padding(16.dp),
             shape = RoundedCornerShape(16.dp),
             elevation = CardDefaults.cardElevation(10.dp)
         ) {
             Column(
-                modifier = modifier
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Image(
                     painter = painter,
                     contentDescription = imageDescription,
                     contentScale = ContentScale.Crop,
-                    modifier = modifier
-                        .height(300.dp)
+                    modifier = Modifier
+                        .widthIn(max = 360.dp)
+                        .fillMaxWidth()
+                        .aspectRatio(1f)
                 )
                 Text(
                     text = text, fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Center,
-                    modifier = modifier.padding(5.dp),
+                    modifier = Modifier.padding(8.dp),
                 )
                 Row(
-                    modifier = modifier
+                    modifier = Modifier
                         .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
+                    horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
                     ElevatedButton(
                         onClick = { onDismissRequest() },
-                        modifier = modifier.padding(5.dp),
+                        modifier = Modifier.padding(5.dp),
                         elevation = ButtonDefaults.buttonElevation(15.dp)
                     ) {
                         Text("Dismiss")
                     }
                     ElevatedButton(
                         onClick = { onConfirmation() },
-                        modifier = modifier.padding(5.dp),
+                        modifier = Modifier.padding(5.dp),
                         elevation = ButtonDefaults.buttonElevation(15.dp)
                     ) {
                         Text("Confirm")
@@ -253,39 +220,43 @@ fun DatabaseDialogWithImage(
         // Draw a rectangle shape with rounded corners inside the dialog
         Card(
             modifier = modifier
+                .widthIn(max = 600.dp)
                 .fillMaxWidth()
-                .height(650.dp)
+                .heightIn(max = 760.dp)
                 .padding(16.dp),
             shape = RoundedCornerShape(16.dp),
             elevation = CardDefaults.cardElevation(10.dp)
         ) {
             Column(
-                modifier = modifier
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
                     text = text,
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
-                    modifier = modifier.padding(15.dp),
+                    modifier = Modifier.padding(bottom = 16.dp),
                 )
                 Image(
                     painter = painter,
                     contentDescription = imageDescription,
                     contentScale = ContentScale.Crop,
-                    modifier = modifier
-                        .height(400.dp)
+                    modifier = Modifier
+                        .widthIn(max = 400.dp)
+                        .fillMaxWidth()
+                        .aspectRatio(1f)
                 )
                 Row(
-                    modifier = modifier
+                    modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 10.dp),
-                    horizontalArrangement = Arrangement.Center,
+                        .padding(top = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
                     HyperlinkText(
-                        modifier = Modifier.padding(end = 60.dp),
+                        modifier = Modifier,
                         text = "",
                         linkText = listOf("Source"),
                         hyperlinks = source
@@ -298,21 +269,21 @@ fun DatabaseDialogWithImage(
                     )
                 }
                 Row(
-                    modifier = modifier
+                    modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 40.dp),
-                    horizontalArrangement = Arrangement.Center,
+                        .padding(top = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
                     ElevatedButton(
                         onClick = { onDismissRequest() },
-                        modifier = modifier.padding(15.dp),
+                        modifier = Modifier.padding(8.dp),
                         elevation = ButtonDefaults.buttonElevation(15.dp)
                     ) {
                         Text("Dismiss", style = MaterialTheme.typography.bodyMedium)
                     }
                     ElevatedButton(
                         onClick = { onConfirmation() },
-                        modifier = modifier.padding(15.dp),
+                        modifier = Modifier.padding(8.dp),
                         elevation = ButtonDefaults.buttonElevation(15.dp)
                     ) {
                         Text("Delete Meal", style = MaterialTheme.typography.bodyMedium)

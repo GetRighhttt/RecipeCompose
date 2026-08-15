@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -13,7 +14,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -36,30 +36,27 @@ fun RecipeScreen(
     navigateToDetail: (Category) -> Unit,
     onRetry: () -> Unit
 ) {
-    Scaffold(
+    Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(top = 30.dp, bottom = 80.dp),
-    ) { innerPadding ->
-        Box(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            when {
-                viewState.loading -> CircularProgressIndicator(modifier.align(Alignment.Center))
-                viewState.error != null -> AlertDialogExample(
-                    dialogTitle = stringResource(R.string.error),
-                    dialogText = stringResource(R.string.error_occurred, viewState.error.orEmpty()),
-                    onDismissRequest = onRetry,
-                    onConfirmation = onRetry
-                )
+            .padding(horizontal = 8.dp),
+    ) {
+        when {
+            viewState.loading -> CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
 
-                else -> {
-                    // display list of categories
-                    CategoryScreen(categories = viewState.list ?: emptyList(), navigateToDetail)
-                }
-            }
+            viewState.error != null -> AlertDialogExample(
+                dialogTitle = stringResource(R.string.error),
+                dialogText = stringResource(R.string.error_occurred, viewState.error),
+                onDismissRequest = onRetry,
+                onConfirmation = onRetry
+            )
+
+            else -> CategoryScreen(
+                categories = viewState.list.orEmpty(),
+                navigateToDetail = navigateToDetail,
+            )
         }
     }
 }
@@ -81,7 +78,7 @@ fun CategoryItem(category: Category, navigateToDetail: (Category) -> Unit) {
     Column(
         modifier = Modifier
             .padding(8.dp)
-            .fillMaxSize(),
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
@@ -91,7 +88,7 @@ fun CategoryItem(category: Category, navigateToDetail: (Category) -> Unit) {
             ),
             contentDescription = stringResource(R.string.image),
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .aspectRatio(1f)
                 .clip(RoundedCornerShape(10.dp))
                 .clickable {
