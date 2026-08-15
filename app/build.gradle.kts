@@ -1,12 +1,9 @@
-@file:Suppress("DEPRECATION")
-
-import java.util.Properties
-
 plugins {
     // Existing plugins
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.secrets.gradle)
     id("kotlin-parcelize")
     id("com.google.devtools.ksp") // ksp
     id("com.google.gms.google-services") // google-services
@@ -28,12 +25,6 @@ android {
             useSupportLibrary = true
         }
 
-        val properties = Properties()
-        properties.load(project.rootProject.file("local.properties").inputStream())
-
-        buildConfigField("String", "YELP_API_KEY", "\"${properties.getProperty("YELP_API_KEY")}\"")
-        buildConfigField("String", "YELP_BASE_URL", "\"${properties.getProperty("YELP_BASE_URL")}\"")
-        buildConfigField("String", "BASE_URL", "\"${properties.getProperty("BASE_URL")}\"")
     }
 
     buildFeatures {
@@ -67,6 +58,12 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+}
+
+secrets {
+    propertiesFileName = "local.properties"
+    defaultPropertiesFileName = "local.defaults.properties"
+    ignoreList.add("sdk.dir")
 }
 
 dependencies {
