@@ -86,4 +86,18 @@
     <string name="unable_to_open_google_maps">Unable to open Google Maps or a web browser.</string>
     <string name="business_location_unavailable">This business does not have a valid map location.</string>
     <string name="address_not_found">Address not found.</string>
+    <string name="search_nearby_restaurants">Search nearby restaurants</string>
+    <string name="find_shops_near_you">Find shops near you</string>
+    <string name="location_permission_explanation">Allow location access to load restaurants and shops near your current area. Approximate location works too.</string>
+    <string name="use_my_location">Use my location</string>
+    <string name="open_app_settings">App settings</string>
+    <string name="or_enter_location_manually">Or enter a location manually</string>
+    <string name="city_or_zip_code">City or ZIP code</string>
+    <string name="search_this_area">Search this area</string>
+    <string name="finding_nearby_shops">Finding shops near you…</string>
+    <string name="location_unavailable">Location unavailable</string>
+    <string name="location_unavailable_message">We couldn’t determine your current location. Try again or search using a city or ZIP code.</string>
+    <string name="near_your_current_location">Near your current location</string>
+    <string name="searching_near_location">Near %1$s</string>
+    <string name="unable_to_load_shops">Unable to load shops</string>
 </resources>

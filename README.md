@@ -10,7 +10,8 @@ The project demonstrates production-oriented Compose practices across state-driv
 - Search for meals by ingredient.
 - Discover a random meal and open its source or YouTube instructions.
 - Save and manage favorite meals locally.
-- Search Yelp for restaurants by name, cuisine, or location.
+- Discover nearby Yelp restaurants from the device's current location.
+- Search by restaurant name or cuisine, with a city or ZIP code fallback.
 - View a selected restaurant on an interactive Google Map.
 - Reposition the destination marker and launch driving directions to the active pin.
 - Authenticate users with Firebase.
@@ -28,14 +29,18 @@ The project demonstrates production-oriented Compose practices across state-driv
 - Reusable Compose components for dialogs, form fields, lists, and application chrome.
 - Local-first favorites with Room and swipe-to-delete interactions.
 - External navigation handoff that follows the currently selected map marker.
+- Foreground-only location access with support for approximate and precise permission.
+- Graceful location fallbacks for denied permission, unavailable coordinates, and manual search.
 - Build-time credential injection, redacted authorization headers, and debug-only HTTP body logging.
 
 ## Restaurant navigation
 
-The restaurant workflow turns search results into an actionable destination:
+The restaurant workflow turns the user's current area into an actionable destination:
 
 ```text
-Yelp restaurant search
+Foreground location (approximate or precise)
+        ↓
+Nearby Yelp restaurant discovery
         ↓
 Restaurant selection
         ↓
@@ -46,7 +51,9 @@ Optional marker adjustment
 Google Maps driving directions
 ```
 
-The directions action uses either the restaurant marker or the user-adjusted marker as its destination. Google Maps manages the route origin and its own location access, so Recipe Compose does not require device-location permission simply to open navigation.
+If foreground location is denied or unavailable, the Shops screen remains usable through a city or ZIP code search. The app does not request background location.
+
+The directions action uses either the restaurant marker or the user-adjusted marker as its destination. Google Maps manages the route origin and its own navigation permissions after the handoff.
 
 ## Technology
 
@@ -59,7 +66,7 @@ The directions action uses either the restaurant marker or the user-adjusted mar
 | Local persistence | Room |
 | Recipe data | TheMealDB API |
 | Restaurant discovery | Yelp Fusion API |
-| Mapping | Google Maps Compose, Google Maps directions handoff |
+| Location and mapping | Fused Location Provider, Google Maps Compose, Google Maps directions handoff |
 | Cloud services | Firebase Authentication, Firestore, Analytics, Performance |
 | Build tooling | Kotlin DSL, version catalogs, KSP, Secrets Gradle Plugin |
 
@@ -100,6 +107,8 @@ The directions action uses either the restaurant marker or the user-adjusted mar
 
 4. Run the `app` configuration on an Android device or emulator with Google APIs.
 
+On first opening Shops, grant approximate or precise foreground location to load nearby restaurants automatically. Permission can be declined without blocking the feature; enter a city or ZIP code instead.
+
 ## Credential handling
 
 The Secrets Gradle Plugin exposes local configuration through generated `BuildConfig` values and Android manifest placeholders while keeping real credentials out of source control.
@@ -116,7 +125,7 @@ This protects the repository, not the compiled APK. For an appropriate deploymen
 Run the primary local checks with:
 
 ```bash
-./gradlew :app:compileDebugKotlin :app:testDebugUnitTest
+./gradlew :app:testDebugUnitTest :app:lintDebug
 ```
 
 ## Demonstrations
