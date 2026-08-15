@@ -1,10 +1,9 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.example.recipe_app_compose.features.categories.presentation.view
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,14 +23,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -60,11 +56,8 @@ import com.example.recipe_app_compose.features.categories.domain.model.randommea
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.DatabaseViewModel
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RandomMealPage(modifier: Modifier = Modifier) {
-
-    // declare view model and state variable
     val viewModel: RecipeViewModel = viewModel()
     val randomViewState by viewModel.randomMealState.collectAsStateWithLifecycle()
     var showErrorDialog by remember { mutableStateOf(false) }
@@ -75,88 +68,74 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
         showErrorDialog = randomViewState.error != null
     }
 
-    // database
     val databaseViewModel: DatabaseViewModel = viewModel()
+    val context = LocalContext.current
+    val currentMeal = randomViewState.item?.firstOrNull()
+    val addedToFavoritesMessage = stringResource(R.string.added_to_favorites)
 
     Box(modifier = modifier.fillMaxSize()) {
-        val context = LocalContext.current
-        Scaffold(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surfaceVariant),
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = {
-                        Text(
-                            randomViewState.item?.firstOrNull()?.strMeal.orEmpty(),
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 2,
-                            style = MaterialTheme.typography.titleLarge
-                        )
+                .background(MaterialTheme.colorScheme.background),
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                IconButton(
+                    enabled = currentMeal != null,
+                    onClick = {
+                        favoriteDialogState = true
+                        favoriteViewState = true
                     },
-                    navigationIcon = {
-                        IconButton(
-                            onClick = {
-                                favoriteDialogState = true
-                                favoriteViewState = true
-                            }) {
-                            Icon(
-                                imageVector = if (favoriteViewState) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                                contentDescription = stringResource(R.string.favorites)
-                            )
-                        }
-                        if (favoriteDialogState) {
-                            AlertDialogExample(
-                                dialogTitle = stringResource(R.string.favorites),
-                                dialogText = stringResource(R.string.would_you_like_to_add_this_to_your_favorites),
-                                onDismissRequest = {
-                                    favoriteDialogState = false
-                                    favoriteViewState = false
-                                },
-                                onConfirmation = {
-                                    favoriteDialogState = false
-                                    favoriteViewState = true
-                                    val meal = randomViewState.item?.firstOrNull()
-                                    if (meal != null) {
-                                        databaseViewModel.executeInsertMeal(meal)
-                                    }
-                                    Toast.makeText(
-                                        context,
-                                        buildString {
-                                            append("${meal?.strMeal.orEmpty()} ")
-                                            append(context.getString(R.string.added_to_favorites))
-                                        },
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            )
-                        }
-                    },
-                    actions = {
-                        IconButton(
-                            onClick = {
-                                viewModel.fetchRandomMeal()
-                                favoriteViewState = false
-                            }) {
-                            Icon(
-                                imageVector = Icons.Default.Refresh,
-                                contentDescription = stringResource(R.string.refresh)
-                            )
-                        }
-                    }
+                ) {
+                    Icon(
+                        imageVector = if (favoriteViewState) {
+                            Icons.Default.Favorite
+                        } else {
+                            Icons.Default.FavoriteBorder
+                        },
+                        contentDescription = stringResource(R.string.favorites),
+                    )
+                }
+                Text(
+                    text = currentMeal?.strMeal.orEmpty(),
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 2,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp),
                 )
+                IconButton(
+                    onClick = {
+                        viewModel.fetchRandomMeal()
+                        favoriteViewState = false
+                    },
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = stringResource(R.string.refresh),
+                    )
+                }
             }
-        ) { innerPadding ->
-            when {
-                randomViewState.loading -> CircularProgressIndicator(
-                    modifier
-                        .align(Alignment.Center)
-                        .aspectRatio(0.5f)
-                        .padding(innerPadding)
-                )
 
-                randomViewState.error != null && showErrorDialog ->
-                    AlertDialogExample(
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                when {
+                    randomViewState.loading -> CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+
+                    randomViewState.error != null && showErrorDialog -> AlertDialogExample(
                         dialogTitle = stringResource(R.string.error),
                         dialogText = stringResource(
                             R.string.error_occurred,
@@ -169,11 +148,35 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                         }
                     )
 
-                else -> {
-                    // display list of categories
-                    RandomCategoryScreen(categories = randomViewState.item ?: emptyList())
+                    else -> RandomCategoryScreen(
+                        categories = randomViewState.item.orEmpty(),
+                    )
                 }
             }
+        }
+
+        if (favoriteDialogState) {
+            AlertDialogExample(
+                dialogTitle = stringResource(R.string.favorites),
+                dialogText = stringResource(R.string.would_you_like_to_add_this_to_your_favorites),
+                onDismissRequest = {
+                    favoriteDialogState = false
+                    favoriteViewState = false
+                },
+                onConfirmation = {
+                    favoriteDialogState = false
+                    favoriteViewState = true
+                    currentMeal?.let(databaseViewModel::executeInsertMeal)
+                    Toast.makeText(
+                        context,
+                        buildString {
+                            append("${currentMeal?.strMeal.orEmpty()} ")
+                            append(addedToFavoritesMessage)
+                        },
+                        Toast.LENGTH_SHORT
+                    ).show()
+                },
+            )
         }
     }
 }

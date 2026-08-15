@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
@@ -44,11 +45,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -57,10 +56,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
-import com.example.recipe_app_compose.core.components.FullScreenDialog
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.recipe_app_compose.core.components.MyBottomAppBar
 import com.example.recipe_app_compose.core.components.NetworkUnavailableScreen
-import com.example.recipe_app_compose.core.components.ReusableFullScreenDialog
 import com.example.recipe_app_compose.core.navigation.CategoryScreen
 import com.example.recipe_app_compose.core.navigation.NavigationItem
 import com.example.recipe_app_compose.core.navigation.RecipeApp
@@ -68,9 +66,7 @@ import com.example.recipe_app_compose.core.util.connectivity.ConnectivityStatus
 import com.example.recipe_app_compose.core.util.connectivity.openNetworkSettings
 import com.example.recipe_app_compose.core.util.connectivity.rememberConnectivityMonitor
 import com.example.recipe_app_compose.features.categories.presentation.view.CategoryRecipeScreen
-import com.example.recipe_app_compose.features.categories.presentation.view.IngredientScreen
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
-import com.example.recipe_app_compose.features.location.presentation.view.YelpScreen
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -88,9 +84,6 @@ class MainActivity : ComponentActivity() {
 
             val sheetState = rememberModalBottomSheetState()
             var showBottomSheet by remember { mutableStateOf(false) }
-            var showFullDialogBox by remember { mutableStateOf(false) }
-            var showYelpDialogBox by remember { mutableStateOf(false) }
-            var showSearchDialog by remember { mutableStateOf(false) }
             val navController = rememberNavController()
 
             if (!isConnected) {
@@ -106,7 +99,31 @@ class MainActivity : ComponentActivity() {
                     /* Navigation Drawer Code */
                     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                     val scope = rememberCoroutineScope()
-                    var selectedItemIndex by rememberSaveable { mutableIntStateOf(0) }
+                    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+                    val currentRoute = currentBackStackEntry?.destination?.route
+                    val selectedItemIndex = when (currentRoute) {
+                        CategoryScreen.SettingsScreen.route -> 1
+                        CategoryScreen.InfoScreen.route -> 2
+                        else -> 0
+                    }
+                    val drawerRoutes = setOf(
+                        CategoryScreen.RecipeScreen.route,
+                        CategoryScreen.SettingsScreen.route,
+                        CategoryScreen.InfoScreen.route,
+                    )
+                    val isDrawerDestination = currentRoute == null || currentRoute in drawerRoutes
+                    val screenTitle = when (currentRoute) {
+                        CategoryScreen.DetailScreen.route -> R.string.details
+                        CategoryScreen.RandomMealScreen.route -> R.string.see_our_best_dishes
+                        CategoryScreen.IngredientScreen.route -> R.string.search_for_specific_meals
+                        CategoryScreen.IngredientDetailScreen.route -> R.string.details
+                        CategoryScreen.SettingsScreen.route -> R.string.settings
+                        CategoryScreen.FavoriteScreen.route -> R.string.favorites
+                        CategoryScreen.InfoScreen.route -> R.string.info
+                        CategoryScreen.YelpScreen.route -> R.string.shops
+                        CategoryScreen.MapScreen.route -> R.string.business_location
+                        else -> R.string.favorite_cuisines
+                    }
 
                     val items = listOf(
                         NavigationItem(
@@ -140,20 +157,17 @@ class MainActivity : ComponentActivity() {
                                             scope.launch {
                                                 drawerState.close()
                                             }
-                                            selectedItemIndex = index
-
-                                            when (index) {
-                                                0 -> {
-                                                    navController.navigate(CategoryScreen.RecipeScreen.route)
+                                            val route = when (index) {
+                                                1 -> CategoryScreen.SettingsScreen.route
+                                                2 -> CategoryScreen.InfoScreen.route
+                                                else -> CategoryScreen.RecipeScreen.route
+                                            }
+                                            navController.navigate(route) {
+                                                popUpTo(CategoryScreen.RecipeScreen.route) {
+                                                    saveState = true
                                                 }
-
-                                                1 -> {
-                                                    navController.navigate(CategoryScreen.SettingsScreen.route)
-                                                }
-
-                                                2 -> {
-                                                    navController.navigate(CategoryScreen.InfoScreen.route)
-                                                }
+                                                launchSingleTop = true
+                                                restoreState = true
                                             }
                                         },
                                         icon = {
@@ -170,132 +184,127 @@ class MainActivity : ComponentActivity() {
                             }
                         },
                         drawerState = drawerState,
-                        gesturesEnabled = true,
+                        gesturesEnabled = isDrawerDestination,
                     ) {
                         Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
                             TopAppBar(
                                 title = {
                                     Text(
-                                        stringResource(R.string.favorite_cuisines),
+                                        stringResource(screenTitle),
                                         style = MaterialTheme.typography.titleLarge
                                     )
                                 },
                                 navigationIcon = {
                                     IconButton(onClick = {
-                                        when {
-                                            drawerState.isClosed -> {
-                                                scope.launch {
+                                        if (isDrawerDestination) {
+                                            scope.launch {
+                                                if (drawerState.isClosed) {
                                                     drawerState.open()
-                                                }
-                                            }
-
-                                            drawerState.isOpen ->
-                                                scope.launch {
+                                                } else {
                                                     drawerState.close()
                                                 }
+                                            }
+                                        } else {
+                                            navController.popBackStack()
                                         }
                                     }) {
                                         Icon(
-                                            imageVector = Icons.Default.Menu,
-                                            contentDescription = stringResource(R.string.menu)
+                                            imageVector = if (isDrawerDestination) {
+                                                Icons.Default.Menu
+                                            } else {
+                                                Icons.AutoMirrored.Filled.ArrowBack
+                                            },
+                                            contentDescription = stringResource(
+                                                if (isDrawerDestination) R.string.menu else R.string.back
+                                            )
                                         )
                                     }
                                 },
                                 actions = {
-                                    IconButton(onClick = {
-                                        showSearchDialog = true
-                                    }) {
-                                        Icon(
-                                            imageVector = Icons.Default.Search,
-                                            contentDescription = stringResource(R.string.search)
-                                        )
-                                        if (showSearchDialog) {
-                                            ReusableFullScreenDialog({
-                                                IngredientScreen(modifier = Modifier.fillMaxSize())
-                                            }) {
-                                                showSearchDialog = false
+                                    if (currentRoute == CategoryScreen.RecipeScreen.route) {
+                                        IconButton(onClick = {
+                                            navController.navigate(CategoryScreen.IngredientScreen.route) {
+                                                launchSingleTop = true
                                             }
+                                        }) {
+                                            Icon(
+                                                imageVector = Icons.Default.Search,
+                                                contentDescription = stringResource(R.string.search)
+                                            )
                                         }
                                     }
                                 })
                         }, bottomBar = {
-                            MyBottomAppBar(
-                                modifier = Modifier.fillMaxWidth(),
-                                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                content = {
-                                    IconButton(onClick = {
-                                        // share an email about the application or other things
-                                        val intent = Intent(Intent.ACTION_SEND).apply {
-                                            type = "text/plain"
-                                            putExtra(
-                                                Intent.EXTRA_EMAIL, arrayOf(
-                                                    getString(R.string.stefanbayne_gmail_com)
+                            if (isDrawerDestination) {
+                                MyBottomAppBar(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                    content = {
+                                        IconButton(onClick = {
+                                            val intent = Intent(Intent.ACTION_SEND).apply {
+                                                type = "text/plain"
+                                                putExtra(
+                                                    Intent.EXTRA_EMAIL, arrayOf(
+                                                        getString(R.string.stefanbayne_gmail_com)
+                                                    )
                                                 )
-                                            )
-                                            putExtra(
-                                                Intent.EXTRA_SUBJECT,
-                                                getString(R.string.sharing_application)
-                                            )
-                                            putExtra(
-                                                Intent.EXTRA_TEXT,
-                                                getString(R.string.https_github_com_getrighhttt_recipecompose)
-                                            )
-                                        }
-                                        // another approach to error handling with resolve activity
-                                        if (intent.resolveActivity(packageManager) != null) {
-                                            startActivity(intent)
-                                        }
-                                    }) {
-                                        Icon(
-                                            imageVector = Icons.Default.Share,
-                                            contentDescription = stringResource(R.string.share)
-                                        )
-                                    }
-                                    IconButton(onClick = {
-                                        showYelpDialogBox = true
-                                    }) {
-                                        Icon(
-                                            imageVector = Icons.Default.ShoppingCart,
-                                            contentDescription = stringResource(R.string.shops)
-                                        )
-                                        if (showYelpDialogBox) {
-                                            ReusableFullScreenDialog({ YelpScreen(modifier = Modifier) }) {
-                                                showYelpDialogBox = false
+                                                putExtra(
+                                                    Intent.EXTRA_SUBJECT,
+                                                    getString(R.string.sharing_application)
+                                                )
+                                                putExtra(
+                                                    Intent.EXTRA_TEXT,
+                                                    getString(R.string.https_github_com_getrighhttt_recipecompose)
+                                                )
                                             }
+                                            if (intent.resolveActivity(packageManager) != null) {
+                                                startActivity(intent)
+                                            }
+                                        }) {
+                                            Icon(
+                                                imageVector = Icons.Default.Share,
+                                                contentDescription = stringResource(R.string.share)
+                                            )
                                         }
-                                    }
-                                    IconButton(onClick = {
-                                        navController.navigate(CategoryScreen.FavoriteScreen.route) {
-                                            launchSingleTop = true
+                                        IconButton(onClick = {
+                                            navController.navigate(CategoryScreen.YelpScreen.route) {
+                                                launchSingleTop = true
+                                            }
+                                        }) {
+                                            Icon(
+                                                imageVector = Icons.Default.ShoppingCart,
+                                                contentDescription = stringResource(R.string.shops)
+                                            )
                                         }
-                                    }) {
-                                        Icon(
-                                            imageVector = Icons.Default.Favorite,
-                                            contentDescription = stringResource(R.string.favorites)
-                                        )
-                                    }
-                                    IconButton(onClick = {
-                                        showFullDialogBox = true
-                                    }) {
-                                        Icon(
-                                            imageVector = Icons.Default.PlayArrow,
-                                            contentDescription = stringResource(R.string.play)
-                                        )
-                                    }
-                                    if (showFullDialogBox) {
-                                        FullScreenDialog {
-                                            showFullDialogBox = false
+                                        IconButton(onClick = {
+                                            navController.navigate(CategoryScreen.FavoriteScreen.route) {
+                                                launchSingleTop = true
+                                            }
+                                        }) {
+                                            Icon(
+                                                imageVector = Icons.Default.Favorite,
+                                                contentDescription = stringResource(R.string.favorites)
+                                            )
                                         }
-                                    }
-                                    IconButton(onClick = {
-                                        showBottomSheet = true
-                                    }) {
-                                        Icon(
-                                            imageVector = Icons.Default.KeyboardArrowUp,
-                                            contentDescription = stringResource(R.string.settings)
-                                        )
-                                    }
-                                })
+                                        IconButton(onClick = {
+                                            navController.navigate(CategoryScreen.RandomMealScreen.route) {
+                                                launchSingleTop = true
+                                            }
+                                        }) {
+                                            Icon(
+                                                imageVector = Icons.Default.PlayArrow,
+                                                contentDescription = stringResource(R.string.play)
+                                            )
+                                        }
+                                        IconButton(onClick = { showBottomSheet = true }) {
+                                            Icon(
+                                                imageVector = Icons.Default.KeyboardArrowUp,
+                                                contentDescription = stringResource(R.string.settings)
+                                            )
+                                        }
+                                    },
+                                )
+                            }
                         }) { innerPadding ->
                             if (showBottomSheet) {
                                 ModalBottomSheet(

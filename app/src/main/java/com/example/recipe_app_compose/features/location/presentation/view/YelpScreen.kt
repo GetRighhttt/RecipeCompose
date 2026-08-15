@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,7 +19,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,7 +30,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -47,7 +46,6 @@ import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
-import com.example.recipe_app_compose.core.components.ReusableFullScreenDialog
 import com.example.recipe_app_compose.core.util.Constants
 import com.example.recipe_app_compose.features.location.domain.model.location.LocationData
 import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpBusinesses
@@ -56,7 +54,10 @@ import com.example.recipe_app_compose.features.location.presentation.viewmodel.Y
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun YelpScreen(modifier: Modifier = Modifier) {
+fun YelpScreen(
+    modifier: Modifier = Modifier,
+    onBusinessSelected: (LocationData) -> Unit,
+) {
 
     val viewModel: YelpViewModel = viewModel()
     val viewState by viewModel.yelpState.collectAsStateWithLifecycle()
@@ -70,112 +71,106 @@ fun YelpScreen(modifier: Modifier = Modifier) {
     }
 
     val focusManager = LocalFocusManager.current
-    Scaffold(
-        modifier = Modifier
+    Box(
+        modifier = modifier
             .fillMaxSize()
-            .padding(16.dp)
-    ) { innerPadding ->
-        Box(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            when {
-                viewState.loading -> CircularProgressIndicator(
-                    modifier
-                        .padding(innerPadding)
-                        .align(Alignment.Center)
-                )
+            .padding(horizontal = 16.dp)
+    ) {
+        when {
+            viewState.loading -> CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
 
-                viewState.error != null && showErrorDialog -> AlertDialogExample(
-                    dialogTitle = stringResource(R.string.error),
-                    dialogText = stringResource(R.string.error_occurred, viewState.error ?: ""),
-                    onDismissRequest = { showErrorDialog = false },
-                    onConfirmation = {
-                        showErrorDialog = false
-                        viewModel.getBusinesses(searchText.ifBlank { Constants.YELP_SEARCH_QUERY })
+            viewState.error != null && showErrorDialog -> AlertDialogExample(
+                dialogTitle = stringResource(R.string.error),
+                dialogText = stringResource(R.string.error_occurred, viewState.error ?: ""),
+                onDismissRequest = { showErrorDialog = false },
+                onConfirmation = {
+                    showErrorDialog = false
+                    viewModel.getBusinesses(searchText.ifBlank { Constants.YELP_SEARCH_QUERY })
+                },
+            )
+
+            else -> Column(modifier = Modifier.fillMaxSize()) {
+                OutlinedTextField(
+                    value = searchText,
+                    onValueChange = viewModel::onSearchTextChange,
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Search,
+                        keyboardType = KeyboardType.Text,
+                        showKeyboardOnFocus = true
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onSearch = { focusManager.clearFocus() }
+                    ),
+                    singleLine = true,
+                    placeholder = {
+                        Text(stringResource(R.string.enter_name_location_etc_of_business))
                     },
+                    shape = RoundedCornerShape(30.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp)
+                        .focusable(),
                 )
-
-                else -> {
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        // set up searchbar with outline text field
-                        OutlinedTextField(
-                            value = searchText,
-                            onValueChange = viewModel::onSearchTextChange,
-                            keyboardOptions = KeyboardOptions(
-                                imeAction = ImeAction.Search,
-                                keyboardType = KeyboardType.Email,
-                                showKeyboardOnFocus = true
-                            ),
-                            keyboardActions = KeyboardActions(
-                                onNext = {
-                                    focusManager.moveFocus(FocusDirection.Enter)
-                                },
-                                onSearch = {
-                                    focusManager.clearFocus(true)
-                                    focusManager.moveFocus(FocusDirection.Enter)
-                                },
-                                onDone = {
-                                    focusManager.clearFocus(force = false)
-                                    focusManager.moveFocus(FocusDirection.Enter)
-                                }
-                            ),
-                            maxLines = 3,
-                            placeholder = { Text(stringResource(R.string.enter_name_location_etc_of_business)) },
-                            enabled = true,
-                            shape = RoundedCornerShape(30.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp)
-                                .focusable(true)
+                when {
+                    isSearching -> Box(modifier = Modifier.fillMaxSize()) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.align(Alignment.Center)
                         )
-                        if (isSearching) {
-                            Box(modifier = Modifier.fillMaxSize()) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.align(Alignment.Center)
-                                )
-                            }
-                        } else if (searchResults.isEmpty()) {
-                            Box(modifier = Modifier.fillMaxSize()) {
-                                Text(
-                                    text = stringResource(R.string.no_results_found),
-                                    textAlign = TextAlign.Center,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 30.sp,
-                                    modifier = Modifier.align(Alignment.Center)
-                                )
-                            }
-                        } else {
-                            YelpListScreen(categories = searchResults)
-                        }
                     }
+
+                    searchResults.isEmpty() -> Box(modifier = Modifier.fillMaxSize()) {
+                        Text(
+                            text = stringResource(R.string.no_results_found),
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 30.sp,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+
+                    else -> YelpListScreen(
+                        categories = searchResults,
+                        onBusinessSelected = onBusinessSelected,
+                    )
                 }
             }
         }
     }
-
 }
 
 @Composable
-fun YelpListScreen(categories: List<YelpBusinesses>) {
-    LazyVerticalGrid(GridCells.Fixed(2), modifier = Modifier.fillMaxSize()) {
+fun YelpListScreen(
+    categories: List<YelpBusinesses>,
+    onBusinessSelected: (LocationData) -> Unit,
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(minSize = 144.dp),
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(8.dp),
+    ) {
         items(categories) { category ->
-            YelpItem(category = category)
+            YelpItem(
+                category = category,
+                onBusinessSelected = onBusinessSelected,
+            )
         }
     }
 }
 
 @Composable
-fun YelpItem(category: YelpBusinesses) {
+fun YelpItem(
+    category: YelpBusinesses,
+    onBusinessSelected: (LocationData) -> Unit,
+) {
     val context = LocalContext.current
-    var alertState by remember { mutableStateOf(false) }
     val locationData =
         LocationData(category.coordinates.latitude, category.coordinates.longitude)
     Column(
         modifier = Modifier
             .padding(8.dp)
-            .fillMaxSize(),
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
@@ -186,18 +181,11 @@ fun YelpItem(category: YelpBusinesses) {
             contentDescription = stringResource(R.string.image),
             contentScale = ContentScale.Crop,
             modifier = Modifier
+                .fillMaxWidth()
                 .aspectRatio(1F)
                 .clip(RoundedCornerShape(10.dp))
-                .clickable(enabled = true, onClick = {
-                    alertState = true
-                })
+                .clickable { onBusinessSelected(locationData) }
         )
-        // open full screen dialog for google maps when icon is clicked
-        if (alertState) {
-            ReusableFullScreenDialog({ GoogleLocationSelectionScreen(location = locationData) }) {
-                alertState = false
-            }
-        }
         Text(
             text = "${category.name} ${category.displayRating()} \uD83C\uDF1F",
             style = MaterialTheme.typography.labelMedium,

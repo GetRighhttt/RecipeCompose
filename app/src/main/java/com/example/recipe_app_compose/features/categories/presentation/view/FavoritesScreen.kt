@@ -101,6 +101,7 @@ fun MealDBScreen(
     onDeleteMeal: (RandomMeal) -> Unit
 ) {
     val context = LocalContext.current
+    val allMealsDeletedMessage = stringResource(R.string.all_meals_deleted)
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -117,7 +118,8 @@ fun MealDBScreen(
                 onDeleteAll()
                 Toast.makeText(
                     context,
-                    context.getString(R.string.all_meals_deleted), Toast.LENGTH_SHORT
+                    allMealsDeletedMessage,
+                    Toast.LENGTH_SHORT,
                 ).show()
             },
             modifier = Modifier
@@ -138,6 +140,7 @@ fun MealDBItem(meal: RandomMeal, onDeleteMeal: (RandomMeal) -> Unit) {
 
     var alertState by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val mealDeletedMessage = stringResource(R.string.meal_deleted)
 
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = {
@@ -203,7 +206,8 @@ fun MealDBItem(meal: RandomMeal, onDeleteMeal: (RandomMeal) -> Unit) {
                             onDeleteMeal(meal)
                             Toast.makeText(
                                 context,
-                                context.getString(R.string.meal_deleted), Toast.LENGTH_SHORT
+                                mealDeletedMessage,
+                                Toast.LENGTH_SHORT,
                             ).show()
                             alertState = false
                         },
