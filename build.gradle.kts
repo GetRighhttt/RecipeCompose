@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.compose.compiler) apply false
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.secrets.gradle) apply false
     id("androidx.room") version "2.8.4" apply false
     id("com.google.devtools.ksp") version "2.3.2" apply false
     // Add the dependency for the Google services Gradle plugin

@@ -1,5 +1,6 @@
 package com.example.recipe_app_compose.features.categories.data.datasources.remote.retrofit
 
+import com.example.recipe_app_compose.BuildConfig
 import com.example.recipe_app_compose.core.util.Constants.BASE_URL
 import com.example.recipe_app_compose.features.categories.data.datasources.remote.api.ApiService
 import okhttp3.OkHttpClient
@@ -11,7 +12,11 @@ import java.util.concurrent.TimeUnit
 object RetrofitInstance {
     private fun provideHttpInterceptor(): OkHttpClient {
         val interceptor = HttpLoggingInterceptor().apply {
-            this.level = HttpLoggingInterceptor.Level.BODY
+            level = if (BuildConfig.DEBUG) {
+                HttpLoggingInterceptor.Level.BODY
+            } else {
+                HttpLoggingInterceptor.Level.NONE
+            }
         }
 
         val client = OkHttpClient.Builder().apply {
