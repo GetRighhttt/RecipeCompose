@@ -35,6 +35,32 @@ class YelpViewModelTest {
     }
 
     @Test
+    fun `search mode is retained by the route scoped view model`() {
+        val viewModel = YelpViewModel(
+            repository = FakeYelpRepository(),
+            currentLocationProvider = CurrentLocationProvider { null },
+        )
+
+        viewModel.onSearchActiveChange(true)
+
+        assertTrue(viewModel.isSearchActive.value)
+    }
+
+    @Test
+    fun `declining user driven location access exposes the manual fallback`() {
+        val repository = FakeYelpRepository()
+        val viewModel = YelpViewModel(
+            repository = repository,
+            currentLocationProvider = CurrentLocationProvider { null },
+        )
+
+        viewModel.onLocationPermissionDenied()
+
+        assertEquals(YelpSearchArea.PermissionRequired, viewModel.yelpState.value.searchArea)
+        assertTrue(repository.requests.isEmpty())
+    }
+
+    @Test
     fun `nearby search uses current coordinates and default restaurant term`() =
         runTest(mainDispatcherRule.dispatcher) {
             val repository = FakeYelpRepository()

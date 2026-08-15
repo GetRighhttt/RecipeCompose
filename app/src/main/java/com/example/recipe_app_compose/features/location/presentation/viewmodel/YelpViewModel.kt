@@ -32,6 +32,9 @@ class YelpViewModel(
     val searchQuery: StateFlow<String>
         field: MutableStateFlow<String> = MutableStateFlow("")
 
+    val isSearchActive: StateFlow<Boolean>
+        field: MutableStateFlow<Boolean> = MutableStateFlow(false)
+
     val manualLocationQuery: StateFlow<String>
         field: MutableStateFlow<String> = MutableStateFlow("")
 
@@ -99,6 +102,10 @@ class YelpViewModel(
     internal fun onSearchTextChange(text: String) {
         searchQuery.value = text
         queueSearchForCurrentOrigin()
+    }
+
+    internal fun onSearchActiveChange(active: Boolean) {
+        isSearchActive.value = active
     }
 
     internal fun onManualLocationChange(text: String) {

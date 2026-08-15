@@ -36,7 +36,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -46,7 +45,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
@@ -169,7 +167,6 @@ private fun IngredientMealItem(
     category: Ingredient,
     onClick: () -> Unit,
 ) {
-    val context = LocalContext.current
     Column(
         modifier = Modifier
             .padding(8.dp)
@@ -177,10 +174,7 @@ private fun IngredientMealItem(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Image(
-            painter = rememberAsyncImagePainter(
-                category.strMealThumb.orEmpty(),
-                imageLoader = ImageLoader.Builder(context).crossfade(500).build(),
-            ),
+            painter = rememberAsyncImagePainter(category.strMealThumb.orEmpty()),
             contentDescription = category.strMeal,
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -203,7 +197,6 @@ fun IngredientDetailScreen(
     ingredient: Ingredient,
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
     val ingredients = ingredient.ingredientNames()
     val websiteLabel = stringResource(R.string.click_here_for_website)
     val youtubeLabel = stringResource(R.string.click_here_for_youtube)
@@ -215,10 +208,7 @@ fun IngredientDetailScreen(
     ) {
         item {
             Image(
-                painter = rememberAsyncImagePainter(
-                    ingredient.strMealThumb.orEmpty(),
-                    imageLoader = ImageLoader.Builder(context).crossfade(400).build(),
-                ),
+                painter = rememberAsyncImagePainter(ingredient.strMealThumb.orEmpty()),
                 contentDescription = ingredient.strMeal,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -288,7 +278,7 @@ fun IngredientDetailScreen(
                 style = MaterialTheme.typography.titleMedium,
             )
         }
-        items(ingredients) { name ->
+        items(items = ingredients, key = { it }) { name ->
             MessageCard(name.uppercase())
         }
         item { Spacer(modifier = Modifier.padding(bottom = 8.dp)) }
@@ -305,4 +295,6 @@ private fun Ingredient.ingredientNames(): List<String> = listOfNotNull(
     strIngredient7,
     strIngredient8,
     strIngredient9,
-).map(String::trim).filter(String::isNotEmpty)
+).map(String::trim)
+    .filter(String::isNotEmpty)
+    .distinct()

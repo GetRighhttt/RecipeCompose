@@ -36,14 +36,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -52,13 +49,11 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.util.permissions.foregroundLocationPermissions
@@ -70,7 +65,6 @@ import com.example.recipe_app_compose.features.location.domain.states.YelpSearch
 import com.example.recipe_app_compose.features.location.domain.states.YelpStates
 import com.example.recipe_app_compose.features.location.presentation.viewmodel.YelpViewModel
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun YelpScreen(
     modifier: Modifier = Modifier,
@@ -78,13 +72,11 @@ fun YelpScreen(
 ) {
     val viewModel: YelpViewModel = viewModel()
     val viewState by viewModel.yelpState.collectAsStateWithLifecycle()
-    val searchText by viewModel.searchQuery.collectAsStateWithLifecycle()
     val manualLocationText by viewModel.manualLocationQuery.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var hasLocationPermission by remember {
         mutableStateOf(context.hasForegroundLocationPermission())
     }
-    var permissionRequestAttempted by rememberSaveable { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
@@ -102,7 +94,6 @@ fun YelpScreen(
             hasLocationPermission = true
             viewModel.loadNearbyBusinesses(forceRefresh = true)
         } else {
-            permissionRequestAttempted = true
             permissionLauncher.launch(foregroundLocationPermissions())
         }
     }
@@ -111,22 +102,23 @@ fun YelpScreen(
         hasLocationPermission = context.hasForegroundLocationPermission()
         if (hasLocationPermission) {
             viewModel.loadNearbyBusinesses()
+        } else {
+            viewModel.onLocationPermissionDenied()
         }
         onPauseOrDispose { }
     }
 
-    LaunchedEffect(hasLocationPermission, permissionRequestAttempted) {
-        if (!hasLocationPermission && !permissionRequestAttempted) {
-            permissionRequestAttempted = true
-            permissionLauncher.launch(foregroundLocationPermissions())
-        }
+    val visibleViewState = if (
+        !hasLocationPermission && viewState.searchArea == YelpSearchArea.Initializing
+    ) {
+        viewState.copy(searchArea = YelpSearchArea.PermissionRequired)
+    } else {
+        viewState
     }
 
     YelpContent(
-        viewState = viewState,
-        searchText = searchText,
+        viewState = visibleViewState,
         manualLocationText = manualLocationText,
-        onSearchTextChange = viewModel::onSearchTextChange,
         onManualLocationChange = viewModel::onManualLocationChange,
         onSearchManualLocation = viewModel::searchManualLocation,
         onRequestLocation = ::requestLocationAccess,
@@ -140,9 +132,7 @@ fun YelpScreen(
 @Composable
 internal fun YelpContent(
     viewState: YelpStates,
-    searchText: String,
     manualLocationText: String,
-    onSearchTextChange: (String) -> Unit,
     onManualLocationChange: (String) -> Unit,
     onSearchManualLocation: () -> Unit,
     onRequestLocation: () -> Unit,
@@ -151,7 +141,6 @@ internal fun YelpContent(
     onBusinessSelected: (LocationData) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val focusManager = LocalFocusManager.current
     val hasSearchOrigin = viewState.searchArea == YelpSearchArea.CurrentLocation ||
         viewState.searchArea is YelpSearchArea.NamedLocation
 
@@ -161,26 +150,7 @@ internal fun YelpContent(
             .padding(horizontal = 16.dp),
     ) {
         if (hasSearchOrigin) {
-            OutlinedTextField(
-                value = searchText,
-                onValueChange = onSearchTextChange,
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Search,
-                    keyboardType = KeyboardType.Text,
-                    showKeyboardOnFocus = true,
-                ),
-                keyboardActions = KeyboardActions(
-                    onSearch = { focusManager.clearFocus() },
-                ),
-                singleLine = true,
-                placeholder = { Text(stringResource(R.string.search_nearby_restaurants)) },
-                shape = RoundedCornerShape(30.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp),
-            )
             SearchAreaLabel(viewState.searchArea)
-            Spacer(modifier = Modifier.height(8.dp))
         }
 
         Box(
@@ -263,7 +233,7 @@ private fun SearchAreaLabel(searchArea: YelpSearchArea) {
         text = label,
         style = MaterialTheme.typography.labelLarge,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(horizontal = 8.dp),
+        modifier = Modifier.padding(horizontal = 8.dp, vertical = 12.dp),
     )
 }
 
@@ -418,7 +388,7 @@ fun YelpListScreen(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(8.dp),
     ) {
-        items(categories) { category ->
+        items(categories, key = YelpBusinesses::id) { category ->
             YelpItem(
                 category = category,
                 onBusinessSelected = onBusinessSelected,
@@ -432,7 +402,6 @@ fun YelpItem(
     category: YelpBusinesses,
     onBusinessSelected: (LocationData) -> Unit,
 ) {
-    val context = LocalContext.current
     val locationData =
         LocationData(category.coordinates.latitude, category.coordinates.longitude)
     Column(
@@ -442,10 +411,7 @@ fun YelpItem(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Image(
-            painter = rememberAsyncImagePainter(
-                category.imageUrl,
-                imageLoader = ImageLoader.Builder(context).crossfade(500).build(),
-            ),
+            painter = rememberAsyncImagePainter(category.imageUrl),
             contentDescription = stringResource(R.string.image),
             contentScale = ContentScale.Crop,
             modifier = Modifier

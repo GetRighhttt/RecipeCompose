@@ -7,6 +7,8 @@
     <string name="favorite_cuisines">Favorite Cuisines</string>
     <string name="menu">Menu</string>
     <string name="search">Search</string>
+    <string name="clear_search">Clear search</string>
+    <string name="close_search">Close search</string>
     <string name="stefanbayne_gmail_com">stefanbayne@gmail.com</string>
     <string name="sharing_application">Sharing application</string>
     <string name="https_github_com_getrighhttt_recipecompose">https://github.com/GetRighhttt/RecipeCompose</string>

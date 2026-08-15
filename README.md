@@ -107,7 +107,7 @@ The directions action uses either the restaurant marker or the user-adjusted mar
 
 4. Run the `app` configuration on an Android device or emulator with Google APIs.
 
-On first opening Shops, grant approximate or precise foreground location to load nearby restaurants automatically. Permission can be declined without blocking the feature; enter a city or ZIP code instead.
+On first opening Shops, choose **Use my location** and grant approximate or precise foreground access to load nearby restaurants. The permission prompt is user initiated and can be declined without blocking the feature; enter a city or ZIP code instead.
 
 ## Credential handling
 

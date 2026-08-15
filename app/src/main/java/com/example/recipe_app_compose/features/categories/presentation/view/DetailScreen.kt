@@ -16,18 +16,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.core.components.VerticalScrollingWithFixedHeightTextDemo
 import com.example.recipe_app_compose.features.categories.domain.model.category.Category
 
 @Composable
 fun DetailScreen(category: Category) {
-    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -41,10 +38,8 @@ fun DetailScreen(category: Category) {
             style = MaterialTheme.typography.titleLarge
         )
         Image(
-            painter = rememberAsyncImagePainter(
-                category.strCategoryThumb.value,
-                imageLoader = ImageLoader.Builder(context).crossfade(500).build()
-            ), modifier = Modifier
+            painter = rememberAsyncImagePainter(category.strCategoryThumb.value),
+            modifier = Modifier
                 .wrapContentSize()
                 .height(225.dp)
                 .padding(15.dp)

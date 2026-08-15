@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.Delete
@@ -44,7 +44,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
@@ -107,8 +106,10 @@ fun MealDBScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         LazyVerticalGrid(GridCells.Fixed(2), modifier = Modifier.height(400.dp)) {
-            itemsIndexed(meals, key = { _, item -> item.idMeal ?: item.hashCode() }
-            ) { _, meal ->
+            items(
+                items = meals,
+                key = { it.idMeal ?: "local:${it.id}" },
+            ) { meal ->
                 MealDBItem(meal = meal, onDeleteMeal = onDeleteMeal)
             }
         }
@@ -142,27 +143,12 @@ fun MealDBItem(meal: RandomMeal, onDeleteMeal: (RandomMeal) -> Unit) {
     val context = LocalContext.current
     val mealDeletedMessage = stringResource(R.string.meal_deleted)
 
-    val dismissState = rememberSwipeToDismissBoxState(
-        confirmValueChange = {
-            when (it) {
-                SwipeToDismissBoxValue.StartToEnd -> {
-                    onDeleteMeal(meal)
-                }
-
-                SwipeToDismissBoxValue.EndToStart -> {
-                    onDeleteMeal(meal)
-                }
-
-                SwipeToDismissBoxValue.Settled -> {
-                    return@rememberSwipeToDismissBoxState false
-                }
-            }
-            return@rememberSwipeToDismissBoxState true
-        })
+    val dismissState = rememberSwipeToDismissBoxState()
 
     SwipeToDismissBox(
         state = dismissState,
         modifier = Modifier,
+        onDismiss = { onDeleteMeal(meal) },
         backgroundContent = {
             DismissBackground(
                 dismissState,
@@ -177,10 +163,7 @@ fun MealDBItem(meal: RandomMeal, onDeleteMeal: (RandomMeal) -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    painter = rememberAsyncImagePainter(
-                        meal.strMealThumb,
-                        imageLoader = ImageLoader.Builder(context).crossfade(500).build()
-                    ),
+                    painter = rememberAsyncImagePainter(meal.strMealThumb),
                     contentDescription = stringResource(R.string.image),
                     modifier = Modifier
                         .fillMaxSize()
@@ -194,10 +177,7 @@ fun MealDBItem(meal: RandomMeal, onDeleteMeal: (RandomMeal) -> Unit) {
                         text = meal.strMeal ?: "",
                         source = listOf(meal.strSource ?: ""),
                         youtube = listOf(meal.strYoutube ?: ""),
-                        painter = rememberAsyncImagePainter(
-                            meal.strMealThumb ?: "",
-                            imageLoader = ImageLoader.Builder(context).crossfade(500).build()
-                        ),
+                        painter = rememberAsyncImagePainter(meal.strMealThumb.orEmpty()),
                         imageDescription = stringResource(R.string.image),
                         onDismissRequest = {
                             alertState = false
