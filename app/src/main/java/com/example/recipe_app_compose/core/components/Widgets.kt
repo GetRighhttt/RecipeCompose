@@ -22,6 +22,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.ButtonDefaults
@@ -29,6 +31,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -39,6 +42,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
@@ -304,14 +308,14 @@ fun DatabaseDialogWithImage(
                         modifier = modifier.padding(15.dp),
                         elevation = ButtonDefaults.buttonElevation(15.dp)
                     ) {
-                        Text("Delete Meal", style = MaterialTheme.typography.bodyMedium)
+                        Text("Dismiss", style = MaterialTheme.typography.bodyMedium)
                     }
                     ElevatedButton(
                         onClick = { onConfirmation() },
                         modifier = modifier.padding(15.dp),
                         elevation = ButtonDefaults.buttonElevation(15.dp)
                     ) {
-                        Text("Save Meal", style = MaterialTheme.typography.bodyMedium)
+                        Text("Delete Meal", style = MaterialTheme.typography.bodyMedium)
                     }
                 }
             }
@@ -473,7 +477,7 @@ fun PasswordField(
     placeholder: String = "Enter your Password"
 ) {
 
-    val isPasswordVisible by remember { mutableStateOf(false) }
+    var isPasswordVisible by remember { mutableStateOf(false) }
 
     val leadingIcon = @Composable {
         Icon(
@@ -487,6 +491,14 @@ fun PasswordField(
         onValueChange = onChange,
         modifier = modifier,
         leadingIcon = leadingIcon,
+        trailingIcon = {
+            IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                Icon(
+                    imageVector = if (isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                    contentDescription = if (isPasswordVisible) "Hide password" else "Show password"
+                )
+            }
+        },
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Done,
             keyboardType = KeyboardType.Password

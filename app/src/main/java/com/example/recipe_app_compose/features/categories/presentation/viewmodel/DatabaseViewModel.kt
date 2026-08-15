@@ -6,7 +6,6 @@ import com.example.recipe_app_compose.di.DependencyInjector
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
 import com.example.recipe_app_compose.features.categories.domain.repository.DatabaseRepository
 import com.example.recipe_app_compose.features.categories.domain.states.DatabaseState
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -19,19 +18,19 @@ class DatabaseViewModel(
     private val _currentState = MutableStateFlow(DatabaseState())
     val currentState = _currentState.asStateFlow()
 
-    internal val executeInsertMeal: (RandomMeal) -> Job = { meal ->
+    internal fun executeInsertMeal(meal: RandomMeal) {
         viewModelScope.launch { databaseRepository.executeInsertMeal(meal = meal) }
     }
 
-    internal val executeDeleteMeal: (RandomMeal) -> Job = { meal ->
+    internal fun executeDeleteMeal(meal: RandomMeal) {
         viewModelScope.launch { databaseRepository.executeDeleteMeal(meal = meal) }
     }
 
-    internal val executeDeleteAll: () -> Job = {
+    internal fun executeDeleteAll() {
         viewModelScope.launch { databaseRepository.executeDeleteAll() }
     }
 
-    internal val executeGetAllMeals: () -> Job = {
+    internal fun executeGetAllMeals() {
         viewModelScope.launch {
             databaseRepository.executeGetMeals().collectLatest { meal ->
                 _currentState.update { state ->
@@ -45,5 +44,7 @@ class DatabaseViewModel(
         }
     }
 
-    init { executeGetAllMeals.invoke() }
+    init {
+        executeGetAllMeals()
+    }
 }

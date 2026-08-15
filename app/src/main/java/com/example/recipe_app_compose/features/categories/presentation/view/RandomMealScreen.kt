@@ -1,7 +1,4 @@
-@file:OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
-    ExperimentalMaterial3Api::class
-)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.example.recipe_app_compose.features.categories.presentation.view
 
@@ -37,6 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,12 +67,16 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
     // declare view model and state variable
     val viewModel: RecipeViewModel = viewModel()
     val randomViewState by viewModel.randomMealState.collectAsStateWithLifecycle()
-    var alertDialogState by remember { mutableStateOf(true) }
+    var showErrorDialog by remember { mutableStateOf(false) }
     var favoriteDialogState by remember { mutableStateOf(false) }
     var favoriteViewState by remember { mutableStateOf(false) }
 
+    LaunchedEffect(randomViewState.error) {
+        showErrorDialog = randomViewState.error != null
+    }
+
     // database
-    val databaseViewModel = DatabaseViewModel()
+    val databaseViewModel: DatabaseViewModel = viewModel()
 
     Box(modifier = modifier.fillMaxSize()) {
         val context = LocalContext.current
@@ -86,7 +88,7 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                 CenterAlignedTopAppBar(
                     title = {
                         Text(
-                            randomViewState.item?.first()?.strMeal.toString(),
+                            randomViewState.item?.firstOrNull()?.strMeal.orEmpty(),
                             overflow = TextOverflow.Ellipsis,
                             maxLines = 2,
                             style = MaterialTheme.typography.titleLarge
@@ -114,14 +116,14 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                                 onConfirmation = {
                                     favoriteDialogState = false
                                     favoriteViewState = true
-                                    databaseViewModel.executeInsertMeal.invoke(
-                                        randomViewState.item?.first()
-                                            ?: throw NoSuchElementException()
-                                    )
+                                    val meal = randomViewState.item?.firstOrNull()
+                                    if (meal != null) {
+                                        databaseViewModel.executeInsertMeal(meal)
+                                    }
                                     Toast.makeText(
                                         context,
                                         buildString {
-                                            append("${randomViewState.item?.first()?.strMeal.toString()} ")
+                                            append("${meal?.strMeal.orEmpty()} ")
                                             append(context.getString(R.string.added_to_favorites))
                                         },
                                         Toast.LENGTH_SHORT
@@ -153,15 +155,16 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                         .padding(innerPadding)
                 )
 
-                randomViewState.error != null ->
+                randomViewState.error != null && showErrorDialog ->
                     AlertDialogExample(
                         dialogTitle = stringResource(R.string.error),
                         dialogText = stringResource(
                             R.string.error_occurred,
                             randomViewState.error ?: ""
                         ),
-                        onDismissRequest = { alertDialogState = false },
+                        onDismissRequest = { showErrorDialog = false },
                         onConfirmation = {
+                            showErrorDialog = false
                             viewModel.fetchRandomMeal()
                         }
                     )

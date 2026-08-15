@@ -24,15 +24,8 @@ data class Ingredient(
     val strSource: String?
 ) : Parcelable {
     fun doesMatchSearchQuery(query: String): Boolean {
-        val matchingCombinations = listOf(
-            strMeal,
-            strMeal?.substring(0..3),
-            strMeal?.substring(4..10),
-            strMeal?.lowercase(),
-            strMeal?.uppercase()
-        )
-        return matchingCombinations.any {
-            it?.contains(query, ignoreCase = true) == true
-        }
+        val normalizedQuery = query.trim()
+        return normalizedQuery.isNotEmpty() &&
+            strMeal?.contains(normalizedQuery, ignoreCase = true) == true
     }
 }

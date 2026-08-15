@@ -94,7 +94,6 @@ dependencies {
     implementation(libs.firebase.auth) // authentication
 
     // Google play - Maps
-    implementation(libs.play.services.location)
     implementation(libs.play.services.maps)
     implementation(libs.maps.compose)
 

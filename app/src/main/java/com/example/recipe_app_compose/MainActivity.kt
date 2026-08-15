@@ -68,13 +68,10 @@ import com.example.recipe_app_compose.core.navigation.CategoryScreen
 import com.example.recipe_app_compose.core.navigation.NavigationItem
 import com.example.recipe_app_compose.core.navigation.RecipeApp
 import com.example.recipe_app_compose.core.util.permissions.PermissionUtils
-import com.example.recipe_app_compose.core.util.permissions.PermissionsRequestLauncher
-import com.example.recipe_app_compose.core.util.permissions.RequestNetworkPermissions
 import com.example.recipe_app_compose.features.categories.presentation.view.CategoryRecipeScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.IngredientScreen
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 import com.example.recipe_app_compose.features.location.presentation.view.YelpScreen
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -85,10 +82,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            // request permissions
-            RequestNetworkPermissions()
-            PermissionsRequestLauncher()
-
             val context = LocalContext.current
             val permissionUtils = PermissionUtils(context)
             val connectionState by permissionUtils.rememberConnectivityState()
@@ -103,8 +96,8 @@ class MainActivity : ComponentActivity() {
             var showFullDialogBox by remember { mutableStateOf(false) }
             var showYelpDialogBox by remember { mutableStateOf(false) }
             var showSearchDialog by remember { mutableStateOf(false) }
-            var showCategoryMealDialogBox by remember { mutableStateOf(false) }
             val navController = rememberNavController()
+            val recipeViewModel: RecipeViewModel = viewModel()
 
             if (!isConnected) {
                 AppTheme {
@@ -159,7 +152,7 @@ class MainActivity : ComponentActivity() {
                                         },
                                         selected = index == selectedItemIndex,
                                         onClick = {
-                                            val closeDrawer: Job = scope.launch {
+                                            scope.launch {
                                                 drawerState.close()
                                             }
                                             selectedItemIndex = index
@@ -167,17 +160,14 @@ class MainActivity : ComponentActivity() {
                                             when (index) {
                                                 0 -> {
                                                     navController.navigate(CategoryScreen.RecipeScreen.route)
-                                                    closeDrawer.isActive
                                                 }
 
                                                 1 -> {
                                                     navController.navigate(CategoryScreen.SettingsScreen.route)
-                                                    closeDrawer.isActive
                                                 }
 
                                                 2 -> {
                                                     navController.navigate(CategoryScreen.InfoScreen.route)
-                                                    closeDrawer.isActive
                                                 }
                                             }
                                         },
@@ -341,17 +331,12 @@ class MainActivity : ComponentActivity() {
                                             },
                                             actions = {
                                                 IconButton(onClick = {
-                                                    showCategoryMealDialogBox = true
+                                                    recipeViewModel.fetchCategoryMeals()
                                                 }) {
                                                     Icon(
                                                         imageVector = Icons.Default.Refresh,
                                                         contentDescription = stringResource(R.string.refresh)
                                                     )
-                                                }
-                                                if (showCategoryMealDialogBox) {
-                                                    showCategoryMealDialogBox = false
-                                                    val viewModel: RecipeViewModel = viewModel()
-                                                    viewModel.fetchCategoryMeals()
                                                 }
                                             })
                                     }) { innerPadding ->

@@ -47,7 +47,8 @@ fun RecipeApp(navController: NavHostController, modifier: Modifier) {
                     ) {
                         launchSingleTop = true
                     }
-                }
+                },
+                onRetry = recipeViewModel::fetchCategories
             )
         }
         composable(

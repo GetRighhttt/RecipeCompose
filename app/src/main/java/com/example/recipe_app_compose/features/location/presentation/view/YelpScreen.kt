@@ -21,6 +21,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +48,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.ReusableFullScreenDialog
+import com.example.recipe_app_compose.core.util.Constants
 import com.example.recipe_app_compose.features.location.domain.model.location.LocationData
 import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpBusinesses
 import com.example.recipe_app_compose.features.location.presentation.viewmodel.YelpViewModel
@@ -61,6 +63,11 @@ fun YelpScreen(modifier: Modifier = Modifier) {
     val searchText by viewModel.searchQuery.collectAsStateWithLifecycle()
     val isSearching by viewModel.isSearching.collectAsStateWithLifecycle()
     val searchResults by viewModel.businessList.collectAsStateWithLifecycle()
+    var showErrorDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(viewState.error) {
+        showErrorDialog = viewState.error != null
+    }
 
     val focusManager = LocalFocusManager.current
     Scaffold(
@@ -80,12 +87,13 @@ fun YelpScreen(modifier: Modifier = Modifier) {
                         .align(Alignment.Center)
                 )
 
-                viewState.error != null -> AlertDialogExample(
+                viewState.error != null && showErrorDialog -> AlertDialogExample(
                     dialogTitle = stringResource(R.string.error),
                     dialogText = stringResource(R.string.error_occurred, viewState.error ?: ""),
-                    onDismissRequest = { },
+                    onDismissRequest = { showErrorDialog = false },
                     onConfirmation = {
-                        viewModel::getBusinesses.invoke()
+                        showErrorDialog = false
+                        viewModel.getBusinesses(searchText.ifBlank { Constants.YELP_SEARCH_QUERY })
                     },
                 )
 
@@ -94,7 +102,7 @@ fun YelpScreen(modifier: Modifier = Modifier) {
                         // set up searchbar with outline text field
                         OutlinedTextField(
                             value = searchText,
-                            onValueChange = viewModel::onSearchTextChange.invoke(),
+                            onValueChange = viewModel::onSearchTextChange,
                             keyboardOptions = KeyboardOptions(
                                 imeAction = ImeAction.Search,
                                 keyboardType = KeyboardType.Email,
@@ -128,7 +136,7 @@ fun YelpScreen(modifier: Modifier = Modifier) {
                                     modifier = Modifier.align(Alignment.Center)
                                 )
                             }
-                        } else if (viewState.list.isNullOrEmpty() || searchResults?.isNotEmpty() == true) {
+                        } else if (searchResults.isEmpty()) {
                             Box(modifier = Modifier.fillMaxSize()) {
                                 Text(
                                     text = stringResource(R.string.no_results_found),
@@ -139,7 +147,7 @@ fun YelpScreen(modifier: Modifier = Modifier) {
                                 )
                             }
                         } else {
-                            YelpListScreen(categories = viewState.list ?: emptyList())
+                            YelpListScreen(categories = searchResults)
                         }
                     }
                 }

@@ -30,6 +30,7 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,7 +59,11 @@ fun FavoritesScreen(
     // declare view model and state variable
     val viewModel: DatabaseViewModel = viewModel()
     val viewState by viewModel.currentState.collectAsStateWithLifecycle()
-    var alertDialogState by remember { mutableStateOf(true) }
+    var showErrorDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(viewState.error) {
+        showErrorDialog = viewState.error != null
+    }
 
     Box(
         modifier = modifier
@@ -67,16 +72,21 @@ fun FavoritesScreen(
     ) {
         when {
             viewState.loading -> CircularProgressIndicator(modifier.align(Alignment.Center))
-            viewState.error != null -> AlertDialogExample(dialogTitle = stringResource(R.string.error),
+            viewState.error != null && showErrorDialog -> AlertDialogExample(
+                dialogTitle = stringResource(R.string.error),
                 dialogText = stringResource(R.string.error_occurred, viewState.error ?: ""),
-                onDismissRequest = { alertDialogState = false },
+                onDismissRequest = { showErrorDialog = false },
                 onConfirmation = {
+                    showErrorDialog = false
                     viewModel.executeGetAllMeals()
-                    alertDialogState = false
                 })
 
             else -> {
-                MealDBScreen(meals = viewState.list ?: emptyList())
+                MealDBScreen(
+                    meals = viewState.list.orEmpty(),
+                    onDeleteAll = viewModel::executeDeleteAll,
+                    onDeleteMeal = viewModel::executeDeleteMeal
+                )
             }
         }
     }
@@ -85,23 +95,26 @@ fun FavoritesScreen(
 
 
 @Composable
-fun MealDBScreen(meals: List<RandomMeal>) {
+fun MealDBScreen(
+    meals: List<RandomMeal>,
+    onDeleteAll: () -> Unit,
+    onDeleteMeal: (RandomMeal) -> Unit
+) {
     val context = LocalContext.current
-    val viewModel = DatabaseViewModel()
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         LazyVerticalGrid(GridCells.Fixed(2), modifier = Modifier.height(400.dp)) {
-            itemsIndexed(meals, key = { _, item -> item.hashCode() }
+            itemsIndexed(meals, key = { _, item -> item.idMeal ?: item.hashCode() }
             ) { _, meal ->
-                MealDBItem(meal = meal)
+                MealDBItem(meal = meal, onDeleteMeal = onDeleteMeal)
             }
         }
         Spacer(modifier = Modifier.padding(20.dp))
         ElevatedButton(
             onClick = {
-                viewModel.executeDeleteAll.invoke()
+                onDeleteAll()
                 Toast.makeText(
                     context,
                     context.getString(R.string.all_meals_deleted), Toast.LENGTH_SHORT
@@ -121,9 +134,8 @@ fun MealDBScreen(meals: List<RandomMeal>) {
 }
 
 @Composable
-fun MealDBItem(meal: RandomMeal) {
+fun MealDBItem(meal: RandomMeal, onDeleteMeal: (RandomMeal) -> Unit) {
 
-    val viewModel = DatabaseViewModel()
     var alertState by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
@@ -131,11 +143,11 @@ fun MealDBItem(meal: RandomMeal) {
         confirmValueChange = {
             when (it) {
                 SwipeToDismissBoxValue.StartToEnd -> {
-                    viewModel.executeDeleteMeal(meal)
+                    onDeleteMeal(meal)
                 }
 
                 SwipeToDismissBoxValue.EndToStart -> {
-                    viewModel.executeDeleteMeal(meal)
+                    onDeleteMeal(meal)
                 }
 
                 SwipeToDismissBoxValue.Settled -> {
@@ -161,10 +173,11 @@ fun MealDBItem(meal: RandomMeal) {
                     .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Image(painter = rememberAsyncImagePainter(
-                    meal.strMealThumb,
-                    imageLoader = ImageLoader.Builder(context).crossfade(500).build()
-                ),
+                Image(
+                    painter = rememberAsyncImagePainter(
+                        meal.strMealThumb,
+                        imageLoader = ImageLoader.Builder(context).crossfade(500).build()
+                    ),
                     contentDescription = stringResource(R.string.image),
                     modifier = Modifier
                         .fillMaxSize()
@@ -184,14 +197,16 @@ fun MealDBItem(meal: RandomMeal) {
                         ),
                         imageDescription = stringResource(R.string.image),
                         onDismissRequest = {
-                            viewModel.executeDeleteMeal.invoke(meal)
+                            alertState = false
+                        },
+                        onConfirmation = {
+                            onDeleteMeal(meal)
                             Toast.makeText(
                                 context,
                                 context.getString(R.string.meal_deleted), Toast.LENGTH_SHORT
                             ).show()
                             alertState = false
                         },
-                        onConfirmation = { alertState = false },
                         modifier = Modifier
                             .clip(RoundedCornerShape(10.dp))
                     )
