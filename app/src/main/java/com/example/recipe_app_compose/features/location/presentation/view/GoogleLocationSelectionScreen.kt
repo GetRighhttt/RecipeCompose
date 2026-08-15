@@ -125,7 +125,7 @@ fun GoogleLocationSelectionScreen(
             },
             icon = {
                 Icon(
-                    imageVector = Icons.Default.Directions,
+                    imageVector = Icons.Filled.Directions,
                     contentDescription = null
                 )
             },
