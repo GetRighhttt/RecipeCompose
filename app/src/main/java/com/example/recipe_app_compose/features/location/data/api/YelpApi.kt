@@ -12,8 +12,11 @@ interface YelpApi {
     suspend fun searchBusinesses(
         @Header("Authorization") authHeader: String,
         @Query("term") searchTerm: String,
-        @Query("location") location: String,
+        @Query("location") location: String?,
+        @Query("latitude") latitude: Double?,
+        @Query("longitude") longitude: Double?,
+        @Query("radius") radius: Int?,
         @Query("limit") limit: UInt,
-        @Query("offset") offset: UInt
+        @Query("offset") offset: UInt,
     ): Response<YelpSearchResult>
 }

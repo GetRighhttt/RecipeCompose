@@ -19,10 +19,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
@@ -64,7 +62,7 @@ fun RecipeScreen(
 @Composable
 fun CategoryScreen(categories: List<Category>, navigateToDetail: (Category) -> Unit) {
     LazyVerticalGrid(GridCells.Fixed(2), modifier = Modifier.fillMaxSize()) {
-        items(categories) { category ->
+        items(categories, key = { it.idCategory.value }) { category ->
             CategoryItem(category = category) {
                 navigateToDetail(category)
             }
@@ -74,7 +72,6 @@ fun CategoryScreen(categories: List<Category>, navigateToDetail: (Category) -> U
 
 @Composable
 fun CategoryItem(category: Category, navigateToDetail: (Category) -> Unit) {
-    val context = LocalContext.current
     Column(
         modifier = Modifier
             .padding(8.dp)
@@ -82,10 +79,7 @@ fun CategoryItem(category: Category, navigateToDetail: (Category) -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = rememberAsyncImagePainter(
-                category.strCategoryThumb.value,
-                imageLoader = ImageLoader.Builder(context).crossfade(500).build()
-            ),
+            painter = rememberAsyncImagePainter(category.strCategoryThumb.value),
             contentDescription = stringResource(R.string.image),
             modifier = Modifier
                 .fillMaxWidth()

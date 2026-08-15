@@ -23,12 +23,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
@@ -77,7 +75,7 @@ fun CategoryRecipeScreen(modifier: Modifier = Modifier) {
 @Composable
 fun CategoryMealScreen(categories: List<CategoryMeal>) {
     LazyVerticalGrid(GridCells.Fixed(2), modifier = Modifier.fillMaxSize()) {
-        items(categories) { category ->
+        items(categories, key = CategoryMeal::idMeal) { category ->
             CategoryMealItem(category = category)
         }
     }
@@ -86,7 +84,6 @@ fun CategoryMealScreen(categories: List<CategoryMeal>) {
 @Composable
 fun CategoryMealItem(category: CategoryMeal) {
     var alertState by remember { mutableStateOf(false) }
-    val context = LocalContext.current
     Column(
         modifier = Modifier
             .padding(8.dp)
@@ -94,10 +91,7 @@ fun CategoryMealItem(category: CategoryMeal) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = rememberAsyncImagePainter(
-                category.strMealThumb,
-                imageLoader = ImageLoader.Builder(context).crossfade(1500).build()
-            ),
+            painter = rememberAsyncImagePainter(category.strMealThumb),
             contentDescription = stringResource(R.string.image),
             modifier = Modifier
                 .fillMaxSize()
@@ -110,10 +104,7 @@ fun CategoryMealItem(category: CategoryMeal) {
         if (alertState) {
             DialogWithImage(
                 text = category.strMeal,
-                painter = rememberAsyncImagePainter(
-                    category.strMealThumb,
-                    imageLoader = ImageLoader.Builder(context).crossfade(500).build()
-                ),
+                painter = rememberAsyncImagePainter(category.strMealThumb),
                 imageDescription = stringResource(R.string.image),
                 onDismissRequest = { alertState = false },
                 onConfirmation = { alertState = false },
