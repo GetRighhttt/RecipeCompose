@@ -11,7 +11,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -22,14 +22,14 @@ class YelpViewModel(
     private val repository: YelpRepository = DependencyInjector.yelpRepo
 ) : ViewModel() {
 
-    private val _yelpState = MutableStateFlow(YelpStates())
-    val yelpState = _yelpState.asStateFlow()
+    val yelpState: StateFlow<YelpStates>
+        field: MutableStateFlow<YelpStates> = MutableStateFlow(YelpStates())
 
-    private val _searchQuery = MutableStateFlow("")
-    val searchQuery = _searchQuery.asStateFlow()
+    val searchQuery: StateFlow<String>
+        field: MutableStateFlow<String> = MutableStateFlow("")
 
-    private val _isSearching = MutableStateFlow(false)
-    val isSearching = _isSearching.asStateFlow()
+    val isSearching: StateFlow<Boolean>
+        field: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     private var businessSearchJob: Job? = null
 
@@ -42,19 +42,19 @@ class YelpViewModel(
         )
 
     internal fun onSearchTextChange(text: String) {
-        _searchQuery.value = text
+        searchQuery.value = text
         businessSearchJob?.cancel()
 
         if (text.isBlank()) {
-            _isSearching.value = false
+            isSearching.value = false
             return
         }
 
         businessSearchJob = viewModelScope.launch {
-            _isSearching.value = true
+            isSearching.value = true
             delay(500L.milliseconds)
             loadBusinesses(text)
-            _isSearching.value = false
+            isSearching.value = false
         }
     }
 
@@ -65,7 +65,7 @@ class YelpViewModel(
     }
 
     private suspend fun loadBusinesses(query: String) {
-        _yelpState.update { it.copy(loading = true, error = null) }
+        yelpState.update { it.copy(loading = true, error = null) }
         when (val response = repository.searchBusinesses(
             BEARER,
             query,
@@ -75,11 +75,11 @@ class YelpViewModel(
         )) {
             is Resource.Loading -> Unit
 
-            is Resource.Error -> _yelpState.update {
+            is Resource.Error -> yelpState.update {
                 it.copy(loading = false, error = response.message ?: "Error fetching businesses.")
             }
 
-            is Resource.Success -> _yelpState.update {
+            is Resource.Success -> yelpState.update {
                 it.copy(
                     loading = false,
                     list = response.data?.restaurants.orEmpty(),

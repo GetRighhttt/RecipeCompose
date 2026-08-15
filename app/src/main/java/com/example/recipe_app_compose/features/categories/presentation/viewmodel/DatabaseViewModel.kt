@@ -7,7 +7,7 @@ import com.example.recipe_app_compose.features.categories.domain.model.randommea
 import com.example.recipe_app_compose.features.categories.domain.repository.DatabaseRepository
 import com.example.recipe_app_compose.features.categories.domain.states.DatabaseState
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -15,8 +15,8 @@ import kotlinx.coroutines.launch
 class DatabaseViewModel(
     private val databaseRepository: DatabaseRepository = DependencyInjector.databaseRepo
 ) : ViewModel() {
-    private val _currentState = MutableStateFlow(DatabaseState())
-    val currentState = _currentState.asStateFlow()
+    val currentState: StateFlow<DatabaseState>
+        field: MutableStateFlow<DatabaseState> = MutableStateFlow(DatabaseState())
 
     internal fun executeInsertMeal(meal: RandomMeal) {
         viewModelScope.launch { databaseRepository.executeInsertMeal(meal = meal) }
@@ -33,7 +33,7 @@ class DatabaseViewModel(
     internal fun executeGetAllMeals() {
         viewModelScope.launch {
             databaseRepository.executeGetMeals().collectLatest { meal ->
-                _currentState.update { state ->
+                currentState.update { state ->
                     state.copy(
                         loading = false,
                         list = meal,

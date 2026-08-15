@@ -2,9 +2,8 @@ plugins {
     // Existing plugins
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.secrets.gradle)
-    id("kotlin-parcelize")
     id("com.google.devtools.ksp") // ksp
     id("com.google.gms.google-services") // google-services
 }
@@ -47,16 +46,17 @@ android {
         targetCompatibility = JavaVersion.VERSION_18
     }
 
-    kotlin {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_18)
-        }
-    }
-
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        languageVersion = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_4
+        freeCompilerArgs.add("-Xexplicit-backing-fields")
     }
 }
 

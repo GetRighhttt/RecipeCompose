@@ -11,7 +11,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -21,11 +20,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,12 +33,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
-import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.LoginField
+import com.example.recipe_app_compose.core.components.NetworkUnavailableScreen
 import com.example.recipe_app_compose.core.components.PasswordField
-import com.example.recipe_app_compose.core.util.permissions.PermissionUtils
+import com.example.recipe_app_compose.core.util.connectivity.ConnectivityStatus
+import com.example.recipe_app_compose.core.util.connectivity.openNetworkSettings
+import com.example.recipe_app_compose.core.util.connectivity.rememberConnectivityMonitor
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 
@@ -57,31 +57,19 @@ class LoginActivity : ComponentActivity() {
                 val user = auth.currentUser
 
                 val context = LocalContext.current
-                val permissionUtils = PermissionUtils(context)
-                val connectionState by permissionUtils.rememberConnectivityState()
-                val isConnected by remember(connectionState) {
-                    derivedStateOf {
-                        connectionState === PermissionUtils.NetworkConnectionState.Available
-                    }
-                }
+                val connectivityMonitor = rememberConnectivityMonitor()
+                val connectionState by connectivityMonitor.status.collectAsStateWithLifecycle()
+                val isConnected = connectionState == ConnectivityStatus.Available
 
                 var email by remember { mutableStateOf("") }
                 var password by remember { mutableStateOf("") }
 
 
                 if (!isConnected) {
-                    AlertDialogExample(
-                        dialogTitle = stringResource(R.string.network_unavailable),
-                        dialogText = stringResource(R.string.please_connect_to_a_network_service_to_proceed_further),
-                        onDismissRequest = { },
-                        onConfirmation = { }
+                    NetworkUnavailableScreen(
+                        onRetry = connectivityMonitor::refresh,
+                        onOpenNetworkSettings = context::openNetworkSettings,
                     )
-                    Box(
-                        modifier = Modifier.fillMaxSize().padding(top=250.dp).background(color = MaterialTheme.colorScheme.tertiaryContainer),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
                 } else {
                     Scaffold(
                         modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.tertiaryContainer)
