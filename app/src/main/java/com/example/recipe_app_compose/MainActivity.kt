@@ -67,6 +67,9 @@ import com.example.recipe_app_compose.core.util.connectivity.openNetworkSettings
 import com.example.recipe_app_compose.core.util.connectivity.rememberConnectivityMonitor
 import com.example.recipe_app_compose.features.categories.presentation.view.CategoryRecipeScreen
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
+import com.example.recipe_app_compose.features.location.domain.states.YelpSearchArea
+import com.example.recipe_app_compose.features.location.presentation.components.YelpSearchTopAppBar
+import com.example.recipe_app_compose.features.location.presentation.viewmodel.YelpViewModel
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -101,6 +104,9 @@ class MainActivity : ComponentActivity() {
                     val scope = rememberCoroutineScope()
                     val currentBackStackEntry by navController.currentBackStackEntryAsState()
                     val currentRoute = currentBackStackEntry?.destination?.route
+                    val yelpBackStackEntry = currentBackStackEntry?.takeIf {
+                        it.destination.route == CategoryScreen.YelpScreen.route
+                    }
                     val selectedItemIndex = when (currentRoute) {
                         CategoryScreen.SettingsScreen.route -> 1
                         CategoryScreen.InfoScreen.route -> 2
@@ -187,53 +193,86 @@ class MainActivity : ComponentActivity() {
                         gesturesEnabled = isDrawerDestination,
                     ) {
                         Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
-                            TopAppBar(
-                                title = {
-                                    Text(
-                                        stringResource(screenTitle),
-                                        style = MaterialTheme.typography.titleLarge
-                                    )
-                                },
-                                navigationIcon = {
-                                    IconButton(onClick = {
-                                        if (isDrawerDestination) {
-                                            scope.launch {
-                                                if (drawerState.isClosed) {
-                                                    drawerState.open()
-                                                } else {
-                                                    drawerState.close()
-                                                }
-                                            }
-                                        } else {
-                                            navController.popBackStack()
-                                        }
-                                    }) {
-                                        Icon(
-                                            imageVector = if (isDrawerDestination) {
-                                                Icons.Default.Menu
-                                            } else {
-                                                Icons.AutoMirrored.Filled.ArrowBack
-                                            },
-                                            contentDescription = stringResource(
-                                                if (isDrawerDestination) R.string.menu else R.string.back
-                                            )
+                            if (yelpBackStackEntry != null) {
+                                val yelpViewModel: YelpViewModel = viewModel(
+                                    viewModelStoreOwner = yelpBackStackEntry,
+                                )
+                                val yelpState by yelpViewModel.yelpState
+                                    .collectAsStateWithLifecycle()
+                                val yelpSearchQuery by yelpViewModel.searchQuery
+                                    .collectAsStateWithLifecycle()
+                                val yelpSearchActive by yelpViewModel.isSearchActive
+                                    .collectAsStateWithLifecycle()
+                                val searchEnabled =
+                                    yelpState.searchArea == YelpSearchArea.CurrentLocation ||
+                                        yelpState.searchArea is YelpSearchArea.NamedLocation
+
+                                YelpSearchTopAppBar(
+                                    query = yelpSearchQuery,
+                                    searchActive = yelpSearchActive,
+                                    searchEnabled = searchEnabled,
+                                    onQueryChange = yelpViewModel::onSearchTextChange,
+                                    onSearchActiveChange = yelpViewModel::onSearchActiveChange,
+                                    onNavigateBack = navController::popBackStack,
+                                )
+                            } else {
+                                TopAppBar(
+                                    title = {
+                                        Text(
+                                            stringResource(screenTitle),
+                                            style = MaterialTheme.typography.titleLarge
                                         )
-                                    }
-                                },
-                                actions = {
-                                    if (currentRoute == CategoryScreen.RecipeScreen.route) {
+                                    },
+                                    navigationIcon = {
                                         IconButton(onClick = {
-                                            navController.navigate(CategoryScreen.IngredientScreen.route) {
-                                                launchSingleTop = true
+                                            if (isDrawerDestination) {
+                                                scope.launch {
+                                                    if (drawerState.isClosed) {
+                                                        drawerState.open()
+                                                    } else {
+                                                        drawerState.close()
+                                                    }
+                                                }
+                                            } else {
+                                                navController.popBackStack()
                                             }
                                         }) {
                                             Icon(
-                                                imageVector = Icons.Default.Search,
-                                                contentDescription = stringResource(R.string.search)
+                                                imageVector = if (isDrawerDestination) {
+                                                    Icons.Default.Menu
+                                                } else {
+                                                    Icons.AutoMirrored.Filled.ArrowBack
+                                                },
+                                                contentDescription = stringResource(
+                                                    if (isDrawerDestination) {
+                                                        R.string.menu
+                                                    } else {
+                                                        R.string.back
+                                                    }
+                                                )
                                             )
                                         }
-                                    }
-                                })
+                                    },
+                                    actions = {
+                                        if (currentRoute == CategoryScreen.RecipeScreen.route) {
+                                            IconButton(onClick = {
+                                                navController.navigate(
+                                                    CategoryScreen.IngredientScreen.route
+                                                ) {
+                                                    launchSingleTop = true
+                                                }
+                                            }) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Search,
+                                                    contentDescription = stringResource(
+                                                        R.string.search
+                                                    )
+                                                )
+                                            }
+                                        }
+                                    },
+                                )
+                            }
                         }, bottomBar = {
                             if (isDrawerDestination) {
                                 MyBottomAppBar(

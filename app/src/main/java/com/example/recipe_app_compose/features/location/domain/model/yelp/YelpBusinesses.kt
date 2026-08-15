@@ -22,15 +22,18 @@ data class YelpBusinesses(
     val distance: Double // meters
 ) : Parcelable {
 
-    fun displayRating(): String {
-        return rating.toInt().toString()
-    }
+    fun displayRating(): String = rating.toString().removeSuffix(".0")
 
     fun displayPhoneNumber(): String {
-        return if (phone?.isNotBlank() == true) {
-            "(${phone.drop(2).dropLast(7)}) ${phone.drop(5).dropLast(4)} - ${phone.drop(8)}"
-        } else {
-            ""
+        val originalPhone = phone.orEmpty()
+        val digits = originalPhone.filter(Char::isDigit)
+        val nationalNumber = when {
+            digits.length == 11 && digits.startsWith('1') -> digits.drop(1)
+            digits.length == 10 -> digits
+            else -> return originalPhone
         }
+
+        return "(${nationalNumber.take(3)}) " +
+            "${nationalNumber.substring(3, 6)}-${nationalNumber.takeLast(4)}"
     }
 }

@@ -45,7 +45,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
@@ -184,7 +183,10 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
 @Composable
 fun RandomCategoryScreen(categories: List<RandomMeal>) {
     LazyVerticalGrid(GridCells.Fixed(1), modifier = Modifier.fillMaxSize()) {
-        items(categories) { category ->
+        items(
+            items = categories,
+            key = { it.idMeal ?: "local:${it.id}" },
+        ) { category ->
             RandomMealItem(category = category)
         }
     }
@@ -194,7 +196,7 @@ fun RandomCategoryScreen(categories: List<RandomMeal>) {
 fun RandomMealItem(category: RandomMeal) {
 
     // define list for Lazy Column
-    val listOfIngredients = listOf(
+    val listOfIngredients = listOfNotNull(
         category.strIngredient1,
         category.strIngredient2,
         category.strIngredient3,
@@ -203,8 +205,10 @@ fun RandomMealItem(category: RandomMeal) {
         category.strIngredient6,
         category.strIngredient7,
         category.strIngredient8,
-        category.strIngredient9
-    )
+        category.strIngredient9,
+    ).map(String::trim)
+        .filter(String::isNotEmpty)
+        .distinct()
 
     Column(
         modifier = Modifier
@@ -212,10 +216,7 @@ fun RandomMealItem(category: RandomMeal) {
             .fillMaxSize(),
     ) {
         Image(
-            painter = rememberAsyncImagePainter(
-                category.strMealThumb ?: "",
-                imageLoader = ImageLoader.Builder(LocalContext.current).crossfade(400).build()
-            ),
+            painter = rememberAsyncImagePainter(category.strMealThumb.orEmpty()),
             contentDescription = stringResource(R.string.image),
             modifier = Modifier
                 .fillMaxSize()
@@ -290,8 +291,8 @@ fun RandomMealItem(category: RandomMeal) {
                     .fillMaxWidth()
                     .height(80.dp)
             ) {
-                items(listOfIngredients) { msg ->
-                    MessageCard(msg?.uppercase() ?: "")
+                items(items = listOfIngredients, key = { it }) { ingredient ->
+                    MessageCard(ingredient.uppercase())
                 }
             }
         }

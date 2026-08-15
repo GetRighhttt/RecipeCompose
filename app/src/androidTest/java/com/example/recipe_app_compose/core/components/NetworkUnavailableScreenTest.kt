@@ -25,7 +25,6 @@ class NetworkUnavailableScreenTest {
                 )
             }
         }
-
         composeTestRule.onNodeWithText("Try again").performClick()
         composeTestRule.onNodeWithText("Network settings").performClick()
 
