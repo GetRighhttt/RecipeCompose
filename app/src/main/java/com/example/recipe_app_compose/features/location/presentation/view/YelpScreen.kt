@@ -60,20 +60,22 @@ import com.example.recipe_app_compose.core.util.permissions.foregroundLocationPe
 import com.example.recipe_app_compose.core.util.permissions.hasForegroundLocationPermission
 import com.example.recipe_app_compose.core.util.permissions.openAppPermissionSettings
 import com.example.recipe_app_compose.features.location.domain.model.location.LocationData
-import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpBusinesses
+import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpShop
 import com.example.recipe_app_compose.features.location.domain.states.YelpSearchArea
-import com.example.recipe_app_compose.features.location.domain.states.YelpStates
+import com.example.recipe_app_compose.features.location.domain.states.YelpUiState
 import com.example.recipe_app_compose.features.location.presentation.viewmodel.YelpViewModel
 
 @Composable
 fun YelpScreen(
     modifier: Modifier = Modifier,
-    onBusinessSelected: (LocationData) -> Unit,
+    onShopSelected: (LocationData) -> Unit,
 ) {
-    val viewModel: YelpViewModel = viewModel()
-    val viewState by viewModel.yelpState.collectAsStateWithLifecycle()
-    val manualLocationText by viewModel.manualLocationQuery.collectAsStateWithLifecycle()
     val context = LocalContext.current
+
+    val viewModel: YelpViewModel = viewModel()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val manualLocationText by viewModel.manualLocationQuery.collectAsStateWithLifecycle()
+
     var hasLocationPermission by remember {
         mutableStateOf(context.hasForegroundLocationPermission())
     }
@@ -83,7 +85,7 @@ fun YelpScreen(
     ) {
         hasLocationPermission = context.hasForegroundLocationPermission()
         if (hasLocationPermission) {
-            viewModel.loadNearbyBusinesses(forceRefresh = true)
+            viewModel.loadNearbyShops(forceRefresh = true)
         } else {
             viewModel.onLocationPermissionDenied()
         }
@@ -92,7 +94,7 @@ fun YelpScreen(
     fun requestLocationAccess() {
         if (context.hasForegroundLocationPermission()) {
             hasLocationPermission = true
-            viewModel.loadNearbyBusinesses(forceRefresh = true)
+            viewModel.loadNearbyShops(forceRefresh = true)
         } else {
             permissionLauncher.launch(foregroundLocationPermissions())
         }
@@ -101,7 +103,7 @@ fun YelpScreen(
     LifecycleResumeEffect(Unit) {
         hasLocationPermission = context.hasForegroundLocationPermission()
         if (hasLocationPermission) {
-            viewModel.loadNearbyBusinesses()
+            viewModel.loadNearbyShops()
         } else {
             viewModel.onLocationPermissionDenied()
         }
@@ -109,40 +111,40 @@ fun YelpScreen(
     }
 
     val visibleViewState = if (
-        !hasLocationPermission && viewState.searchArea == YelpSearchArea.Initializing
+        !hasLocationPermission && uiState.searchArea == YelpSearchArea.Initializing
     ) {
-        viewState.copy(searchArea = YelpSearchArea.PermissionRequired)
+        uiState.copy(searchArea = YelpSearchArea.PermissionRequired)
     } else {
-        viewState
+        uiState
     }
 
     YelpContent(
-        viewState = visibleViewState,
+        uiState = visibleViewState,
         manualLocationText = manualLocationText,
         onManualLocationChange = viewModel::onManualLocationChange,
         onSearchManualLocation = viewModel::searchManualLocation,
         onRequestLocation = ::requestLocationAccess,
         onOpenAppSettings = context::openAppPermissionSettings,
         onRetry = viewModel::retry,
-        onBusinessSelected = onBusinessSelected,
+        onShopSelected = onShopSelected,
         modifier = modifier,
     )
 }
 
 @Composable
 internal fun YelpContent(
-    viewState: YelpStates,
+    uiState: YelpUiState,
     manualLocationText: String,
     onManualLocationChange: (String) -> Unit,
     onSearchManualLocation: () -> Unit,
     onRequestLocation: () -> Unit,
     onOpenAppSettings: () -> Unit,
     onRetry: () -> Unit,
-    onBusinessSelected: (LocationData) -> Unit,
+    onShopSelected: (LocationData) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val hasSearchOrigin = viewState.searchArea == YelpSearchArea.CurrentLocation ||
-        viewState.searchArea is YelpSearchArea.NamedLocation
+    val hasSearchOrigin = uiState.searchArea == YelpSearchArea.CurrentLocation ||
+            uiState.searchArea is YelpSearchArea.NamedLocation
 
     Column(
         modifier = modifier
@@ -150,7 +152,7 @@ internal fun YelpContent(
             .padding(horizontal = 16.dp),
     ) {
         if (hasSearchOrigin) {
-            SearchAreaLabel(viewState.searchArea)
+            SearchAreaLabel(uiState.searchArea)
         }
 
         Box(
@@ -159,7 +161,7 @@ internal fun YelpContent(
                 .weight(1f),
         ) {
             when {
-                viewState.searchArea == YelpSearchArea.PermissionRequired ->
+                uiState.searchArea == YelpSearchArea.PermissionRequired ->
                     LocationFallbackContent(
                         title = stringResource(R.string.find_shops_near_you),
                         message = stringResource(R.string.location_permission_explanation),
@@ -173,11 +175,11 @@ internal fun YelpContent(
                         modifier = Modifier.align(Alignment.Center),
                     )
 
-                viewState.searchArea == YelpSearchArea.Initializing ||
-                    viewState.searchArea == YelpSearchArea.ResolvingCurrentLocation ->
+                uiState.searchArea == YelpSearchArea.Initializing ||
+                        uiState.searchArea == YelpSearchArea.ResolvingCurrentLocation ->
                     LocationLoadingContent(modifier = Modifier.align(Alignment.Center))
 
-                viewState.searchArea == YelpSearchArea.LocationUnavailable ->
+                uiState.searchArea == YelpSearchArea.LocationUnavailable ->
                     LocationFallbackContent(
                         title = stringResource(R.string.location_unavailable),
                         message = stringResource(R.string.location_unavailable_message),
@@ -191,17 +193,17 @@ internal fun YelpContent(
                         modifier = Modifier.align(Alignment.Center),
                     )
 
-                viewState.loading -> CircularProgressIndicator(
+                uiState.loading -> CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.Center)
                 )
 
-                viewState.error != null -> SearchErrorContent(
-                    message = viewState.error,
+                uiState.error != null -> SearchErrorContent(
+                    message = uiState.error,
                     onRetry = onRetry,
                     modifier = Modifier.align(Alignment.Center),
                 )
 
-                viewState.list.isEmpty() -> Text(
+                uiState.list.isEmpty() -> Text(
                     text = stringResource(R.string.no_results_found),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.headlineSmall,
@@ -210,8 +212,8 @@ internal fun YelpContent(
                 )
 
                 else -> YelpListScreen(
-                    categories = viewState.list,
-                    onBusinessSelected = onBusinessSelected,
+                    shops = uiState.list,
+                    onShopSelected = onShopSelected,
                 )
             }
         }
@@ -226,6 +228,7 @@ private fun SearchAreaLabel(searchArea: YelpSearchArea) {
             R.string.searching_near_location,
             searchArea.value,
         )
+
         else -> return
     }
 
@@ -380,18 +383,18 @@ private fun SearchErrorContent(
 
 @Composable
 fun YelpListScreen(
-    categories: List<YelpBusinesses>,
-    onBusinessSelected: (LocationData) -> Unit,
+    shops: List<YelpShop>,
+    onShopSelected: (LocationData) -> Unit,
 ) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 144.dp),
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(8.dp),
     ) {
-        items(categories, key = YelpBusinesses::id) { category ->
+        items(shops, key = YelpShop::id) { shop ->
             YelpItem(
-                category = category,
-                onBusinessSelected = onBusinessSelected,
+                shop = shop,
+                onShopSelected = onShopSelected,
             )
         }
     }
@@ -399,11 +402,11 @@ fun YelpListScreen(
 
 @Composable
 fun YelpItem(
-    category: YelpBusinesses,
-    onBusinessSelected: (LocationData) -> Unit,
+    shop: YelpShop,
+    onShopSelected: (LocationData) -> Unit,
 ) {
     val locationData =
-        LocationData(category.coordinates.latitude, category.coordinates.longitude)
+        LocationData(shop.coordinates.latitude, shop.coordinates.longitude)
     Column(
         modifier = Modifier
             .padding(8.dp)
@@ -411,31 +414,31 @@ fun YelpItem(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Image(
-            painter = rememberAsyncImagePainter(category.imageUrl),
+            painter = rememberAsyncImagePainter(shop.imageUrl),
             contentDescription = stringResource(R.string.image),
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)
                 .clip(RoundedCornerShape(10.dp))
-                .clickable { onBusinessSelected(locationData) },
+                .clickable { onShopSelected(locationData) },
         )
         Text(
-            text = "${category.name} ${category.displayRating()} \uD83C\uDF1F",
+            text = "${shop.name} ${shop.displayRating()} \uD83C\uDF1F",
             style = MaterialTheme.typography.labelMedium,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(top = 5.dp, bottom = 2.dp),
         )
         Text(
-            text = "${category.location.address1}, ${category.location.city}, " +
-                "${category.location.state} ${category.location.country} " +
-                category.location.zipCode,
+            text = "${shop.location.address1}, ${shop.location.city}, " +
+                    "${shop.location.state} ${shop.location.country} " +
+                    shop.location.zipCode,
             style = MaterialTheme.typography.labelSmall,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(bottom = 2.dp),
         )
         Text(
-            text = category.displayPhoneNumber(),
+            text = shop.displayPhoneNumber(),
             style = MaterialTheme.typography.labelSmall,
             textAlign = TextAlign.Center,
         )

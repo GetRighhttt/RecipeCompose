@@ -37,26 +37,25 @@ import com.example.recipe_app_compose.features.categories.presentation.viewmodel
 @Composable
 fun CategoryRecipeScreen(modifier: Modifier = Modifier) {
 
-    // declare view model and state variable
     val viewModel: RecipeViewModel = viewModel()
-    val viewState by viewModel.categoryMealState.collectAsStateWithLifecycle()
+    val uiState by viewModel.mealUiState.collectAsStateWithLifecycle()
     var showErrorDialog by remember { mutableStateOf(false) }
 
-    LaunchedEffect(viewState.error) {
-        showErrorDialog = viewState.error != null
+    LaunchedEffect(uiState.error) {
+        showErrorDialog = uiState.error != null
     }
 
     Box(modifier = modifier.fillMaxSize()) {
         when {
-            viewState.loading -> CircularProgressIndicator(
+            uiState.loading -> CircularProgressIndicator(
                 modifier
                     .align(Alignment.Center)
                     .aspectRatio(0.3f)
             )
 
-            viewState.error != null && showErrorDialog -> AlertDialogExample(
+            uiState.error != null && showErrorDialog -> AlertDialogExample(
                 dialogTitle = stringResource(R.string.error),
-                dialogText = stringResource(R.string.error_occurred, viewState.error ?: ""),
+                dialogText = stringResource(R.string.error_occurred, uiState.error ?: ""),
                 onDismissRequest = { showErrorDialog = false },
                 onConfirmation = {
                     showErrorDialog = false
@@ -66,7 +65,7 @@ fun CategoryRecipeScreen(modifier: Modifier = Modifier) {
 
             else -> {
                 // display list of categories
-                CategoryMealScreen(categories = viewState.list ?: emptyList())
+                CategoryMealScreen(categories = uiState.list ?: emptyList())
             }
         }
     }

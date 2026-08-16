@@ -4,16 +4,16 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,7 +38,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -55,13 +54,12 @@ import com.example.recipe_app_compose.features.categories.presentation.viewmodel
 fun FavoritesScreen(
     modifier: Modifier = Modifier,
 ) {
-    // declare view model and state variable
     val viewModel: DatabaseViewModel = viewModel()
-    val viewState by viewModel.currentState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showErrorDialog by remember { mutableStateOf(false) }
 
-    LaunchedEffect(viewState.error) {
-        showErrorDialog = viewState.error != null
+    LaunchedEffect(uiState.error) {
+        showErrorDialog = uiState.error != null
     }
 
     Box(
@@ -70,10 +68,10 @@ fun FavoritesScreen(
             .padding(16.dp)
     ) {
         when {
-            viewState.loading -> CircularProgressIndicator(modifier.align(Alignment.Center))
-            viewState.error != null && showErrorDialog -> AlertDialogExample(
+            uiState.loading -> CircularProgressIndicator(modifier.align(Alignment.Center))
+            uiState.error != null && showErrorDialog -> AlertDialogExample(
                 dialogTitle = stringResource(R.string.error),
-                dialogText = stringResource(R.string.error_occurred, viewState.error ?: ""),
+                dialogText = stringResource(R.string.error_occurred, uiState.error ?: ""),
                 onDismissRequest = { showErrorDialog = false },
                 onConfirmation = {
                     showErrorDialog = false
@@ -82,7 +80,7 @@ fun FavoritesScreen(
 
             else -> {
                 MealDBScreen(
-                    meals = viewState.list.orEmpty(),
+                    meals = uiState.list.orEmpty(),
                     onDeleteAll = viewModel::executeDeleteAll,
                     onDeleteMeal = viewModel::executeDeleteMeal
                 )
@@ -102,45 +100,53 @@ fun MealDBScreen(
     val context = LocalContext.current
     val allMealsDeletedMessage = stringResource(R.string.all_meals_deleted)
 
-    Column(
-        modifier = Modifier.fillMaxSize()
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(3),
+        modifier = Modifier.fillMaxSize(),
     ) {
-        LazyVerticalGrid(GridCells.Fixed(2), modifier = Modifier.height(400.dp)) {
-            items(
-                items = meals,
-                key = { it.idMeal ?: "local:${it.id}" },
-            ) { meal ->
-                MealDBItem(meal = meal, onDeleteMeal = onDeleteMeal)
-            }
+        items(
+            items = meals,
+            key = { it.idMeal ?: "local:${it.id}" },
+        ) { meal ->
+            MealDBItem(meal = meal, onDeleteMeal = onDeleteMeal)
         }
-        Spacer(modifier = Modifier.padding(20.dp))
-        ElevatedButton(
-            onClick = {
-                onDeleteAll()
-                Toast.makeText(
-                    context,
-                    allMealsDeletedMessage,
-                    Toast.LENGTH_SHORT,
-                ).show()
-            },
-            modifier = Modifier
-                .padding(15.dp)
-                .align(Alignment.CenterHorizontally),
-            elevation = ButtonDefaults.buttonElevation(15.dp)
+
+        item(
+            key = "delete_all_meals",
+            span = { GridItemSpan(maxLineSpan) },
         ) {
-            Text(
-                stringResource(R.string.delete_all_meals),
-                style = MaterialTheme.typography.bodyMedium
-            )
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+            ) {
+                ElevatedButton(
+                    onClick = {
+                        onDeleteAll()
+                        Toast.makeText(
+                            context,
+                            allMealsDeletedMessage,
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                    },
+                    enabled = meals.isNotEmpty(),
+                    elevation = ButtonDefaults.buttonElevation(15.dp),
+                ) {
+                    Text(
+                        stringResource(R.string.delete_all_meals),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
 fun MealDBItem(meal: RandomMeal, onDeleteMeal: (RandomMeal) -> Unit) {
-
-    var alertState by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    var alertState by remember { mutableStateOf(false) }
     val mealDeletedMessage = stringResource(R.string.meal_deleted)
 
     val dismissState = rememberSwipeToDismissBoxState()
@@ -148,13 +154,9 @@ fun MealDBItem(meal: RandomMeal, onDeleteMeal: (RandomMeal) -> Unit) {
     SwipeToDismissBox(
         state = dismissState,
         modifier = Modifier,
+        enableDismissFromStartToEnd = false,
         onDismiss = { onDeleteMeal(meal) },
-        backgroundContent = {
-            DismissBackground(
-                dismissState,
-                meal = meal
-            )
-        },
+        backgroundContent = { DismissBackground(dismissState) },
         content = {
             Column(
                 modifier = Modifier
@@ -205,31 +207,30 @@ fun MealDBItem(meal: RandomMeal, onDeleteMeal: (RandomMeal) -> Unit) {
 }
 
 @Composable
-fun DismissBackground(dismissState: SwipeToDismissBoxState, meal: RandomMeal) {
-    val color = when (dismissState.dismissDirection) {
-        SwipeToDismissBoxValue.StartToEnd -> Color(0xFFFF1744)
-        SwipeToDismissBoxValue.EndToStart -> Color(0xFFFF1744)
-        SwipeToDismissBoxValue.Settled -> Color.Transparent
-    }
-    Row(
+fun DismissBackground(dismissState: SwipeToDismissBoxState) {
+    val showDeleteAction = dismissState.targetValue != SwipeToDismissBoxValue.Settled
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color)
-            .padding(12.dp, 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+            .padding(horizontal = 12.dp),
+        contentAlignment = Alignment.CenterEnd,
     ) {
-        if (dismissState.progress > 0.3F) {
-            Icon(
-                Icons.Sharp.Delete,
-                contentDescription = stringResource(R.string.delete)
-            )
-            Text(
-                text = if (dismissState.progress > 0.3F) "Delete ${meal.strMeal}?" else "",
-                style = MaterialTheme.typography.labelSmall
-            )
-        } else {
-            Box {}
+        if (showDeleteAction) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .height(44.dp)
+                    .width(38.dp)
+                    .clip(RoundedCornerShape(25))
+                    .background(MaterialTheme.colorScheme.errorContainer),
+            ) {
+                Icon(
+                    imageVector = Icons.Sharp.Delete,
+                    contentDescription = stringResource(R.string.delete),
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                )
+            }
         }
     }
 }

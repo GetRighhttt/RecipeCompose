@@ -3,7 +3,7 @@ package com.example.recipe_app_compose.features.location.domain.model.yelp
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class YelpBusinessesTest {
+class YelpShopTest {
     @Test
     fun `rating keeps Yelp half-star precision without a trailing zero`() {
         assertEquals("4.5", business(rating = 4.5).displayRating())
@@ -29,7 +29,7 @@ class YelpBusinessesTest {
     private fun business(
         rating: Double = 4.5,
         phone: String? = null,
-    ) = YelpBusinesses(
+    ) = YelpShop(
         rating = rating,
         phone = phone,
         id = "business-id",

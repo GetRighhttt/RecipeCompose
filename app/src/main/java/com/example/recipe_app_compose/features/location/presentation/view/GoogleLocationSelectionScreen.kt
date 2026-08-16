@@ -119,7 +119,7 @@ fun GoogleLocationSelectionScreen(
     }
 
     val markerTitle = if (selectedLocation == businessLocation) {
-        stringResource(R.string.business_location)
+        stringResource(R.string.shop_location)
     } else {
         stringResource(R.string.you_clicked_here)
     }

@@ -5,25 +5,25 @@ import com.example.recipe_app_compose.features.categories.domain.model.categorym
 import com.example.recipe_app_compose.features.categories.domain.model.ingredient.Ingredient
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
 
-data class RecipeState(
+data class UiState(
     val loading: Boolean = true,
     val list: List<Category>? = emptyList(),
     val error: String? = null
 )
 
-data class CategoryMealState(
+data class MealUiState(
     val loading: Boolean = true,
     val list: List<CategoryMeal>? = emptyList(),
     val error: String? = null
 )
 
-data class RandomMealState(
+data class RandomMealUiState(
     val loading: Boolean = true,
     val item: List<RandomMeal>? = null,
     val error: String? = null
 )
 
-data class IngredientMealState(
+data class IngredientUiState(
     val loading: Boolean = true,
     val list: List<Ingredient>? = null,
     val error: String? = null
