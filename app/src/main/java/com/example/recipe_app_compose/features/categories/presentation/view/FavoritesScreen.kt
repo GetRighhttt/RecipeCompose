@@ -4,14 +4,14 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -38,7 +38,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -102,7 +101,7 @@ fun MealDBScreen(
     val allMealsDeletedMessage = stringResource(R.string.all_meals_deleted)
 
     LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
+        columns = GridCells.Fixed(3),
         modifier = Modifier.fillMaxSize(),
     ) {
         items(
@@ -155,13 +154,9 @@ fun MealDBItem(meal: RandomMeal, onDeleteMeal: (RandomMeal) -> Unit) {
     SwipeToDismissBox(
         state = dismissState,
         modifier = Modifier,
+        enableDismissFromStartToEnd = false,
         onDismiss = { onDeleteMeal(meal) },
-        backgroundContent = {
-            DismissBackground(
-                dismissState,
-                meal = meal
-            )
-        },
+        backgroundContent = { DismissBackground(dismissState) },
         content = {
             Column(
                 modifier = Modifier
@@ -212,31 +207,30 @@ fun MealDBItem(meal: RandomMeal, onDeleteMeal: (RandomMeal) -> Unit) {
 }
 
 @Composable
-fun DismissBackground(dismissState: SwipeToDismissBoxState, meal: RandomMeal) {
-    val color = when (dismissState.dismissDirection) {
-        SwipeToDismissBoxValue.StartToEnd -> Color(0xFFFF1744)
-        SwipeToDismissBoxValue.EndToStart -> Color(0xFFFF1744)
-        SwipeToDismissBoxValue.Settled -> Color.Transparent
-    }
-    Row(
+fun DismissBackground(dismissState: SwipeToDismissBoxState) {
+    val showDeleteAction = dismissState.targetValue != SwipeToDismissBoxValue.Settled
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color)
-            .padding(12.dp, 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+            .padding(horizontal = 12.dp),
+        contentAlignment = Alignment.CenterEnd,
     ) {
-        if (dismissState.progress > 0.3F) {
-            Icon(
-                Icons.Sharp.Delete,
-                contentDescription = stringResource(R.string.delete)
-            )
-            Text(
-                text = if (dismissState.progress > 0.3F) "Delete ${meal.strMeal}?" else "",
-                style = MaterialTheme.typography.labelSmall
-            )
-        } else {
-            Box {}
+        if (showDeleteAction) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .height(44.dp)
+                    .width(38.dp)
+                    .clip(RoundedCornerShape(25))
+                    .background(MaterialTheme.colorScheme.errorContainer),
+            ) {
+                Icon(
+                    imageVector = Icons.Sharp.Delete,
+                    contentDescription = stringResource(R.string.delete),
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                )
+            }
         }
     }
 }
