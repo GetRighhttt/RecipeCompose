@@ -2,7 +2,6 @@ package com.example.recipe_app_compose.features.location.presentation.viewmodel
 
 import com.example.recipe_app_compose.core.testing.MainDispatcherRule
 import com.example.recipe_app_compose.core.util.Resource
-import com.example.recipe_app_compose.features.location.domain.location.CurrentLocationProvider
 import com.example.recipe_app_compose.features.location.domain.model.location.LocationData
 import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpSearchOrigin
 import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpSearchRequest
@@ -18,6 +17,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class YelpViewModelTest {
@@ -28,17 +28,17 @@ class YelpViewModelTest {
     fun `initial state waits for the permission check`() {
         val viewModel = YelpViewModel(
             repository = FakeYelpRepository(),
-            currentLocationProvider = CurrentLocationProvider { null },
+            currentLocationProvider = { null },
         )
 
-        assertEquals(YelpSearchArea.Initializing, viewModel.yelpState.value.searchArea)
+        assertEquals(YelpSearchArea.Initializing, viewModel.uiState.value.searchArea)
     }
 
     @Test
     fun `search mode is retained by the route scoped view model`() {
         val viewModel = YelpViewModel(
             repository = FakeYelpRepository(),
-            currentLocationProvider = CurrentLocationProvider { null },
+            currentLocationProvider = { null },
         )
 
         viewModel.onSearchActiveChange(true)
@@ -51,12 +51,12 @@ class YelpViewModelTest {
         val repository = FakeYelpRepository()
         val viewModel = YelpViewModel(
             repository = repository,
-            currentLocationProvider = CurrentLocationProvider { null },
+            currentLocationProvider = { null },
         )
 
         viewModel.onLocationPermissionDenied()
 
-        assertEquals(YelpSearchArea.PermissionRequired, viewModel.yelpState.value.searchArea)
+        assertEquals(YelpSearchArea.PermissionRequired, viewModel.uiState.value.searchArea)
         assertTrue(repository.requests.isEmpty())
     }
 
@@ -67,13 +67,13 @@ class YelpViewModelTest {
             val location = LocationData(latitude = 28.18, longitude = -82.35)
             val viewModel = YelpViewModel(
                 repository = repository,
-                currentLocationProvider = CurrentLocationProvider { location },
+                currentLocationProvider = { location },
             )
 
-            viewModel.loadNearbyBusinesses()
+            viewModel.loadNearbyShops()
             advanceUntilIdle()
 
-            assertEquals(YelpSearchArea.CurrentLocation, viewModel.yelpState.value.searchArea)
+            assertEquals(YelpSearchArea.CurrentLocation, viewModel.uiState.value.searchArea)
             assertEquals(1, repository.requests.size)
             val request = repository.requests.single()
             assertEquals("restaurants", request.term)
@@ -90,15 +90,15 @@ class YelpViewModelTest {
             val repository = FakeYelpRepository()
             val viewModel = YelpViewModel(
                 repository = repository,
-                currentLocationProvider = CurrentLocationProvider { null },
+                currentLocationProvider = { null },
             )
 
-            viewModel.loadNearbyBusinesses()
+            viewModel.loadNearbyShops()
             advanceUntilIdle()
 
             assertEquals(
                 YelpSearchArea.LocationUnavailable,
-                viewModel.yelpState.value.searchArea,
+                viewModel.uiState.value.searchArea,
             )
             assertTrue(repository.requests.isEmpty())
         }
@@ -109,7 +109,7 @@ class YelpViewModelTest {
             val repository = FakeYelpRepository()
             val viewModel = YelpViewModel(
                 repository = repository,
-                currentLocationProvider = CurrentLocationProvider { null },
+                currentLocationProvider = { null },
             )
 
             viewModel.onManualLocationChange(" Austin, TX ")
@@ -118,7 +118,7 @@ class YelpViewModelTest {
 
             assertEquals(
                 YelpSearchArea.NamedLocation("Austin, TX"),
-                viewModel.yelpState.value.searchArea,
+                viewModel.uiState.value.searchArea,
             )
             assertEquals(
                 YelpSearchOrigin.NamedLocation("Austin, TX"),
@@ -133,9 +133,9 @@ class YelpViewModelTest {
             val location = LocationData(latitude = 28.18, longitude = -82.35)
             val viewModel = YelpViewModel(
                 repository = repository,
-                currentLocationProvider = CurrentLocationProvider { location },
+                currentLocationProvider = { location },
             )
-            viewModel.loadNearbyBusinesses()
+            viewModel.loadNearbyShops()
             advanceUntilIdle()
 
             viewModel.onSearchTextChange("coffee")
@@ -154,12 +154,12 @@ class YelpViewModelTest {
             val repository = FakeYelpRepository()
             val viewModel = YelpViewModel(
                 repository = repository,
-                currentLocationProvider = CurrentLocationProvider {
-                    delay(Long.MAX_VALUE)
+                currentLocationProvider = {
+                    delay(Long.MAX_VALUE.milliseconds)
                     null
                 },
             )
-            viewModel.loadNearbyBusinesses()
+            viewModel.loadNearbyShops()
             runCurrent()
 
             viewModel.onManualLocationChange("Chicago")
@@ -168,7 +168,7 @@ class YelpViewModelTest {
 
             assertEquals(
                 YelpSearchArea.NamedLocation("Chicago"),
-                viewModel.yelpState.value.searchArea,
+                viewModel.uiState.value.searchArea,
             )
             assertEquals(1, repository.requests.size)
             assertEquals(
@@ -183,14 +183,14 @@ class YelpViewModelTest {
             val repository = FakeYelpRepository()
             val viewModel = YelpViewModel(
                 repository = repository,
-                currentLocationProvider = CurrentLocationProvider {
+                currentLocationProvider = {
                     LocationData(latitude = 28.18, longitude = -82.35)
                 },
             )
 
-            viewModel.loadNearbyBusinesses()
+            viewModel.loadNearbyShops()
             advanceUntilIdle()
-            viewModel.loadNearbyBusinesses()
+            viewModel.loadNearbyShops()
             advanceUntilIdle()
 
             assertEquals(1, repository.requests.size)
@@ -199,11 +199,11 @@ class YelpViewModelTest {
     private class FakeYelpRepository : YelpRepository {
         val requests = mutableListOf<YelpSearchRequest>()
 
-        override suspend fun searchBusinesses(
+        override suspend fun searchShops(
             request: YelpSearchRequest,
         ): Resource<YelpSearchResult> {
             requests += request
-            return Resource.Success(YelpSearchResult(total = 0U, restaurants = emptyList()))
+            return Resource.Success(YelpSearchResult(total = 0U, shops = emptyList()))
         }
     }
 }

@@ -25,12 +25,12 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.features.categories.domain.model.category.Category
-import com.example.recipe_app_compose.features.categories.domain.states.RecipeState
+import com.example.recipe_app_compose.features.categories.domain.states.UiState
 
 @Composable
 fun RecipeScreen(
     modifier: Modifier = Modifier,
-    viewState: RecipeState,
+    uiState: UiState,
     navigateToDetail: (Category) -> Unit,
     onRetry: () -> Unit
 ) {
@@ -40,19 +40,19 @@ fun RecipeScreen(
             .padding(horizontal = 8.dp),
     ) {
         when {
-            viewState.loading -> CircularProgressIndicator(
+            uiState.loading -> CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center)
             )
 
-            viewState.error != null -> AlertDialogExample(
+            uiState.error != null -> AlertDialogExample(
                 dialogTitle = stringResource(R.string.error),
-                dialogText = stringResource(R.string.error_occurred, viewState.error),
+                dialogText = stringResource(R.string.error_occurred, uiState.error),
                 onDismissRequest = onRetry,
                 onConfirmation = onRetry
             )
 
             else -> CategoryScreen(
-                categories = viewState.list.orEmpty(),
+                categories = uiState.list.orEmpty(),
                 navigateToDetail = navigateToDetail,
             )
         }
