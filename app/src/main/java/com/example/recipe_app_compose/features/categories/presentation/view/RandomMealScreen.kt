@@ -58,18 +58,18 @@ import com.example.recipe_app_compose.features.categories.presentation.viewmodel
 @Composable
 fun RandomMealPage(modifier: Modifier = Modifier) {
     val viewModel: RecipeViewModel = viewModel()
-    val randomViewState by viewModel.randomMealState.collectAsStateWithLifecycle()
+    val uiState by viewModel.randUiState.collectAsStateWithLifecycle()
     var showErrorDialog by remember { mutableStateOf(false) }
     var favoriteDialogState by remember { mutableStateOf(false) }
     var favoriteViewState by remember { mutableStateOf(false) }
 
-    LaunchedEffect(randomViewState.error) {
-        showErrorDialog = randomViewState.error != null
+    LaunchedEffect(uiState.error) {
+        showErrorDialog = uiState.error != null
     }
 
     val databaseViewModel: DatabaseViewModel = viewModel()
     val context = LocalContext.current
-    val currentMeal = randomViewState.item?.firstOrNull()
+    val currentMeal = uiState.item?.firstOrNull()
     val addedToFavoritesMessage = stringResource(R.string.added_to_favorites)
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -130,15 +130,15 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                     .weight(1f)
             ) {
                 when {
-                    randomViewState.loading -> CircularProgressIndicator(
+                    uiState.loading -> CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center)
                     )
 
-                    randomViewState.error != null && showErrorDialog -> AlertDialogExample(
+                    uiState.error != null && showErrorDialog -> AlertDialogExample(
                         dialogTitle = stringResource(R.string.error),
                         dialogText = stringResource(
                             R.string.error_occurred,
-                            randomViewState.error ?: ""
+                            uiState.error ?: ""
                         ),
                         onDismissRequest = { showErrorDialog = false },
                         onConfirmation = {
@@ -148,7 +148,7 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                     )
 
                     else -> RandomCategoryScreen(
-                        categories = randomViewState.item.orEmpty(),
+                        categories = uiState.item.orEmpty(),
                     )
                 }
             }

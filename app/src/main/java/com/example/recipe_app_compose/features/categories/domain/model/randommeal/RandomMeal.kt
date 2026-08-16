@@ -10,7 +10,7 @@ import kotlinx.parcelize.Parcelize
 @Entity(tableName = "random_meal_table")
 data class RandomMeal(
     @PrimaryKey(autoGenerate = true)
-    val id: Int, // created
+    val id: Int,
 
     @ColumnInfo("meal_id")
     val idMeal: String?,

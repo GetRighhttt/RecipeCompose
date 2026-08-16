@@ -5,8 +5,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavType
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
@@ -35,7 +35,7 @@ File for Navigation.
 @Composable
 fun RecipeApp(navController: NavHostController, modifier: Modifier) {
     val recipeViewModel: RecipeViewModel = viewModel()
-    val navState by recipeViewModel.categoriesState.collectAsState()
+    val navState by recipeViewModel.uiState.collectAsState()
 
     NavHost(
         navController = navController,
@@ -46,7 +46,7 @@ fun RecipeApp(navController: NavHostController, modifier: Modifier) {
             route = CategoryScreen.RecipeScreen.route
         ) {
             RecipeScreen(
-                viewState = navState,
+                uiState = navState,
                 navigateToDetail = {
                     navController.currentBackStackEntry?.savedStateHandle?.set("nav", it)
                     navController.navigate(
@@ -126,7 +126,7 @@ fun RecipeApp(navController: NavHostController, modifier: Modifier) {
         ) {
             YelpScreen(
                 modifier = Modifier,
-                onBusinessSelected = { location ->
+                onShopSelected = { location ->
                     navController.navigate(
                         CategoryScreen.MapScreen.createRoute(
                             latitude = location.latitude,

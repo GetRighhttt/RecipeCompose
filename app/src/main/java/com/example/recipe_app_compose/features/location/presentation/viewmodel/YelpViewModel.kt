@@ -10,9 +10,9 @@ import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpSe
 import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpSearchRequest
 import com.example.recipe_app_compose.features.location.domain.repo.YelpRepository
 import com.example.recipe_app_compose.features.location.domain.states.YelpSearchArea
-import com.example.recipe_app_compose.features.location.domain.states.YelpStates
-import kotlinx.coroutines.Job
+import com.example.recipe_app_compose.features.location.domain.states.YelpUiState
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,28 +26,21 @@ class YelpViewModel(
         DependencyInjector.currentLocationProvider,
 ) : ViewModel() {
 
-    val yelpState: StateFlow<YelpStates>
-        field: MutableStateFlow<YelpStates> = MutableStateFlow(YelpStates())
-
-    val searchQuery: StateFlow<String>
-        field: MutableStateFlow<String> = MutableStateFlow("")
-
-    val isSearchActive: StateFlow<Boolean>
-        field: MutableStateFlow<Boolean> = MutableStateFlow(false)
-
-    val manualLocationQuery: StateFlow<String>
-        field: MutableStateFlow<String> = MutableStateFlow("")
+    val searchQuery: StateFlow<String> field = MutableStateFlow("")
+    val isSearchActive: StateFlow<Boolean> field = MutableStateFlow(false)
+    val manualLocationQuery: StateFlow<String> field = MutableStateFlow("")
+    val uiState: StateFlow<YelpUiState> field = MutableStateFlow(YelpUiState())
 
     private var searchOrigin: YelpSearchOrigin? = null
     private var locationJob: Job? = null
-    private var businessSearchJob: Job? = null
+    private var shopSearchJob: Job? = null
 
-    internal fun loadNearbyBusinesses(forceRefresh: Boolean = false) {
+    internal fun loadNearbyShops(forceRefresh: Boolean = false) {
         if (!forceRefresh && searchOrigin != null) return
         if (locationJob?.isActive == true) return
 
         locationJob = viewModelScope.launch {
-            yelpState.update {
+            uiState.update {
                 it.copy(
                     loading = false,
                     error = null,
@@ -65,7 +58,7 @@ class YelpViewModel(
 
             if (location == null) {
                 searchOrigin = null
-                yelpState.update {
+                uiState.update {
                     it.copy(
                         loading = false,
                         list = emptyList(),
@@ -77,10 +70,10 @@ class YelpViewModel(
 
             val origin = YelpSearchOrigin.Coordinates(location)
             searchOrigin = origin
-            yelpState.update {
+            uiState.update {
                 it.copy(searchArea = YelpSearchArea.CurrentLocation)
             }
-            loadBusinesses(currentSearchTerm(), origin)
+            loadShops(currentSearchTerm(), origin)
         }
     }
 
@@ -88,7 +81,7 @@ class YelpViewModel(
         locationJob?.cancel()
         if (searchOrigin !is YelpSearchOrigin.NamedLocation) {
             searchOrigin = null
-            yelpState.update {
+            uiState.update {
                 it.copy(
                     loading = false,
                     list = emptyList(),
@@ -119,43 +112,43 @@ class YelpViewModel(
         locationJob?.cancel()
         val origin = YelpSearchOrigin.NamedLocation(location)
         searchOrigin = origin
-        yelpState.update {
+        uiState.update {
             it.copy(
                 error = null,
                 searchArea = YelpSearchArea.NamedLocation(location),
             )
         }
-        businessSearchJob?.cancel()
-        businessSearchJob = viewModelScope.launch {
-            loadBusinesses(currentSearchTerm(), origin)
+        shopSearchJob?.cancel()
+        shopSearchJob = viewModelScope.launch {
+            loadShops(currentSearchTerm(), origin)
         }
     }
 
     internal fun retry() {
         val origin = searchOrigin
         if (origin == null) {
-            loadNearbyBusinesses(forceRefresh = true)
+            loadNearbyShops(forceRefresh = true)
         } else {
-            businessSearchJob?.cancel()
-            businessSearchJob = viewModelScope.launch {
-                loadBusinesses(currentSearchTerm(), origin)
+            shopSearchJob?.cancel()
+            shopSearchJob = viewModelScope.launch {
+                loadShops(currentSearchTerm(), origin)
             }
         }
     }
 
     private fun queueSearchForCurrentOrigin() {
         val origin = searchOrigin ?: return
-        businessSearchJob?.cancel()
-        businessSearchJob = viewModelScope.launch {
+        shopSearchJob?.cancel()
+        shopSearchJob = viewModelScope.launch {
             delay(SEARCH_DEBOUNCE)
-            loadBusinesses(currentSearchTerm(), origin)
+            loadShops(currentSearchTerm(), origin)
         }
     }
 
-    private suspend fun loadBusinesses(term: String, origin: YelpSearchOrigin) {
-        yelpState.update { it.copy(loading = true, error = null) }
+    private suspend fun loadShops(term: String, origin: YelpSearchOrigin) {
+        uiState.update { it.copy(loading = true, error = null) }
         when (
-            val response = repository.searchBusinesses(
+            val response = repository.searchShops(
                 YelpSearchRequest(
                     term = term,
                     origin = origin,
@@ -165,17 +158,17 @@ class YelpViewModel(
         ) {
             is Resource.Loading -> Unit
 
-            is Resource.Error -> yelpState.update {
+            is Resource.Error -> uiState.update {
                 it.copy(
                     loading = false,
                     error = response.message ?: DEFAULT_ERROR_MESSAGE,
                 )
             }
 
-            is Resource.Success -> yelpState.update {
+            is Resource.Success -> uiState.update {
                 it.copy(
                     loading = false,
-                    list = response.data?.restaurants.orEmpty(),
+                    list = response.data?.shops.orEmpty(),
                     error = null,
                 )
             }

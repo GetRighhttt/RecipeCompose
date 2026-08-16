@@ -26,8 +26,7 @@ class ConnectivityMonitor(context: Context) {
     private val connectivityManager =
         context.applicationContext.getSystemService(ConnectivityManager::class.java)
 
-    val status: StateFlow<ConnectivityStatus>
-        field: MutableStateFlow<ConnectivityStatus> = MutableStateFlow(currentStatus())
+    val status: StateFlow<ConnectivityStatus> field = MutableStateFlow(currentStatus())
 
     private var isMonitoring = false
 

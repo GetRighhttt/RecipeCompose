@@ -10,7 +10,7 @@ Returns Yelp response
 @Parcelize
 data class YelpSearchResult(
     @SerializedName("total") val total: UInt,
-    @SerializedName("businesses") val restaurants: List<YelpBusinesses>
+    @SerializedName("businesses") val shops: List<YelpShop>
 ) : Parcelable {
 
 }

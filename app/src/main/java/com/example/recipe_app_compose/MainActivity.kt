@@ -55,8 +55,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.example.recipe_app_compose.core.components.MyBottomAppBar
 import com.example.recipe_app_compose.core.components.NetworkUnavailableScreen
 import com.example.recipe_app_compose.core.navigation.CategoryScreen
@@ -81,6 +81,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val context = LocalContext.current
+
             val connectivityMonitor = rememberConnectivityMonitor()
             val connectionState by connectivityMonitor.status.collectAsStateWithLifecycle()
             val isConnected = connectionState == ConnectivityStatus.Available
@@ -127,7 +128,7 @@ class MainActivity : ComponentActivity() {
                         CategoryScreen.FavoriteScreen.route -> R.string.favorites
                         CategoryScreen.InfoScreen.route -> R.string.info
                         CategoryScreen.YelpScreen.route -> R.string.shops
-                        CategoryScreen.MapScreen.route -> R.string.business_location
+                        CategoryScreen.MapScreen.route -> R.string.shop_location
                         else -> R.string.favorite_cuisines
                     }
 
@@ -197,7 +198,7 @@ class MainActivity : ComponentActivity() {
                                 val yelpViewModel: YelpViewModel = viewModel(
                                     viewModelStoreOwner = yelpBackStackEntry,
                                 )
-                                val yelpState by yelpViewModel.yelpState
+                                val yelpState by yelpViewModel.uiState
                                     .collectAsStateWithLifecycle()
                                 val yelpSearchQuery by yelpViewModel.searchQuery
                                     .collectAsStateWithLifecycle()

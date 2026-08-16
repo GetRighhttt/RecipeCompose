@@ -5,10 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.recipe_app_compose.core.util.Resource
 import com.example.recipe_app_compose.di.DependencyInjector
 import com.example.recipe_app_compose.features.categories.domain.repository.RecipeRepository
-import com.example.recipe_app_compose.features.categories.domain.states.CategoryMealState
-import com.example.recipe_app_compose.features.categories.domain.states.IngredientMealState
-import com.example.recipe_app_compose.features.categories.domain.states.RandomMealState
-import com.example.recipe_app_compose.features.categories.domain.states.RecipeState
+import com.example.recipe_app_compose.features.categories.domain.states.IngredientUiState
+import com.example.recipe_app_compose.features.categories.domain.states.MealUiState
+import com.example.recipe_app_compose.features.categories.domain.states.RandomMealUiState
+import com.example.recipe_app_compose.features.categories.domain.states.UiState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,29 +25,18 @@ class RecipeViewModel(
     private val repository: RecipeRepository = DependencyInjector.repository
 ) : ViewModel() {
 
-    val categoriesState: StateFlow<RecipeState>
-        field: MutableStateFlow<RecipeState> = MutableStateFlow(RecipeState())
-
-    val categoryMealState: StateFlow<CategoryMealState>
-        field: MutableStateFlow<CategoryMealState> = MutableStateFlow(CategoryMealState())
-
-    val randomMealState: StateFlow<RandomMealState>
-        field: MutableStateFlow<RandomMealState> = MutableStateFlow(RandomMealState())
-
-    val ingredientMealState: StateFlow<IngredientMealState>
-        field: MutableStateFlow<IngredientMealState> = MutableStateFlow(IngredientMealState())
-
-    val searchQuery: StateFlow<String>
-        field: MutableStateFlow<String> = MutableStateFlow("")
-
-    val isSearching: StateFlow<Boolean>
-        field: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val searchQuery: StateFlow<String> field = MutableStateFlow("")
+    val isSearching: StateFlow<Boolean> field = MutableStateFlow(false)
+    val uiState: StateFlow<UiState> field = MutableStateFlow(UiState())
+    val mealUiState: StateFlow<MealUiState> field = MutableStateFlow(MealUiState())
+    val ingUiState: StateFlow<IngredientUiState> field = MutableStateFlow(IngredientUiState())
+    val randUiState: StateFlow<RandomMealUiState> field = MutableStateFlow(RandomMealUiState())
 
     private var ingredientSearchJob: Job? = null
 
     internal val ingredientsList = combine(
         searchQuery,
-        ingredientMealState.map { it.list.orEmpty() }
+        ingUiState.map { it.list.orEmpty() }
     ) { text, ingredients ->
         if (text.isBlank()) {
             ingredients
@@ -78,85 +67,80 @@ class RecipeViewModel(
         }
     }
 
-    internal fun fetchCategories() {
-        viewModelScope.launch {
-            categoriesState.update { it.copy(loading = true, error = null) }
-            when (val response = repository.getCategories()) {
-                is Resource.Error -> categoriesState.update {
-                    it.copy(loading = false, error = "Error fetching categories.")
-                }
+    internal fun fetchCategories() = viewModelScope.launch {
+        uiState.update { it.copy(loading = true, error = null) }
+        when (val response = repository.getCategories()) {
+            is Resource.Error -> uiState.update {
+                it.copy(loading = false, error = "Error fetching categories.")
+            }
 
-                is Resource.Loading -> Unit
+            is Resource.Loading -> Unit
 
-                is Resource.Success -> categoriesState.update {
-                    it.copy(
-                        loading = false,
-                        list = response.data?.categories.orEmpty(),
-                        error = null
-                    )
-                }
+            is Resource.Success -> uiState.update {
+                it.copy(
+                    loading = false,
+                    list = response.data?.categories.orEmpty(),
+                    error = null
+                )
             }
         }
     }
 
-    internal fun fetchCategoryMeals() {
-        viewModelScope.launch {
-            categoryMealState.update { it.copy(loading = true, error = null) }
-            when (val response = repository.getCategoriesMeal()) {
-                is Resource.Error -> categoryMealState.update {
-                    it.copy(loading = false, error = "Error fetching category meals.")
-                }
 
-                is Resource.Loading -> Unit
+    internal fun fetchCategoryMeals() = viewModelScope.launch {
+        mealUiState.update { it.copy(loading = true, error = null) }
+        when (val response = repository.getCategoriesMeal()) {
+            is Resource.Error -> mealUiState.update {
+                it.copy(loading = false, error = "Error fetching category meals.")
+            }
 
-                is Resource.Success -> categoryMealState.update {
-                    it.copy(
-                        loading = false,
-                        list = response.data?.meals.orEmpty(),
-                        error = null
-                    )
-                }
+            is Resource.Loading -> Unit
+
+            is Resource.Success -> mealUiState.update {
+                it.copy(
+                    loading = false,
+                    list = response.data?.meals.orEmpty(),
+                    error = null
+                )
             }
         }
     }
 
-    internal fun fetchRandomMeal() {
-        viewModelScope.launch {
-            randomMealState.update { it.copy(loading = true, error = null) }
-            when (val response = repository.getRandomMeal()) {
-                is Resource.Error -> randomMealState.update {
-                    it.copy(loading = false, error = "Error fetching random meal.")
-                }
+    internal fun fetchRandomMeal() = viewModelScope.launch {
+        randUiState.update { it.copy(loading = true, error = null) }
+        when (val response = repository.getRandomMeal()) {
+            is Resource.Error -> randUiState.update {
+                it.copy(loading = false, error = "Error fetching random meal.")
+            }
 
-                is Resource.Loading -> Unit
+            is Resource.Loading -> Unit
 
-                is Resource.Success -> randomMealState.update {
-                    it.copy(
-                        loading = false,
-                        item = response.data?.meals.orEmpty(),
-                        error = null
-                    )
-                }
+            is Resource.Success -> randUiState.update {
+                it.copy(
+                    loading = false,
+                    item = response.data?.meals.orEmpty(),
+                    error = null
+                )
             }
         }
     }
 
-    internal fun fetchIngredients(query: String = SEARCH_DEFAULT) {
-        viewModelScope.launch {
-            loadIngredients(query)
-        }
+
+    internal fun fetchIngredients(query: String = SEARCH_DEFAULT) = viewModelScope.launch {
+        loadIngredients(query)
     }
+
 
     private suspend fun loadIngredients(query: String) {
-        ingredientMealState.update { it.copy(loading = true, error = null) }
+        ingUiState.update { it.copy(loading = true, error = null) }
         when (val response = repository.getIngredient(query)) {
-            is Resource.Error -> ingredientMealState.update {
+            is Resource.Error -> ingUiState.update {
                 it.copy(loading = false, error = "Error fetching ingredients.")
             }
 
             is Resource.Loading -> Unit
 
-            is Resource.Success -> ingredientMealState.update {
+            is Resource.Success -> ingUiState.update {
                 it.copy(
                     loading = false,
                     list = response.data?.meals.orEmpty(),

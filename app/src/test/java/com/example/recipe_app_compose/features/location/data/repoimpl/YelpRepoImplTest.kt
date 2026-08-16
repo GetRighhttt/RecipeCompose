@@ -17,7 +17,7 @@ class YelpRepoImplTest {
         val api = RecordingYelpApi()
         val repository = YelpRepImpl(api)
 
-        repository.searchBusinesses(
+        repository.searchShops(
             YelpSearchRequest(
                 term = "restaurants",
                 origin = YelpSearchOrigin.Coordinates(
@@ -38,7 +38,7 @@ class YelpRepoImplTest {
         val api = RecordingYelpApi()
         val repository = YelpRepImpl(api)
 
-        repository.searchBusinesses(
+        repository.searchShops(
             YelpSearchRequest(
                 term = "coffee",
                 origin = YelpSearchOrigin.NamedLocation("Austin, TX"),
@@ -56,7 +56,7 @@ class YelpRepoImplTest {
         var longitude: Double? = null
         var radius: Int? = null
 
-        override suspend fun searchBusinesses(
+        override suspend fun searchShops(
             authHeader: String,
             searchTerm: String,
             location: String?,
@@ -70,7 +70,7 @@ class YelpRepoImplTest {
             this.latitude = latitude
             this.longitude = longitude
             this.radius = radius
-            return Response.success(YelpSearchResult(total = 0U, restaurants = emptyList()))
+            return Response.success(YelpSearchResult(total = 0U, shops = emptyList()))
         }
     }
 }

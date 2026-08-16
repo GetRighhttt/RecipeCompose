@@ -60,14 +60,14 @@ fun IngredientScreen(
     onIngredientSelected: (Ingredient) -> Unit,
 ) {
     val viewModel: RecipeViewModel = viewModel()
-    val viewState by viewModel.ingredientMealState.collectAsStateWithLifecycle()
+    val uiState by viewModel.ingUiState.collectAsStateWithLifecycle()
     val searchText by viewModel.searchQuery.collectAsStateWithLifecycle()
     val isSearching by viewModel.isSearching.collectAsStateWithLifecycle()
     val searchResults by viewModel.ingredientsList.collectAsStateWithLifecycle()
     var showErrorDialog by remember { mutableStateOf(false) }
 
-    LaunchedEffect(viewState.error) {
-        showErrorDialog = viewState.error != null
+    LaunchedEffect(uiState.error) {
+        showErrorDialog = uiState.error != null
     }
 
     val focusManager = LocalFocusManager.current
@@ -77,13 +77,13 @@ fun IngredientScreen(
             .padding(horizontal = 16.dp)
     ) {
         when {
-            viewState.loading -> CircularProgressIndicator(
+            uiState.loading -> CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center)
             )
 
-            viewState.error != null && showErrorDialog -> AlertDialogExample(
+            uiState.error != null && showErrorDialog -> AlertDialogExample(
                 dialogTitle = stringResource(R.string.error),
-                dialogText = stringResource(R.string.error_occurred, viewState.error ?: ""),
+                dialogText = stringResource(R.string.error_occurred, uiState.error ?: ""),
                 onDismissRequest = { showErrorDialog = false },
                 onConfirmation = {
                     showErrorDialog = false
