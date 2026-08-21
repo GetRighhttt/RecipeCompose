@@ -116,27 +116,6 @@ fun AlertDialogExample(
 }
 
 @Composable
-fun MinimalDialog(text: String, onDismissRequest: () -> Unit) {
-    Dialog(onDismissRequest = { onDismissRequest() }) {
-        Card(
-            modifier = Modifier
-                .widthIn(max = 480.dp)
-                .fillMaxWidth()
-                .padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
-        ) {
-            Text(
-                text = text,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp),
-                textAlign = TextAlign.Center,
-            )
-        }
-    }
-}
-
-@Composable
 fun AppMediaCard(
     painter: Painter,
     imageDescription: String?,
@@ -200,64 +179,6 @@ fun AppHorizontalMediaCard(
                     .padding(AppSpacing.Medium),
                 content = content,
             )
-        }
-    }
-}
-
-@Composable
-fun MealPreviewDialog(
-    onDismissRequest: () -> Unit,
-    painter: Painter,
-    imageDescription: String,
-    text: String,
-    modifier: Modifier = Modifier,
-) {
-    Dialog(
-        onDismissRequest = onDismissRequest,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
-    ) {
-        Card(
-            modifier = modifier
-                .widthIn(max = 560.dp)
-                .fillMaxWidth()
-                .heightIn(max = 720.dp)
-                .padding(16.dp),
-            shape = AppCardShape,
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Image(
-                    painter = painter,
-                    contentDescription = imageDescription,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .widthIn(max = 360.dp)
-                        .fillMaxWidth()
-                        .aspectRatio(1f)
-                )
-                Text(
-                    text = text, fontWeight = FontWeight.Medium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(8.dp),
-                )
-                Button(
-                    onClick = onDismissRequest,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = AppSpacing.Small),
-                ) {
-                    Text(stringResource(R.string.close))
-                }
-            }
         }
     }
 }

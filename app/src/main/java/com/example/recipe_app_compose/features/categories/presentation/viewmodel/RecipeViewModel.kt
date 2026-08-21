@@ -6,7 +6,6 @@ import com.example.recipe_app_compose.core.util.Resource
 import com.example.recipe_app_compose.di.DependencyInjector
 import com.example.recipe_app_compose.features.categories.domain.repository.RecipeRepository
 import com.example.recipe_app_compose.features.categories.domain.states.IngredientUiState
-import com.example.recipe_app_compose.features.categories.domain.states.MealUiState
 import com.example.recipe_app_compose.features.categories.domain.states.RandomMealUiState
 import com.example.recipe_app_compose.features.categories.domain.states.UiState
 import kotlinx.coroutines.Job
@@ -28,7 +27,6 @@ class RecipeViewModel(
     val searchQuery: StateFlow<String> field = MutableStateFlow("")
     val isSearching: StateFlow<Boolean> field = MutableStateFlow(false)
     val uiState: StateFlow<UiState> field = MutableStateFlow(UiState())
-    val mealUiState: StateFlow<MealUiState> field = MutableStateFlow(MealUiState())
     val ingUiState: StateFlow<IngredientUiState> field = MutableStateFlow(IngredientUiState())
     val randUiState: StateFlow<RandomMealUiState> field = MutableStateFlow(RandomMealUiState())
 
@@ -87,25 +85,6 @@ class RecipeViewModel(
     }
 
 
-    internal fun fetchCategoryMeals() = viewModelScope.launch {
-        mealUiState.update { it.copy(loading = true, error = null) }
-        when (val response = repository.getCategoriesMeal()) {
-            is Resource.Error -> mealUiState.update {
-                it.copy(loading = false, error = "Error fetching category meals.")
-            }
-
-            is Resource.Loading -> Unit
-
-            is Resource.Success -> mealUiState.update {
-                it.copy(
-                    loading = false,
-                    list = response.data?.meals.orEmpty(),
-                    error = null
-                )
-            }
-        }
-    }
-
     internal fun fetchRandomMeal() = viewModelScope.launch {
         randUiState.update { it.copy(loading = true, error = null) }
         when (val response = repository.getRandomMeal()) {
@@ -152,7 +131,6 @@ class RecipeViewModel(
 
     init {
         fetchCategories()
-        fetchCategoryMeals()
         fetchRandomMeal()
         fetchIngredients()
     }

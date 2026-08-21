@@ -149,20 +149,31 @@ fun GoogleLocationSelectionScreen(
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
 
-        ExtendedFloatingActionButton(
+        DirectionsButton(
             onClick = { context.openDrivingDirections(selectedLocation) },
-            icon = {
-                Icon(
-                    imageVector = Icons.Filled.Directions,
-                    contentDescription = null,
-                )
-            },
-            text = { Text(stringResource(R.string.open_driving_directions)) },
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .padding(16.dp),
         )
     }
+}
+
+@Composable
+internal fun DirectionsButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    ExtendedFloatingActionButton(
+        onClick = onClick,
+        icon = {
+            Icon(
+                imageVector = Icons.Filled.Directions,
+                contentDescription = null,
+            )
+        },
+        text = { Text(stringResource(R.string.open_driving_directions)) },
+        modifier = modifier,
+    )
 }
 
 private fun LocationData.hasValidCoordinates(): Boolean =

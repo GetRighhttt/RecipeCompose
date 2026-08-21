@@ -5,7 +5,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,27 +12,23 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
@@ -42,12 +37,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -64,8 +55,6 @@ import com.example.recipe_app_compose.core.navigation.RecipeApp
 import com.example.recipe_app_compose.core.util.connectivity.ConnectivityStatus
 import com.example.recipe_app_compose.core.util.connectivity.openNetworkSettings
 import com.example.recipe_app_compose.core.util.connectivity.rememberConnectivityMonitor
-import com.example.recipe_app_compose.features.categories.presentation.view.CategoryRecipeScreen
-import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 import com.example.recipe_app_compose.features.location.domain.states.YelpSearchArea
 import com.example.recipe_app_compose.features.location.presentation.components.YelpSearchTopAppBar
 import com.example.recipe_app_compose.features.location.presentation.viewmodel.YelpViewModel
@@ -86,8 +75,6 @@ class MainActivity : ComponentActivity() {
             val connectionState by connectivityMonitor.status.collectAsStateWithLifecycle()
             val isConnected = connectionState == ConnectivityStatus.Available
 
-            val sheetState = rememberModalBottomSheetState()
-            var showBottomSheet by remember { mutableStateOf(false) }
             val navController = rememberNavController()
 
             if (!isConnected) {
@@ -98,7 +85,6 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             } else {
-                val recipeViewModel: RecipeViewModel = viewModel()
                 AppTheme {
                     /* Navigation Drawer Code */
                     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -109,22 +95,22 @@ class MainActivity : ComponentActivity() {
                         it.destination.route == CategoryScreen.YelpScreen.route
                     }
                     val selectedItemIndex = when (currentRoute) {
-                        CategoryScreen.SettingsScreen.route -> 1
-                        CategoryScreen.InfoScreen.route -> 2
+                        CategoryScreen.InfoScreen.route -> 1
+                        CategoryScreen.AccountScreen.route -> 2
                         else -> 0
                     }
                     val drawerRoutes = setOf(
                         CategoryScreen.RecipeScreen.route,
-                        CategoryScreen.SettingsScreen.route,
                         CategoryScreen.InfoScreen.route,
+                        CategoryScreen.AccountScreen.route,
                     )
                     val isDrawerDestination = currentRoute == null || currentRoute in drawerRoutes
                     val screenTitle = when (currentRoute) {
                         CategoryScreen.DetailScreen.route -> R.string.details
                         CategoryScreen.RandomMealScreen.route -> R.string.featured_dish
                         CategoryScreen.IngredientScreen.route -> R.string.search_for_specific_meals
-                        CategoryScreen.IngredientDetailScreen.route -> R.string.details
-                        CategoryScreen.SettingsScreen.route -> R.string.settings
+                        CategoryScreen.IngredientDetailScreen.route -> R.string.recipe_details
+                        CategoryScreen.AccountScreen.route -> R.string.account
                         CategoryScreen.FavoriteScreen.route -> R.string.favorites
                         CategoryScreen.InfoScreen.route -> R.string.info
                         CategoryScreen.YelpScreen.route -> R.string.shops
@@ -138,13 +124,13 @@ class MainActivity : ComponentActivity() {
                             selectedIcon = Icons.Filled.Home,
                             unselectedIcon = Icons.Outlined.Home,
                         ), NavigationItem(
-                            title = stringResource(R.string.settings),
-                            selectedIcon = Icons.Filled.Settings,
-                            unselectedIcon = Icons.Outlined.Settings,
-                        ), NavigationItem(
                             title = stringResource(R.string.info),
                             selectedIcon = Icons.Filled.Info,
                             unselectedIcon = Icons.Outlined.Info
+                        ), NavigationItem(
+                            title = stringResource(R.string.account),
+                            selectedIcon = Icons.Filled.AccountCircle,
+                            unselectedIcon = Icons.Outlined.AccountCircle,
                         )
                     )
                     ModalNavigationDrawer(
@@ -165,8 +151,8 @@ class MainActivity : ComponentActivity() {
                                                 drawerState.close()
                                             }
                                             val route = when (index) {
-                                                1 -> CategoryScreen.SettingsScreen.route
-                                                2 -> CategoryScreen.InfoScreen.route
+                                                1 -> CategoryScreen.InfoScreen.route
+                                                2 -> CategoryScreen.AccountScreen.route
                                                 else -> CategoryScreen.RecipeScreen.route
                                             }
                                             navController.navigate(route) {
@@ -336,51 +322,10 @@ class MainActivity : ComponentActivity() {
                                                 contentDescription = stringResource(R.string.play)
                                             )
                                         }
-                                        IconButton(onClick = { showBottomSheet = true }) {
-                                            Icon(
-                                                imageVector = Icons.Default.KeyboardArrowUp,
-                                                contentDescription = stringResource(R.string.settings)
-                                            )
-                                        }
                                     },
                                 )
                             }
                         }) { innerPadding ->
-                            if (showBottomSheet) {
-                                ModalBottomSheet(
-                                    onDismissRequest = {
-                                        showBottomSheet = false
-                                    },
-                                    sheetState = sheetState,
-                                    tonalElevation = 20.dp,
-                                    modifier = Modifier.padding(8.dp)
-                                ) {
-                                    Scaffold(topBar = {
-                                        CenterAlignedTopAppBar(
-                                            title = {
-                                                Text(
-                                                    stringResource(R.string.explore_dishes),
-                                                    style = MaterialTheme.typography.titleLarge
-                                                )
-                                            },
-                                            actions = {
-                                                IconButton(onClick = {
-                                                    recipeViewModel.fetchCategoryMeals()
-                                                }) {
-                                                    Icon(
-                                                        imageVector = Icons.Default.Refresh,
-                                                        contentDescription = stringResource(R.string.refresh)
-                                                    )
-                                                }
-                                            })
-                                    }) { innerPadding ->
-                                        Spacer(modifier = Modifier.padding(innerPadding))
-                                        Column(modifier = Modifier.padding(innerPadding)) {
-                                            CategoryRecipeScreen(modifier = Modifier.fillMaxSize())
-                                        }
-                                    }
-                                }
-                            }
                             RecipeApp(
                                 navController = navController,
                                 modifier = Modifier.padding(innerPadding)

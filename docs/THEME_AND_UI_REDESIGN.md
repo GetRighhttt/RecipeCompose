@@ -193,20 +193,13 @@ The login screen no longer uses 100 dp of fixed vertical padding. Its content no
 
 The important modifier distinction is that `padding(innerPadding)` belongs around the screen content, not on the logo. `Scaffold` reports space consumed by system bars and app chrome; applying it to only one child leaves the rest of the screen unaware of those insets.
 
-### Settings structure and action hierarchy
+### Account screen and honest feature scope
 
-The settings screen previously repeated nine booleans and nine nearly identical text-button blocks. It also positioned account buttons using 40 dp start/end padding inside a row. That could squeeze or overlap labels on compact screens and with larger fonts.
+The previous Settings destination presented nine placeholder rows even though the application did not provide configurable settings. It also repeated the Settings title inside the page below the navigation title. Those rows were useful while experimenting with dialogs and Compose state, but they implied functionality the product did not have.
 
-The updated implementation uses:
+The destination is now Account and appears last in the drawer: Home, Info, Account. The navigation top bar is the only page title. The screen shows the authenticated email, a real Sign out action, and a visually separated danger zone for permanent account deletion.
 
-- A `SettingsPage` enum as the source of page title and dialog content.
-- One nullable `activePage` state instead of nine independent dialog booleans.
-- A tonal surface to group related settings rows.
-- Full-width rows with at least a 48 dp touch target.
-- Vertically stacked account actions that remain usable at any supported width.
-- A primary filled sign-out action and an error-colored outlined delete action.
-
-The visual distinction between sign out and delete communicates that account deletion is destructive without making both actions look equally prominent.
+Account deletion now waits for Firebase's asynchronous result before showing success and returning to login. Failure remains on the Account screen with guidance that a recent sign-in may be required. Sign out and successful deletion clear the activity task so Back cannot reopen an authenticated screen.
 
 ### Navigation and map review
 
@@ -222,16 +215,13 @@ The existing network and location fallback screens already followed the desired 
 
 ### Featured dish and meal-dialog refinement
 
-The original `See Our Best Dishes!` title was used for two different experiences and sounded more like promotional copy than application navigation. The destinations now have specific titles:
-
-- `Featured Dish` identifies the single random-meal experience.
-- `Explore Dishes` identifies the category meal gallery.
+The original `See Our Best Dishes!` title sounded more like promotional copy than application navigation. The useful random-meal experience is now titled `Featured Dish`.
 
 The Featured Dish page keeps both of its useful actions, but no longer places two bare icons around a compressed title. The meal name now leads a tonal header card. Below it, `Save` is a labeled tonal button and `Another` is a labeled outlined button. Labels reduce icon ambiguity, while the different button treatments establish priority. After a successful save, the action reads `Saved` and is disabled to prevent repeated inserts from the same visible meal.
 
-The category meal preview previously included `Dismiss` and `Confirm`, even though both actions closed the dialog. It is now a purpose-specific `MealPreviewDialog` with the image, meal name, and one `Close` action.
-
 The Favorites dialog is now a purpose-specific `FavoriteMealDialog`. Source and YouTube links were removed because that surface is for managing saved meals. It contains only the meal name, image, a neutral `Dismiss` action, and an error-colored `Delete Meal` action. This keeps the destructive choice clear without competing with unrelated links.
+
+The separate Explore Dishes modal was removed after product review. It fetched a random category, displayed another image grid, and offered Refresh without advancing the recipe-discovery or navigation workflow. Its bottom-bar entry point, modal UI, screen, ViewModel state, repository method, API endpoint, response models, and unused preview dialog were removed together.
 
 ### Modern featured-dish details
 
@@ -248,12 +238,27 @@ The page now follows an editorial recipe hierarchy:
 
 The content is constrained to 640 dp on wide displays so instructions remain comfortable to read. Resource actions use full-width labeled buttons instead of ambiguous inline links, and the old “Click here” copy was also removed from the ingredient-detail page.
 
+### Shared recipe-detail presentation
+
+Selecting a dish from search previously opened an older detail layout with a square image, generic dividers, raw metadata labels, and a separate ingredient-row treatment. The search flow now opens a dedicated `Recipe Details` page that uses the same editorial hierarchy as Featured Dish.
+
+The common image, metadata, resources, instructions, and ingredient sections are owned by one `MealDetailsContent` composable. Featured Dish supplies its Save and Another Dish controls through an optional action slot; a searched recipe omits those featured-only controls. This keeps the destination honest while preventing two implementations of the same recipe information from drifting visually.
+
+API-provided category and cuisine values are optional. When either value is blank, the metadata card now displays `Unknown` rather than rendering an apparently broken empty value. Optional source and YouTube actions remain hidden when their URLs are absent.
+
+### Preview-driven visual iteration
+
+The project now includes a debug-only screen preview catalog under `app/src/debug`. Shared preview fixtures provide realistic categories, recipes, favorites, and restaurant results without shipping fake data in release builds.
+
+The catalog renders paired light and dark previews for login, cuisine browsing and details, dish search and recipe details, Featured Dish, Favorites, Shops, the location-permission fallback, Account, Info, offline handling, and map fallback/control states. Service-owning entry points remain responsible for Firebase, ViewModels, permissions, Room, and network setup; previews call extracted stateless content instead. This separation makes layout editing fast without making production composables aware of preview mode.
+
+Google Maps does not reliably render its live map canvas in Android Studio Preview. The catalog therefore previews the real Directions control on a neutral map placeholder and separately previews the invalid-location fallback. Marker movement, map loading, and Google-rendered controls still require a device or emulator.
+
 ### Layouts based on user intent
 
 Using a two-column grid everywhere made unrelated screens feel generic and forced information-rich cards into narrow spaces. Layouts are now selected according to what the user is doing:
 
 - Browse Cuisines uses a single-column editorial feed with wide 16:9 images. Categories are broad entry points and benefit from visual presence.
-- Explore Dishes retains an adaptive gallery because users are choosing primarily from meal imagery.
 - Ingredient search retains an adaptive grid because compact scanning is useful for a potentially large result set.
 - Favorites uses a compact horizontal list because it is a saved-item management screen, and the wider swipe surface makes deletion easier to understand.
 - Restaurants uses a compact horizontal list so business name, rating, and address remain readable while comparing nearby options.
@@ -270,7 +275,7 @@ The code compiles, but visual QA should still be performed on real Compose layou
 4. System font scales of 1.0, 1.3, and 1.5.
 5. Very long recipe, meal, and restaurant names.
 6. Missing or slow-loading remote images.
-7. Favorites swipe behavior at each adaptive grid width.
+7. Favorites swipe behavior on compact and expanded list widths.
 8. Map zoom controls and the directions button in portrait and landscape.
 
 ## Accessibility checks
@@ -296,4 +301,8 @@ Before calling the redesign complete, verify:
 - `app/src/main/java/com/example/recipe_app_compose/MainActivity.kt`
 - `app/src/main/java/com/example/recipe_app_compose/core/components/Widgets.kt`
 - `app/src/main/java/com/example/recipe_app_compose/features/categories/presentation/view/FavoritesScreen.kt`
-- `app/src/main/java/com/example/recipe_app_compose/features/categories/presentation/view/SettingsScreen.kt`
+- `app/src/main/java/com/example/recipe_app_compose/features/categories/presentation/view/IngredientScreen.kt`
+- `app/src/main/java/com/example/recipe_app_compose/features/categories/presentation/view/MealDetailsContent.kt`
+- `app/src/main/java/com/example/recipe_app_compose/features/categories/presentation/view/AccountScreen.kt`
+- `app/src/debug/java/com/example/recipe_app_compose/preview/PreviewData.kt`
+- `app/src/debug/java/com/example/recipe_app_compose/preview/ScreenPreviews.kt`

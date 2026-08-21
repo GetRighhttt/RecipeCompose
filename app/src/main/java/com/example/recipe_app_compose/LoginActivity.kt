@@ -25,6 +25,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,84 +67,21 @@ class LoginActivity : ComponentActivity() {
                 val connectionState by connectivityMonitor.status.collectAsStateWithLifecycle()
                 val isConnected = connectionState == ConnectivityStatus.Available
 
-                var email by remember { mutableStateOf("") }
-                var password by remember { mutableStateOf("") }
-
-
                 if (!isConnected) {
                     NetworkUnavailableScreen(
                         onRetry = connectivityMonitor::refresh,
                         onOpenNetworkSettings = context::openNetworkSettings,
                     )
                 } else {
-                    Scaffold(
-                        modifier = Modifier.fillMaxSize(),
-                        containerColor = MaterialTheme.colorScheme.background,
-                    ) { innerPadding ->
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(innerPadding),
-                            contentAlignment = Alignment.TopCenter,
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .widthIn(max = 480.dp)
-                                    .verticalScroll(rememberScrollState())
-                                    .padding(
-                                        horizontal = AppSpacing.ExtraLarge,
-                                        vertical = AppSpacing.ExtraExtraLarge,
-                                    ),
-                            ) {
-                                Image(
-                                    painter = rememberAsyncImagePainter(R.drawable.dining_two),
-                                    contentDescription = stringResource(R.string.image),
-                                    modifier = Modifier
-                                        .height(128.dp)
-                                        .aspectRatio(1f),
-                                )
-                                Spacer(modifier = Modifier.height(AppSpacing.ExtraLarge))
-                                Text(
-                                    stringResource(R.string.discover_your_next_meal),
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    textAlign = TextAlign.Start,
-                                    modifier = Modifier.fillMaxWidth(),
-                                )
-                                Spacer(modifier = Modifier.height(AppSpacing.ExtraLarge))
-                                LoginField(
-                                    value = email,
-                                    onChange = { email = it },
-                                    modifier = Modifier.fillMaxWidth(),
-                                )
-                                Spacer(modifier = Modifier.height(AppSpacing.Medium))
-                                PasswordField(
-                                    value = password,
-                                    onChange = { password = it },
-                                    submit = {},
-                                    modifier = Modifier.fillMaxWidth(),
-                                )
-                                Spacer(modifier = Modifier.height(AppSpacing.Large))
-                                Button(
-                                    onClick = {
-                                        if (user == null) {
-                                            createAccount(email, password, context = this@LoginActivity)
-                                        } else {
-                                            signIn(email, password, context = this@LoginActivity)
-                                        }
-                                    },
-                                    enabled = password.isNotEmpty(),
-                                    shape = AppControlShape,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .heightIn(min = AppSizes.MinimumTouchTarget),
-                                ) {
-                                    Text(stringResource(R.string.login))
-                                }
+                    LoginContent(
+                        onSubmit = { email, password ->
+                            if (user == null) {
+                                createAccount(email, password, context = this@LoginActivity)
+                            } else {
+                                signIn(email, password, context = this@LoginActivity)
                             }
-                        }
-                    }
+                        },
+                    )
                 }
             }
         }
@@ -208,5 +146,77 @@ class LoginActivity : ComponentActivity() {
                 }
             }
         // [END sign_in_with_email]
+    }
+}
+
+@Composable
+internal fun LoginContent(
+    onSubmit: (email: String, password: String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        containerColor = MaterialTheme.colorScheme.background,
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            contentAlignment = Alignment.TopCenter,
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .widthIn(max = 480.dp)
+                    .verticalScroll(rememberScrollState())
+                    .padding(
+                        horizontal = AppSpacing.ExtraLarge,
+                        vertical = AppSpacing.ExtraExtraLarge,
+                    ),
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(R.drawable.dining_two),
+                    contentDescription = stringResource(R.string.image),
+                    modifier = Modifier
+                        .height(128.dp)
+                        .aspectRatio(1f),
+                )
+                Spacer(modifier = Modifier.height(AppSpacing.ExtraLarge))
+                Text(
+                    stringResource(R.string.discover_your_next_meal),
+                    style = MaterialTheme.typography.headlineMedium,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Spacer(modifier = Modifier.height(AppSpacing.ExtraLarge))
+                LoginField(
+                    value = email,
+                    onChange = { email = it },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Spacer(modifier = Modifier.height(AppSpacing.Medium))
+                PasswordField(
+                    value = password,
+                    onChange = { password = it },
+                    submit = {},
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Spacer(modifier = Modifier.height(AppSpacing.Large))
+                Button(
+                    onClick = { onSubmit(email, password) },
+                    enabled = password.isNotEmpty(),
+                    shape = AppControlShape,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = AppSizes.MinimumTouchTarget),
+                ) {
+                    Text(stringResource(R.string.login))
+                }
+            }
+        }
     }
 }
