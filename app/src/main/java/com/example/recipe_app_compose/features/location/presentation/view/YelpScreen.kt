@@ -12,9 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -52,7 +51,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
-import com.example.recipe_app_compose.core.components.AppMediaCard
+import com.example.recipe_app_compose.core.components.AppHorizontalMediaCard
 import com.example.recipe_app_compose.core.util.permissions.foregroundLocationPermissions
 import com.example.recipe_app_compose.core.util.permissions.hasForegroundLocationPermission
 import com.example.recipe_app_compose.core.util.permissions.openAppPermissionSettings
@@ -61,7 +60,6 @@ import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpSh
 import com.example.recipe_app_compose.features.location.domain.states.YelpSearchArea
 import com.example.recipe_app_compose.features.location.domain.states.YelpUiState
 import com.example.recipe_app_compose.features.location.presentation.viewmodel.YelpViewModel
-import com.example.recipe_app_compose.ui.theme.AppSizes
 import com.example.recipe_app_compose.ui.theme.AppSpacing
 
 @Composable
@@ -385,11 +383,9 @@ fun YelpListScreen(
     shops: List<YelpShop>,
     onShopSelected: (LocationData) -> Unit,
 ) {
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = AppSizes.MinimumGridCardWidth),
+    LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = AppSpacing.Small),
-        horizontalArrangement = Arrangement.spacedBy(AppSpacing.Medium),
         verticalArrangement = Arrangement.spacedBy(AppSpacing.Medium),
     ) {
         items(shops, key = YelpShop::id) { shop ->
@@ -408,7 +404,7 @@ fun YelpItem(
 ) {
     val locationData =
         LocationData(shop.coordinates.latitude, shop.coordinates.longitude)
-    AppMediaCard(
+    AppHorizontalMediaCard(
         painter = rememberAsyncImagePainter(shop.imageUrl),
         imageDescription = shop.name,
         onClick = { onShopSelected(locationData) },

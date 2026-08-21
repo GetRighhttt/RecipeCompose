@@ -5,9 +5,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -59,16 +59,21 @@ fun RecipeScreen(
 
 @Composable
 fun CategoryScreen(categories: List<Category>, navigateToDetail: (Category) -> Unit) {
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(AppSizes.MinimumGridCardWidth),
+    Box(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(AppSpacing.Large),
-        horizontalArrangement = Arrangement.spacedBy(AppSpacing.Medium),
-        verticalArrangement = Arrangement.spacedBy(AppSpacing.Medium),
+        contentAlignment = Alignment.TopCenter,
     ) {
-        items(categories, key = { it.idCategory.value }) { category ->
-            CategoryItem(category = category) {
-                navigateToDetail(category)
+        LazyColumn(
+            modifier = Modifier
+                .widthIn(max = AppSizes.MaximumReadableWidth)
+                .fillMaxWidth(),
+            contentPadding = PaddingValues(AppSpacing.Large),
+            verticalArrangement = Arrangement.spacedBy(AppSpacing.Large),
+        ) {
+            items(categories, key = { it.idCategory.value }) { category ->
+                CategoryItem(category = category) {
+                    navigateToDetail(category)
+                }
             }
         }
     }
@@ -81,6 +86,7 @@ fun CategoryItem(category: Category, navigateToDetail: (Category) -> Unit) {
         imageDescription = stringResource(R.string.image),
         onClick = { navigateToDetail(category) },
         modifier = Modifier.fillMaxWidth(),
+        imageAspectRatio = 16f / 9f,
     ) {
         Text(
             text = category.strCategory.value,

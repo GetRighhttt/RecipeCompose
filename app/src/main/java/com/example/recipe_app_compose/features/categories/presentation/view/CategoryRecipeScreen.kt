@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -21,18 +20,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.AppMediaCard
-import com.example.recipe_app_compose.core.components.DialogWithImage
+import com.example.recipe_app_compose.core.components.MealPreviewDialog
 import com.example.recipe_app_compose.features.categories.domain.model.categorymeal.CategoryMeal
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 import com.example.recipe_app_compose.ui.theme.AppSizes
@@ -109,13 +106,11 @@ fun CategoryMealItem(category: CategoryMeal) {
         )
     }
     if (alertState) {
-        DialogWithImage(
+        MealPreviewDialog(
             text = category.strMeal,
             painter = rememberAsyncImagePainter(category.strMealThumb),
             imageDescription = stringResource(R.string.image),
             onDismissRequest = { alertState = false },
-            onConfirmation = { alertState = false },
-            modifier = Modifier.clip(RoundedCornerShape(10.dp)),
         )
     }
 }

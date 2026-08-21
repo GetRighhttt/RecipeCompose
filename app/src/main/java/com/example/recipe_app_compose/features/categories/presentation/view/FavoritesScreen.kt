@@ -10,10 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.Delete
@@ -38,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -46,11 +43,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
-import com.example.recipe_app_compose.core.components.AppMediaCard
-import com.example.recipe_app_compose.core.components.DatabaseDialogWithImage
+import com.example.recipe_app_compose.core.components.AppHorizontalMediaCard
+import com.example.recipe_app_compose.core.components.FavoriteMealDialog
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.DatabaseViewModel
-import com.example.recipe_app_compose.ui.theme.AppSizes
 import com.example.recipe_app_compose.ui.theme.AppSpacing
 
 @Composable
@@ -102,11 +98,9 @@ fun MealDBScreen(
     val context = LocalContext.current
     val allMealsDeletedMessage = stringResource(R.string.all_meals_deleted)
 
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(AppSizes.MinimumGridCardWidth),
+    LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(AppSpacing.Large),
-        horizontalArrangement = Arrangement.spacedBy(AppSpacing.Medium),
         verticalArrangement = Arrangement.spacedBy(AppSpacing.Medium),
     ) {
         items(
@@ -116,10 +110,7 @@ fun MealDBScreen(
             MealDBItem(meal = meal, onDeleteMeal = onDeleteMeal)
         }
 
-        item(
-            key = "delete_all_meals",
-            span = { GridItemSpan(maxLineSpan) },
-        ) {
+        item(key = "delete_all_meals") {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
@@ -163,30 +154,27 @@ fun MealDBItem(meal: RandomMeal, onDeleteMeal: (RandomMeal) -> Unit) {
         onDismiss = { onDeleteMeal(meal) },
         backgroundContent = { DismissBackground(dismissState) },
         content = {
-            AppMediaCard(
+            AppHorizontalMediaCard(
                 painter = rememberAsyncImagePainter(meal.strMealThumb),
                 imageDescription = meal.strMeal,
                 onClick = { alertState = true },
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(
                     text = meal.strMeal ?: "",
                     style = MaterialTheme.typography.titleMedium,
-                    textAlign = TextAlign.Center,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
             if (alertState) {
-                DatabaseDialogWithImage(
+                FavoriteMealDialog(
                     text = meal.strMeal ?: "",
-                    source = listOf(meal.strSource ?: ""),
-                    youtube = listOf(meal.strYoutube ?: ""),
                     painter = rememberAsyncImagePainter(meal.strMealThumb.orEmpty()),
                     imageDescription = stringResource(R.string.image),
                     onDismissRequest = { alertState = false },
-                    onConfirmation = {
+                    onDelete = {
                         onDeleteMeal(meal)
                         Toast.makeText(
                             context,
@@ -195,7 +183,6 @@ fun MealDBItem(meal: RandomMeal, onDeleteMeal: (RandomMeal) -> Unit) {
                         ).show()
                         alertState = false
                     },
-                    modifier = Modifier.clip(RoundedCornerShape(10.dp)),
                 )
             }
         })

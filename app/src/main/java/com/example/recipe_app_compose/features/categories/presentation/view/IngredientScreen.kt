@@ -194,8 +194,8 @@ fun IngredientDetailScreen(
     modifier: Modifier = Modifier,
 ) {
     val ingredients = ingredient.ingredientNames()
-    val websiteLabel = stringResource(R.string.click_here_for_website)
-    val youtubeLabel = stringResource(R.string.click_here_for_youtube)
+    val websiteLabel = stringResource(R.string.view_original_recipe)
+    val youtubeLabel = stringResource(R.string.watch_video_instructions)
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),

@@ -1,6 +1,5 @@
 package com.example.recipe_app_compose
 
-import com.example.recipe_app_compose.ui.theme.AppTheme
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -70,6 +69,7 @@ import com.example.recipe_app_compose.features.categories.presentation.viewmodel
 import com.example.recipe_app_compose.features.location.domain.states.YelpSearchArea
 import com.example.recipe_app_compose.features.location.presentation.components.YelpSearchTopAppBar
 import com.example.recipe_app_compose.features.location.presentation.viewmodel.YelpViewModel
+import com.example.recipe_app_compose.ui.theme.AppTheme
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -121,7 +121,7 @@ class MainActivity : ComponentActivity() {
                     val isDrawerDestination = currentRoute == null || currentRoute in drawerRoutes
                     val screenTitle = when (currentRoute) {
                         CategoryScreen.DetailScreen.route -> R.string.details
-                        CategoryScreen.RandomMealScreen.route -> R.string.see_our_best_dishes
+                        CategoryScreen.RandomMealScreen.route -> R.string.featured_dish
                         CategoryScreen.IngredientScreen.route -> R.string.search_for_specific_meals
                         CategoryScreen.IngredientDetailScreen.route -> R.string.details
                         CategoryScreen.SettingsScreen.route -> R.string.settings
@@ -129,7 +129,7 @@ class MainActivity : ComponentActivity() {
                         CategoryScreen.InfoScreen.route -> R.string.info
                         CategoryScreen.YelpScreen.route -> R.string.shops
                         CategoryScreen.MapScreen.route -> R.string.shop_location
-                        else -> R.string.favorite_cuisines
+                        else -> R.string.browse_cuisines
                     }
 
                     val items = listOf(
@@ -359,7 +359,7 @@ class MainActivity : ComponentActivity() {
                                         CenterAlignedTopAppBar(
                                             title = {
                                                 Text(
-                                                    stringResource(R.string.see_our_best_dishes),
+                                                    stringResource(R.string.explore_dishes),
                                                     style = MaterialTheme.typography.titleLarge
                                                 )
                                             },

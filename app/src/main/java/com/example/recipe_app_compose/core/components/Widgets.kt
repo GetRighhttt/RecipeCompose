@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
@@ -27,13 +28,14 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBarDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -52,6 +54,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
@@ -68,9 +71,9 @@ import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.ui.theme.AppCardShape
 import com.example.recipe_app_compose.ui.theme.AppSpacing
 
@@ -139,6 +142,7 @@ fun AppMediaCard(
     imageDescription: String?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    imageAspectRatio: Float = 1f,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Card(
@@ -155,7 +159,7 @@ fun AppMediaCard(
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(1f),
+                .aspectRatio(imageAspectRatio),
         )
         Column(
             modifier = Modifier
@@ -167,13 +171,46 @@ fun AppMediaCard(
 }
 
 @Composable
-fun DialogWithImage(
+fun AppHorizontalMediaCard(
+    painter: Painter,
+    imageDescription: String?,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    imageSize: Dp = 112.dp,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier,
+        shape = AppCardShape,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        ),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Image(
+                painter = painter,
+                contentDescription = imageDescription,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.size(imageSize),
+            )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(AppSpacing.Medium),
+                content = content,
+            )
+        }
+    }
+}
+
+@Composable
+fun MealPreviewDialog(
     onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit,
     painter: Painter,
     imageDescription: String,
     text: String,
-    modifier: Modifier
+    modifier: Modifier = Modifier,
 ) {
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -185,7 +222,7 @@ fun DialogWithImage(
                 .fillMaxWidth()
                 .heightIn(max = 720.dp)
                 .padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
+            shape = AppCardShape,
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             ),
@@ -212,25 +249,13 @@ fun DialogWithImage(
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(8.dp),
                 )
-                Row(
+                Button(
+                    onClick = onDismissRequest,
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
+                        .fillMaxWidth()
+                        .padding(top = AppSpacing.Small),
                 ) {
-                    ElevatedButton(
-                        onClick = { onDismissRequest() },
-                        modifier = Modifier.padding(5.dp),
-                        elevation = ButtonDefaults.elevatedButtonElevation(),
-                    ) {
-                        Text("Dismiss")
-                    }
-                    ElevatedButton(
-                        onClick = { onConfirmation() },
-                        modifier = Modifier.padding(5.dp),
-                        elevation = ButtonDefaults.elevatedButtonElevation(),
-                    ) {
-                        Text("Confirm")
-                    }
+                    Text(stringResource(R.string.close))
                 }
             }
         }
@@ -238,15 +263,13 @@ fun DialogWithImage(
 }
 
 @Composable
-fun DatabaseDialogWithImage(
+fun FavoriteMealDialog(
     onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit,
+    onDelete: () -> Unit,
     painter: Painter,
     imageDescription: String,
     text: String,
-    source: List<String>,
-    youtube: List<String>,
-    modifier: Modifier
+    modifier: Modifier = Modifier,
 ) {
     Dialog(
         onDismissRequest = { onDismissRequest() },
@@ -263,7 +286,7 @@ fun DatabaseDialogWithImage(
                 .fillMaxWidth()
                 .heightIn(max = 760.dp)
                 .padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
+            shape = AppCardShape,
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             ),
@@ -294,41 +317,24 @@ fun DatabaseDialogWithImage(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
+                        .padding(top = AppSpacing.Large),
+                    horizontalArrangement = Arrangement.spacedBy(AppSpacing.Medium),
                 ) {
-                    HyperlinkText(
-                        modifier = Modifier,
-                        text = "",
-                        linkText = listOf("Source"),
-                        hyperlinks = source
-                    )
-                    HyperlinkText(
-                        modifier = Modifier,
-                        text = "",
-                        linkText = listOf("Youtube"),
-                        hyperlinks = youtube
-                    )
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                ) {
-                    ElevatedButton(
-                        onClick = { onDismissRequest() },
-                        modifier = Modifier.padding(8.dp),
-                        elevation = ButtonDefaults.elevatedButtonElevation(),
+                    OutlinedButton(
+                        onClick = onDismissRequest,
+                        modifier = Modifier.weight(1f),
                     ) {
-                        Text("Dismiss", style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(R.string.dismiss))
                     }
-                    ElevatedButton(
-                        onClick = { onConfirmation() },
-                        modifier = Modifier.padding(8.dp),
-                        elevation = ButtonDefaults.elevatedButtonElevation(),
+                    Button(
+                        onClick = onDelete,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error,
+                            contentColor = MaterialTheme.colorScheme.onError,
+                        ),
+                        modifier = Modifier.weight(1f),
                     ) {
-                        Text("Delete Meal", style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(R.string.delete_meal))
                     }
                 }
             }
@@ -414,23 +420,6 @@ fun MyBottomAppBar(
             content = content
         )
     }
-}
-
-@Composable
-fun VerticalScrollingWithFixedHeightTextDemo(
-    randomText: String,
-    height: Dp? = null,
-    size: TextUnit? = null
-) {
-    Text(
-        text = randomText,
-        style = MaterialTheme.typography.bodyLarge,
-        fontSize = size ?: 14.sp,
-        modifier = Modifier
-            .height(height ?: 100.dp)
-            .verticalScroll(rememberScrollState())
-            .padding(top = 5.dp)
-    )
 }
 
 @Composable

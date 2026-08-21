@@ -106,7 +106,7 @@ class LoginActivity : ComponentActivity() {
                                 )
                                 Spacer(modifier = Modifier.height(AppSpacing.ExtraLarge))
                                 Text(
-                                    stringResource(R.string.favorite_cuisines),
+                                    stringResource(R.string.discover_your_next_meal),
                                     style = MaterialTheme.typography.headlineMedium,
                                     textAlign = TextAlign.Start,
                                     modifier = Modifier.fillMaxWidth(),

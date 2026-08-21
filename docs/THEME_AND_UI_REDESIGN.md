@@ -220,6 +220,46 @@ The information page now uses a centered, width-constrained tonal surface so its
 
 The existing network and location fallback screens already followed the desired pattern: one clear title, supporting explanation, primary recovery action, and secondary alternative. They were reviewed but did not need structural changes in this pass.
 
+### Featured dish and meal-dialog refinement
+
+The original `See Our Best Dishes!` title was used for two different experiences and sounded more like promotional copy than application navigation. The destinations now have specific titles:
+
+- `Featured Dish` identifies the single random-meal experience.
+- `Explore Dishes` identifies the category meal gallery.
+
+The Featured Dish page keeps both of its useful actions, but no longer places two bare icons around a compressed title. The meal name now leads a tonal header card. Below it, `Save` is a labeled tonal button and `Another` is a labeled outlined button. Labels reduce icon ambiguity, while the different button treatments establish priority. After a successful save, the action reads `Saved` and is disabled to prevent repeated inserts from the same visible meal.
+
+The category meal preview previously included `Dismiss` and `Confirm`, even though both actions closed the dialog. It is now a purpose-specific `MealPreviewDialog` with the image, meal name, and one `Close` action.
+
+The Favorites dialog is now a purpose-specific `FavoriteMealDialog`. Source and YouTube links were removed because that surface is for managing saved meals. It contains only the meal name, image, a neutral `Dismiss` action, and an error-colored `Delete Meal` action. This keeps the destructive choice clear without competing with unrelated links.
+
+### Modern featured-dish details
+
+The Featured Dish page no longer uses a generic `Details` heading followed by labels, repeated dividers, and “Click here” links. That structure treated metadata, navigation, long-form instructions, and ingredients as if they had the same importance.
+
+The page now follows an editorial recipe hierarchy:
+
+1. Meal name and Save/Another actions.
+2. A wide 4:3 hero image.
+3. Compact Category and Cuisine metadata cards.
+4. A Resources section with `View original recipe` and `Watch video instructions` actions, shown only when the corresponding URL exists.
+5. Instructions in a readable tonal surface.
+6. A numbered ingredient list using the API's natural text casing.
+
+The content is constrained to 640 dp on wide displays so instructions remain comfortable to read. Resource actions use full-width labeled buttons instead of ambiguous inline links, and the old “Click here” copy was also removed from the ingredient-detail page.
+
+### Layouts based on user intent
+
+Using a two-column grid everywhere made unrelated screens feel generic and forced information-rich cards into narrow spaces. Layouts are now selected according to what the user is doing:
+
+- Browse Cuisines uses a single-column editorial feed with wide 16:9 images. Categories are broad entry points and benefit from visual presence.
+- Explore Dishes retains an adaptive gallery because users are choosing primarily from meal imagery.
+- Ingredient search retains an adaptive grid because compact scanning is useful for a potentially large result set.
+- Favorites uses a compact horizontal list because it is a saved-item management screen, and the wider swipe surface makes deletion easier to understand.
+- Restaurants uses a compact horizontal list so business name, rating, and address remain readable while comparing nearby options.
+
+`AppHorizontalMediaCard` provides the common foundation for compact list items, while `AppMediaCard` supports a configurable image ratio for galleries and editorial cards. Sharing these primitives keeps shape, color, image cropping, and touch behavior consistent without forcing every feature into the same layout.
+
 ## Part-two verification checklist
 
 The code compiles, but visual QA should still be performed on real Compose layouts. Check the following before treating part two as complete from a product perspective:
