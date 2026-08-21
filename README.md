@@ -1,14 +1,14 @@
 # Recipe Compose
 
-Recipe Compose is an end-to-end Android application built with Jetpack Compose. It connects recipe discovery with restaurant search and real-world navigation: users can explore meals from TheMealDB, find restaurants through Yelp, inspect a destination on an interactive Google Map, and continue directly into driving directions.
+Recipe Compose is a portfolio Android application originally built to learn Jetpack Compose. It connects recipe discovery with restaurant search and real-world navigation: users can explore meals from TheMealDB, find restaurants through Yelp, inspect a destination on an interactive Google Map, and continue directly into driving directions.
 
-The project demonstrates production-oriented Compose practices across state-driven UI, remote APIs, local persistence, authentication, mapping, navigation, and lifecycle-aware state management. Its primary workflow goes beyond content browsing by turning restaurant discovery into an actionable destination.
+The project has since grown into a practical demonstration of modern Compose development across state-driven UI, remote APIs, local persistence, authentication, mapping, navigation, responsive layouts, and lifecycle-aware state management. It remains a personal learning project, presented as a focused example of how an Android feature can move from content discovery to a useful real-world action.
 
 ## Product capabilities
 
-- Browse recipe categories and detailed meal information.
-- Search for meals by ingredient.
-- Discover a random meal and open its source or YouTube instructions.
+- Browse recipe categories and cuisine information.
+- Search for dishes by name and open a complete recipe details page.
+- Discover a featured dish, save it, or open its source and video instructions when available.
 - Save and manage favorite meals locally.
 - Discover nearby Yelp restaurants from the device's current location.
 - Search by restaurant name or cuisine, with a city or ZIP code fallback.
@@ -27,6 +27,10 @@ The project demonstrates production-oriented Compose practices across state-driv
 - Repository boundaries for Retrofit services and Room persistence.
 - Navigation Compose routes with state passed between destinations.
 - Reusable Compose components for dialogs, form fields, lists, and application chrome.
+- A shared recipe-detail presentation reused by Featured Dish and search-result destinations.
+- A debug-only screen preview catalog with representative data and paired light/dark renders.
+- Purpose-built editorial feeds, adaptive galleries, and compact management lists for different content types.
+- A semantic Material 3 design system with coordinated light/dark palettes, typography, spacing, and shapes.
 - Local-first favorites with Room and swipe-to-delete interactions.
 - External navigation handoff that follows the currently selected map marker.
 - Foreground-only location access with support for approximate and precise permission.
@@ -67,7 +71,7 @@ The directions action uses either the restaurant marker or the user-adjusted mar
 | Recipe data | TheMealDB API |
 | Restaurant discovery | Yelp Fusion API |
 | Location and mapping | Fused Location Provider, Google Maps Compose, Google Maps directions handoff |
-| Cloud services | Firebase Authentication, Firestore, Analytics, Performance |
+| Authentication | Firebase Authentication |
 | Build tooling | Kotlin DSL, version catalogs, KSP, Secrets Gradle Plugin |
 
 ## Project setup
@@ -127,6 +131,39 @@ Run the primary local checks with:
 ```bash
 ./gradlew :app:testDebugUnitTest :app:lintDebug
 ```
+
+Additional engineering notes are tracked in [`docs/`](docs), including the [theme and UI redesign](docs/THEME_AND_UI_REDESIGN.md), [Gradle Kotlin DSL migration notes](docs/GRADLE_KOTLIN_DSL_MIGRATION.md), [KMP migration assessment](docs/KMP_MIGRATION_ASSESSMENT.md), and [Compose Multiplatform migration plan](docs/COMPOSE_MULTIPLATFORM_MIGRATION_PLAN.md).
+
+For visual iteration, open `app/src/debug/java/com/example/recipe_app_compose/preview/ScreenPreviews.kt` with the Debug build variant selected. Android Studio can render the main screens in light and dark mode without launching the app. Shared fixtures live beside it in `PreviewData.kt` and are excluded from release builds.
+
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/browse-cuisines.png" width="320" alt="Browse Cuisines screen in dark mode" />
+      <br />
+      <sub><strong>Browse cuisines</strong></sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/featured-dish.png" width="320" alt="Featured Dish recipe details screen in dark mode" />
+      <br />
+      <sub><strong>Featured dish</strong></sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/shops-results.png" width="320" alt="Nearby Chicago restaurant search results in dark mode" />
+      <br />
+      <sub><strong>Restaurant discovery</strong></sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/restaurant-map.png" width="320" alt="Interactive restaurant map with a Directions action" />
+      <br />
+      <sub><strong>Map and directions</strong></sub>
+    </td>
+  </tr>
+</table>
 
 ## Contributing
 

@@ -23,7 +23,7 @@ import com.example.recipe_app_compose.features.categories.presentation.view.Ingr
 import com.example.recipe_app_compose.features.categories.presentation.view.IngredientScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.RandomMealPage
 import com.example.recipe_app_compose.features.categories.presentation.view.RecipeScreen
-import com.example.recipe_app_compose.features.categories.presentation.view.SettingsScreen
+import com.example.recipe_app_compose.features.categories.presentation.view.AccountScreen
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 import com.example.recipe_app_compose.features.location.domain.model.location.LocationData
 import com.example.recipe_app_compose.features.location.presentation.view.GoogleLocationSelectionScreen
@@ -107,9 +107,9 @@ fun RecipeApp(navController: NavHostController, modifier: Modifier) {
             RandomMealPage(modifier = Modifier)
         }
         composable(
-            route = CategoryScreen.SettingsScreen.route
+            route = CategoryScreen.AccountScreen.route
         ) {
-            SettingsScreen(modifier = Modifier)
+            AccountScreen(modifier = Modifier)
         }
         composable(
             route = CategoryScreen.FavoriteScreen.route

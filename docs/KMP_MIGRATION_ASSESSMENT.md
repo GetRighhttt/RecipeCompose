@@ -119,13 +119,13 @@ Good candidates for `commonMain` after cleanup:
 - recipe/category/meal/ingredient value objects
 - `LocationData`
 - Yelp response/domain data
-- `RecipeState`, `CategoryMealState`, `RandomMealState`, `IngredientMealState`, `DatabaseState`, and `YelpStates`
+- `RecipeState`, `RandomMealState`, `IngredientMealState`, `DatabaseState`, and `YelpStates`
 - repository interfaces
 - pure search and formatting rules
 
 Required changes:
 
-- Remove `android.os.Parcelable` and `kotlinx.parcelize.*` from all shared models. This affects `Category`, `CategoryResponse`, `CategoryMeal`, `CategoryMealResponse`, `Ingredient`, `IngredientResponse`, `RandomMeal`, `RandomMealResponse`, `LocationData`, `YelpBusinesses`, `YelpCategories`, and `YelpSearchResult`.
+- Remove `android.os.Parcelable` and `kotlinx.parcelize.*` from all shared models. This affects `Category`, `CategoryResponse`, `Ingredient`, `IngredientResponse`, `RandomMeal`, `RandomMealResponse`, `LocationData`, `YelpBusinesses`, `YelpCategories`, and `YelpSearchResult`.
 - Remove `java.io.Serializable` from `YelpCoordinates` and `YelpLocations`; `java.io` is not common code.
 - Replace navigation-time parceling with a platform-neutral route argument, normally a stable ID such as `category.idCategory.value`, and reload/select the object from state. The current `savedStateHandle` stores an entire `Category` as a Parcelable in `core/navigation/RecipeApp.kt`.
 - Separate transport DTOs, domain models, and database entities. Today `Ingredient` and `RandomMeal` are both API-shaped models and UI/database-facing models, while `RandomMeal` also carries Room annotations. A cleaner split would be `RandomMealDto`, `RandomMeal`, and `FavoriteMealEntity` or a deliberate shared Room entity.
@@ -209,7 +209,7 @@ Current behavior worth fixing while extracting:
 - The Yelp filter lambda in `YelpViewModel` contains several expressions without `||`; Kotlin returns the final expression, so the apparent multi-field search does not currently test all fields.
 - `Ingredient.doesMatchSearchQuery()` uses fixed substring ranges (`0..3` and `4..10`) and can throw for short meal names. Make the matcher safe and test it in `commonTest`.
 - The repository implementations never return `Resource.Loading`, so the loading branches in the ViewModels are currently unreachable. Either emit loading from a use case or model request state directly.
-- `getCategories`, `getCategoriesMeal`, `getRandomMeal`, and `getIngredient` are launched one after another inside `updateMeals()` but each method launches another job. Decide whether initial requests should be concurrent and awaitable.
+- `fetchCategories`, `fetchRandomMeal`, and `fetchIngredients` start separate fire-and-forget jobs from `RecipeViewModel.init`. During migration, make startup concurrency, cancellation, and failure isolation explicit and testable.
 - Rename `YelpRepImpl` to `YelpRepoImpl` or `YelpRepositoryImpl` while the class is being moved.
 
 ### 6. Location, connectivity, permissions, reverse geocoding, and maps
@@ -261,7 +261,7 @@ Specific changes:
 
 ### 7. Authentication, Firestore, analytics, and performance monitoring
 
-Files: `LoginActivity.kt`, `SettingsScreen.kt`, `app/build.gradle.kts`, `app/google-services.json`, and `AndroidManifest.xml`
+Files: `LoginActivity.kt`, `AccountScreen.kt`, `app/build.gradle.kts`, `app/google-services.json`, and `AndroidManifest.xml`
 
 The source currently uses Firebase Auth directly in Android UI. Firestore, Analytics, and Performance are declared as dependencies, but no direct usage of them appears in the Kotlin source search. Confirm whether they are only configured for future use or are used indirectly by Firebase/Gradle instrumentation.
 
@@ -273,7 +273,7 @@ Options:
 
 Required UI changes:
 
-- Remove direct `Firebase.auth` calls from `LoginActivity` and `SettingsScreen`.
+- Remove direct `Firebase.auth` calls from `LoginActivity` and `AccountScreen`.
 - Replace `Intent(context, MainActivity::class.java)` and `Intent(context, LoginActivity::class.java)` with a shared auth/session event consumed by platform navigation.
 - Replace Toasts with a shared one-shot UI message or platform message host.
 - Model asynchronous sign-in, sign-up, sign-out, and account deletion as state/events rather than callback chains embedded in a composable/activity.

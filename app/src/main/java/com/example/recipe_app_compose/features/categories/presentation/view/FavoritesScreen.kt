@@ -1,21 +1,17 @@
 package com.example.recipe_app_compose.features.categories.presentation.view
 
 import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.Delete
@@ -40,15 +36,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
-import com.example.recipe_app_compose.core.components.DatabaseDialogWithImage
+import com.example.recipe_app_compose.core.components.AppHorizontalMediaCard
+import com.example.recipe_app_compose.core.components.FavoriteMealDialog
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.DatabaseViewModel
+import com.example.recipe_app_compose.ui.theme.AppSpacing
 
 @Composable
 fun FavoritesScreen(
@@ -65,7 +64,6 @@ fun FavoritesScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp)
     ) {
         when {
             uiState.loading -> CircularProgressIndicator(modifier.align(Alignment.Center))
@@ -100,9 +98,10 @@ fun MealDBScreen(
     val context = LocalContext.current
     val allMealsDeletedMessage = stringResource(R.string.all_meals_deleted)
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(3),
+    LazyColumn(
         modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(AppSpacing.Large),
+        verticalArrangement = Arrangement.spacedBy(AppSpacing.Medium),
     ) {
         items(
             items = meals,
@@ -111,15 +110,12 @@ fun MealDBScreen(
             MealDBItem(meal = meal, onDeleteMeal = onDeleteMeal)
         }
 
-        item(
-            key = "delete_all_meals",
-            span = { GridItemSpan(maxLineSpan) },
-        ) {
+        item(key = "delete_all_meals") {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp),
+                    .padding(vertical = AppSpacing.Medium),
             ) {
                 ElevatedButton(
                     onClick = {
@@ -131,7 +127,7 @@ fun MealDBScreen(
                         ).show()
                     },
                     enabled = meals.isNotEmpty(),
-                    elevation = ButtonDefaults.buttonElevation(15.dp),
+                    elevation = ButtonDefaults.elevatedButtonElevation(),
                 ) {
                     Text(
                         stringResource(R.string.delete_all_meals),
@@ -158,49 +154,35 @@ fun MealDBItem(meal: RandomMeal, onDeleteMeal: (RandomMeal) -> Unit) {
         onDismiss = { onDeleteMeal(meal) },
         backgroundContent = { DismissBackground(dismissState) },
         content = {
-            Column(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
+            AppHorizontalMediaCard(
+                painter = rememberAsyncImagePainter(meal.strMealThumb),
+                imageDescription = meal.strMeal,
+                onClick = { alertState = true },
+                modifier = Modifier.fillMaxWidth(),
             ) {
-                Image(
-                    painter = rememberAsyncImagePainter(meal.strMealThumb),
-                    contentDescription = stringResource(R.string.image),
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .aspectRatio(1f)
-                        .clip(RoundedCornerShape(10.dp))
-                        .clickable {
-                            alertState = true
-                        })
-                if (alertState) {
-                    DatabaseDialogWithImage(
-                        text = meal.strMeal ?: "",
-                        source = listOf(meal.strSource ?: ""),
-                        youtube = listOf(meal.strYoutube ?: ""),
-                        painter = rememberAsyncImagePainter(meal.strMealThumb.orEmpty()),
-                        imageDescription = stringResource(R.string.image),
-                        onDismissRequest = {
-                            alertState = false
-                        },
-                        onConfirmation = {
-                            onDeleteMeal(meal)
-                            Toast.makeText(
-                                context,
-                                mealDeletedMessage,
-                                Toast.LENGTH_SHORT,
-                            ).show()
-                            alertState = false
-                        },
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(10.dp))
-                    )
-                }
                 Text(
                     text = meal.strMeal ?: "",
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier.padding(4.dp)
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+            if (alertState) {
+                FavoriteMealDialog(
+                    text = meal.strMeal ?: "",
+                    painter = rememberAsyncImagePainter(meal.strMealThumb.orEmpty()),
+                    imageDescription = stringResource(R.string.image),
+                    onDismissRequest = { alertState = false },
+                    onDelete = {
+                        onDeleteMeal(meal)
+                        Toast.makeText(
+                            context,
+                            mealDeletedMessage,
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                        alertState = false
+                    },
                 )
             }
         })

@@ -2,22 +2,18 @@ package com.example.recipe_app_compose.features.location.presentation.view
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -42,20 +38,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
+import com.example.recipe_app_compose.core.components.AppHorizontalMediaCard
 import com.example.recipe_app_compose.core.util.permissions.foregroundLocationPermissions
 import com.example.recipe_app_compose.core.util.permissions.hasForegroundLocationPermission
 import com.example.recipe_app_compose.core.util.permissions.openAppPermissionSettings
@@ -64,6 +60,7 @@ import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpSh
 import com.example.recipe_app_compose.features.location.domain.states.YelpSearchArea
 import com.example.recipe_app_compose.features.location.domain.states.YelpUiState
 import com.example.recipe_app_compose.features.location.presentation.viewmodel.YelpViewModel
+import com.example.recipe_app_compose.ui.theme.AppSpacing
 
 @Composable
 fun YelpScreen(
@@ -386,10 +383,10 @@ fun YelpListScreen(
     shops: List<YelpShop>,
     onShopSelected: (LocationData) -> Unit,
 ) {
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 144.dp),
+    LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(8.dp),
+        contentPadding = PaddingValues(vertical = AppSpacing.Small),
+        verticalArrangement = Arrangement.spacedBy(AppSpacing.Medium),
     ) {
         items(shops, key = YelpShop::id) { shop ->
             YelpItem(
@@ -407,40 +404,35 @@ fun YelpItem(
 ) {
     val locationData =
         LocationData(shop.coordinates.latitude, shop.coordinates.longitude)
-    Column(
-        modifier = Modifier
-            .padding(8.dp)
-            .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
+    AppHorizontalMediaCard(
+        painter = rememberAsyncImagePainter(shop.imageUrl),
+        imageDescription = shop.name,
+        onClick = { onShopSelected(locationData) },
+        modifier = Modifier.fillMaxWidth(),
     ) {
-        Image(
-            painter = rememberAsyncImagePainter(shop.imageUrl),
-            contentDescription = stringResource(R.string.image),
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(1f)
-                .clip(RoundedCornerShape(10.dp))
-                .clickable { onShopSelected(locationData) },
+        Text(
+            text = shop.name,
+            style = MaterialTheme.typography.titleMedium,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
         )
         Text(
-            text = "${shop.name} ${shop.displayRating()} \uD83C\uDF1F",
-            style = MaterialTheme.typography.labelMedium,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 5.dp, bottom = 2.dp),
+            text = "${shop.displayRating()} ★",
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.tertiary,
+            modifier = Modifier.padding(top = AppSpacing.ExtraSmall),
         )
         Text(
-            text = "${shop.location.address1}, ${shop.location.city}, " +
-                    "${shop.location.state} ${shop.location.country} " +
-                    shop.location.zipCode,
-            style = MaterialTheme.typography.labelSmall,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = 2.dp),
-        )
-        Text(
-            text = shop.displayPhoneNumber(),
-            style = MaterialTheme.typography.labelSmall,
-            textAlign = TextAlign.Center,
+            text = listOf(
+                shop.location.address1,
+                shop.location.city,
+                shop.location.state,
+            ).filter(String::isNotBlank).joinToString(),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(top = AppSpacing.Small),
         )
     }
 }
