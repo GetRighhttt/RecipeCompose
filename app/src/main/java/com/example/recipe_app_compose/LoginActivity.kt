@@ -1,6 +1,6 @@
 package com.example.recipe_app_compose
 
-import AppTheme
+import com.example.recipe_app_compose.ui.theme.AppTheme
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -10,7 +10,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -71,7 +70,8 @@ class LoginActivity : ComponentActivity() {
                     )
                 } else {
                     Scaffold(
-                        modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.tertiaryContainer)
+                        modifier = Modifier.fillMaxSize(),
+                        containerColor = MaterialTheme.colorScheme.background,
                     ) { innerPadding ->
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,

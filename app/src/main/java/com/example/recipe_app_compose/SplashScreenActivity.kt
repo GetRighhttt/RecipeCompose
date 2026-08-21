@@ -1,6 +1,6 @@
 package com.example.recipe_app_compose
 
-import AppTheme
+import com.example.recipe_app_compose.ui.theme.AppTheme
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
@@ -53,7 +53,9 @@ fun SplashScreen(onFinished: () -> Unit) {
         onFinished()
     })
     Box(
-        modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.tertiaryContainer),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
         Image(

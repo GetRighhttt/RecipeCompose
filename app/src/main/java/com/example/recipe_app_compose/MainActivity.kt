@@ -1,6 +1,6 @@
 package com.example.recipe_app_compose
 
-import AppTheme
+import com.example.recipe_app_compose.ui.theme.AppTheme
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -278,7 +278,7 @@ class MainActivity : ComponentActivity() {
                             if (isDrawerDestination) {
                                 MyBottomAppBar(
                                     modifier = Modifier.fillMaxWidth(),
-                                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
                                     content = {
                                         IconButton(onClick = {
                                             val intent = Intent(Intent.ACTION_SEND).apply {

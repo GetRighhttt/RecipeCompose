@@ -131,7 +131,7 @@ fun MealDBScreen(
                         ).show()
                     },
                     enabled = meals.isNotEmpty(),
-                    elevation = ButtonDefaults.buttonElevation(15.dp),
+                    elevation = ButtonDefaults.elevatedButtonElevation(),
                 ) {
                     Text(
                         stringResource(R.string.delete_all_meals),

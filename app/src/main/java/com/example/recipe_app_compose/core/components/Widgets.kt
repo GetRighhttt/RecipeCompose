@@ -150,7 +150,10 @@ fun DialogWithImage(
                 .heightIn(max = 720.dp)
                 .padding(16.dp),
             shape = RoundedCornerShape(16.dp),
-            elevation = CardDefaults.cardElevation(10.dp)
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
         ) {
             Column(
                 modifier = Modifier
@@ -181,14 +184,14 @@ fun DialogWithImage(
                     ElevatedButton(
                         onClick = { onDismissRequest() },
                         modifier = Modifier.padding(5.dp),
-                        elevation = ButtonDefaults.buttonElevation(15.dp)
+                        elevation = ButtonDefaults.elevatedButtonElevation(),
                     ) {
                         Text("Dismiss")
                     }
                     ElevatedButton(
                         onClick = { onConfirmation() },
                         modifier = Modifier.padding(5.dp),
-                        elevation = ButtonDefaults.buttonElevation(15.dp)
+                        elevation = ButtonDefaults.elevatedButtonElevation(),
                     ) {
                         Text("Confirm")
                     }
@@ -225,7 +228,10 @@ fun DatabaseDialogWithImage(
                 .heightIn(max = 760.dp)
                 .padding(16.dp),
             shape = RoundedCornerShape(16.dp),
-            elevation = CardDefaults.cardElevation(10.dp)
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
         ) {
             Column(
                 modifier = Modifier
@@ -277,14 +283,14 @@ fun DatabaseDialogWithImage(
                     ElevatedButton(
                         onClick = { onDismissRequest() },
                         modifier = Modifier.padding(8.dp),
-                        elevation = ButtonDefaults.buttonElevation(15.dp)
+                        elevation = ButtonDefaults.elevatedButtonElevation(),
                     ) {
                         Text("Dismiss", style = MaterialTheme.typography.bodyMedium)
                     }
                     ElevatedButton(
                         onClick = { onConfirmation() },
                         modifier = Modifier.padding(8.dp),
-                        elevation = ButtonDefaults.buttonElevation(15.dp)
+                        elevation = ButtonDefaults.elevatedButtonElevation(),
                     ) {
                         Text("Delete Meal", style = MaterialTheme.typography.bodyMedium)
                     }

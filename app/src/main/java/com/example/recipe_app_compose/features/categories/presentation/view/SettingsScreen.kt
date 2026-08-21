@@ -249,7 +249,7 @@ fun SettingsInfo(modifier: Modifier) {
                     signOutState = true
                 },
                 shape = RoundedCornerShape(20.dp),
-                elevation = ButtonDefaults.buttonElevation(20.dp),
+                elevation = ButtonDefaults.elevatedButtonElevation(),
                 enabled = true,
                 contentPadding = PaddingValues(
                     start = 10.dp,
@@ -284,7 +284,7 @@ fun SettingsInfo(modifier: Modifier) {
                     deleteState = true
                 },
                 shape = RoundedCornerShape(20.dp),
-                elevation = ButtonDefaults.buttonElevation(20.dp),
+                elevation = ButtonDefaults.elevatedButtonElevation(),
                 enabled = true,
                 contentPadding = PaddingValues(
                     start = 10.dp,
