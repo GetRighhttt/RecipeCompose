@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -14,11 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -50,10 +47,11 @@ import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.HyperlinkText
 import com.example.recipe_app_compose.core.components.MessageCard
-import com.example.recipe_app_compose.core.components.VerticalScrollingWithFixedHeightTextDemo
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.DatabaseViewModel
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
+import com.example.recipe_app_compose.ui.theme.AppCardShape
+import com.example.recipe_app_compose.ui.theme.AppSpacing
 
 @Composable
 fun RandomMealPage(modifier: Modifier = Modifier) {
@@ -182,7 +180,11 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
 
 @Composable
 fun RandomCategoryScreen(categories: List<RandomMeal>) {
-    LazyVerticalGrid(GridCells.Fixed(1), modifier = Modifier.fillMaxSize()) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(AppSpacing.Large),
+        verticalArrangement = Arrangement.spacedBy(AppSpacing.Large),
+    ) {
         items(
             items = categories,
             key = { it.idMeal ?: "local:${it.id}" },
@@ -211,46 +213,46 @@ fun RandomMealItem(category: RandomMeal) {
         .distinct()
 
     Column(
-        modifier = Modifier
-            .padding(8.dp)
-            .fillMaxSize(),
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Image(
             painter = rememberAsyncImagePainter(category.strMealThumb.orEmpty()),
             contentDescription = stringResource(R.string.image),
             modifier = Modifier
-                .fillMaxSize()
-                .aspectRatio(0.9f)
-                .clip(RoundedCornerShape(10.dp))
+                .fillMaxWidth()
+                .aspectRatio(1f)
+                .clip(AppCardShape)
         )
 
-        Spacer(modifier = Modifier.padding(top = 5.dp))
+        Spacer(modifier = Modifier.height(AppSpacing.Large))
         Text(
             text = stringResource(R.string.details),
-            style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleLarge,
+            textAlign = TextAlign.Start,
             modifier = Modifier.fillMaxWidth()
         )
-        HorizontalDivider(thickness = 2.dp)
-        Spacer(modifier = Modifier.padding(top = 20.dp))
+        Spacer(modifier = Modifier.height(AppSpacing.Small))
+        HorizontalDivider()
+        Spacer(modifier = Modifier.height(AppSpacing.Large))
 
         Text(
             text = buildString {
                 append(stringResource(R.string.type))
                 append(" ${category.strCategory ?: ""} ")
             },
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodyLarge,
         )
 
-        Spacer(modifier = Modifier.padding(top = 5.dp))
+        Spacer(modifier = Modifier.height(AppSpacing.Small))
         Text(
             text = buildString {
                 append(stringResource(R.string.originated))
                 append(" ${category.strArea ?: ""} ")
             },
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodyLarge,
         )
 
-        Spacer(modifier = Modifier.padding(top = 5.dp))
+        Spacer(modifier = Modifier.height(AppSpacing.Medium))
         Row {
             Text(stringResource(R.string.source), style = MaterialTheme.typography.bodyMedium)
             HyperlinkText(
@@ -260,7 +262,7 @@ fun RandomMealItem(category: RandomMeal) {
             )
         }
 
-        Spacer(modifier = Modifier.padding(top = 5.dp))
+        Spacer(modifier = Modifier.height(AppSpacing.Small))
         Row {
             Text(stringResource(R.string.youtube), style = MaterialTheme.typography.bodyMedium)
             HyperlinkText(
@@ -270,30 +272,27 @@ fun RandomMealItem(category: RandomMeal) {
             )
         }
 
-        Spacer(modifier = Modifier.padding(top = 5.dp))
-        HorizontalDivider(thickness = 2.dp)
-        Spacer(modifier = Modifier.padding(top = 5.dp, bottom = 5.dp))
+        Spacer(modifier = Modifier.height(AppSpacing.Large))
+        HorizontalDivider()
+        Spacer(modifier = Modifier.height(AppSpacing.Large))
 
-        Text(stringResource(R.string.instructions), style = MaterialTheme.typography.bodyMedium)
+        Text(stringResource(R.string.instructions), style = MaterialTheme.typography.titleMedium)
 
-        Spacer(modifier = Modifier.padding(top = 3.dp))
-        VerticalScrollingWithFixedHeightTextDemo(category.strInstructions ?: "")
+        Spacer(modifier = Modifier.height(AppSpacing.Small))
+        Text(
+            text = category.strInstructions.orEmpty(),
+            style = MaterialTheme.typography.bodyLarge,
+        )
 
-        Spacer(modifier = Modifier.padding(bottom = 5.dp))
-        HorizontalDivider(thickness = 2.dp)
-        Spacer(modifier = Modifier.padding(bottom = 5.dp))
-        Text(stringResource(R.string.ingredients), style = MaterialTheme.typography.bodyMedium)
+        Spacer(modifier = Modifier.height(AppSpacing.Large))
+        HorizontalDivider()
+        Spacer(modifier = Modifier.height(AppSpacing.Large))
+        Text(stringResource(R.string.ingredients), style = MaterialTheme.typography.titleMedium)
 
-        Spacer(modifier = Modifier.padding(top = 8.dp, bottom = 2.dp))
-        Box {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(80.dp)
-            ) {
-                items(items = listOfIngredients, key = { it }) { ingredient ->
-                    MessageCard(ingredient.uppercase())
-                }
+        Spacer(modifier = Modifier.height(AppSpacing.Small))
+        Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.ExtraSmall)) {
+            listOfIngredients.forEach { ingredient ->
+                MessageCard(ingredient.uppercase())
             }
         }
     }

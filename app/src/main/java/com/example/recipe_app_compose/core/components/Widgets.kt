@@ -3,6 +3,7 @@ package com.example.recipe_app_compose.core.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -70,6 +71,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.recipe_app_compose.ui.theme.AppCardShape
+import com.example.recipe_app_compose.ui.theme.AppSpacing
 
 @Composable
 fun AlertDialogExample(
@@ -127,6 +130,39 @@ fun MinimalDialog(text: String, onDismissRequest: () -> Unit) {
                 textAlign = TextAlign.Center,
             )
         }
+    }
+}
+
+@Composable
+fun AppMediaCard(
+    painter: Painter,
+    imageDescription: String?,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier,
+        shape = AppCardShape,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        ),
+    ) {
+        Image(
+            painter = painter,
+            contentDescription = imageDescription,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1f),
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(AppSpacing.Medium),
+            content = content,
+        )
     }
 }
 
@@ -364,14 +400,14 @@ fun MyBottomAppBar(
         color = containerColor,
         contentColor = contentColor,
         tonalElevation = tonalElevation,
-        shape = RoundedCornerShape(40.dp),
+        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
         modifier = modifier
     ) {
         Row(
             Modifier
                 .fillMaxWidth()
                 .windowInsetsPadding(windowInsets)
-                .height(70.0.dp)
+                .height(64.dp)
                 .padding(contentPadding),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
@@ -399,13 +435,19 @@ fun VerticalScrollingWithFixedHeightTextDemo(
 
 @Composable
 fun MessageCard(msg: String) {
-    Row(modifier = Modifier.padding(top = 2.dp, bottom = 2.dp)) {
-        Column {
-            Text(
-                text = msg,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+    ) {
+        Text(
+            text = msg,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(
+                horizontal = AppSpacing.Medium,
+                vertical = AppSpacing.Small,
+            ),
+        )
     }
 }
 

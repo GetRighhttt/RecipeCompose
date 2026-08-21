@@ -1,12 +1,11 @@
 package com.example.recipe_app_compose.features.categories.presentation.view
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -24,15 +23,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
+import com.example.recipe_app_compose.core.components.AppMediaCard
 import com.example.recipe_app_compose.core.components.DialogWithImage
 import com.example.recipe_app_compose.features.categories.domain.model.categorymeal.CategoryMeal
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
+import com.example.recipe_app_compose.ui.theme.AppSizes
+import com.example.recipe_app_compose.ui.theme.AppSpacing
 
 @Composable
 fun CategoryRecipeScreen(modifier: Modifier = Modifier) {
@@ -73,7 +77,13 @@ fun CategoryRecipeScreen(modifier: Modifier = Modifier) {
 
 @Composable
 fun CategoryMealScreen(categories: List<CategoryMeal>) {
-    LazyVerticalGrid(GridCells.Fixed(2), modifier = Modifier.fillMaxSize()) {
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(AppSizes.MinimumGridCardWidth),
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(AppSpacing.Large),
+        horizontalArrangement = Arrangement.spacedBy(AppSpacing.Medium),
+        verticalArrangement = Arrangement.spacedBy(AppSpacing.Medium),
+    ) {
         items(categories, key = CategoryMeal::idMeal) { category ->
             CategoryMealItem(category = category)
         }
@@ -83,38 +93,29 @@ fun CategoryMealScreen(categories: List<CategoryMeal>) {
 @Composable
 fun CategoryMealItem(category: CategoryMeal) {
     var alertState by remember { mutableStateOf(false) }
-    Column(
-        modifier = Modifier
-            .padding(8.dp)
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+    AppMediaCard(
+        painter = rememberAsyncImagePainter(category.strMealThumb),
+        imageDescription = category.strMeal,
+        onClick = { alertState = true },
+        modifier = Modifier.fillMaxSize(),
     ) {
-        Image(
-            painter = rememberAsyncImagePainter(category.strMealThumb),
-            contentDescription = stringResource(R.string.image),
-            modifier = Modifier
-                .fillMaxSize()
-                .aspectRatio(1f)
-                .clip(RoundedCornerShape(10.dp))
-                .clickable(enabled = true, onClick = {
-                    alertState = true
-                })
-        )
-        if (alertState) {
-            DialogWithImage(
-                text = category.strMeal,
-                painter = rememberAsyncImagePainter(category.strMealThumb),
-                imageDescription = stringResource(R.string.image),
-                onDismissRequest = { alertState = false },
-                onConfirmation = { alertState = false },
-                modifier = Modifier
-                    .clip(RoundedCornerShape(10.dp))
-            )
-        }
         Text(
             text = category.strMeal,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(4.dp)
+            style = MaterialTheme.typography.titleMedium,
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+    if (alertState) {
+        DialogWithImage(
+            text = category.strMeal,
+            painter = rememberAsyncImagePainter(category.strMealThumb),
+            imageDescription = stringResource(R.string.image),
+            onDismissRequest = { alertState = false },
+            onConfirmation = { alertState = false },
+            modifier = Modifier.clip(RoundedCornerShape(10.dp)),
         )
     }
 }

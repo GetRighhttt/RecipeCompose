@@ -27,6 +27,8 @@ The project demonstrates production-oriented Compose practices across state-driv
 - Repository boundaries for Retrofit services and Room persistence.
 - Navigation Compose routes with state passed between destinations.
 - Reusable Compose components for dialogs, form fields, lists, and application chrome.
+- Responsive adaptive grids and shared media-card treatments across recipes, favorites, and restaurants.
+- A semantic Material 3 design system with coordinated light/dark palettes, typography, spacing, and shapes.
 - Local-first favorites with Room and swipe-to-delete interactions.
 - External navigation handoff that follows the currently selected map marker.
 - Foreground-only location access with support for approximate and precise permission.

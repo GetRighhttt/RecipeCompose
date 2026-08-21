@@ -48,10 +48,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
+import com.example.recipe_app_compose.core.components.AppMediaCard
 import com.example.recipe_app_compose.core.components.HyperlinkText
 import com.example.recipe_app_compose.core.components.MessageCard
 import com.example.recipe_app_compose.features.categories.domain.model.ingredient.Ingredient
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
+import com.example.recipe_app_compose.ui.theme.AppSizes
+import com.example.recipe_app_compose.ui.theme.AppSpacing
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -149,9 +152,11 @@ private fun IngredientMealScreen(
     onIngredientSelected: (Ingredient) -> Unit,
 ) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 112.dp),
+        columns = GridCells.Adaptive(minSize = AppSizes.MinimumGridCardWidth),
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(8.dp),
+        contentPadding = PaddingValues(vertical = AppSpacing.Small),
+        horizontalArrangement = Arrangement.spacedBy(AppSpacing.Medium),
+        verticalArrangement = Arrangement.spacedBy(AppSpacing.Medium),
     ) {
         items(categories, key = { it.idMeal ?: it.strMeal.orEmpty() }) { category ->
             IngredientMealItem(
@@ -167,27 +172,18 @@ private fun IngredientMealItem(
     category: Ingredient,
     onClick: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .padding(8.dp)
-            .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
+    AppMediaCard(
+        painter = rememberAsyncImagePainter(category.strMealThumb.orEmpty()),
+        imageDescription = category.strMeal,
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
     ) {
-        Image(
-            painter = rememberAsyncImagePainter(category.strMealThumb.orEmpty()),
-            contentDescription = category.strMeal,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(1f)
-                .clip(RoundedCornerShape(10.dp))
-                .clickable(onClick = onClick),
-        )
         Text(
             text = category.strMeal.orEmpty(),
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.titleMedium,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(4.dp),
+            maxLines = 2,
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }

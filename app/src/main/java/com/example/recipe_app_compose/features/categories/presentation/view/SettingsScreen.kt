@@ -2,20 +2,23 @@ package com.example.recipe_app_compose.features.categories.presentation.view
 
 import android.content.Intent
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -27,13 +30,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.example.recipe_app_compose.LoginActivity
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.MinimalDialog
+import com.example.recipe_app_compose.ui.theme.AppCardShape
+import com.example.recipe_app_compose.ui.theme.AppSizes
+import com.example.recipe_app_compose.ui.theme.AppSpacing
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+
+private enum class SettingsPage(
+    @StringRes val titleRes: Int,
+    @StringRes val contentRes: Int,
+) {
+    PersonalDetails(R.string.personal_details, R.string.personal_details_page),
+    Preferences(R.string.preferences, R.string.preferences_page),
+    Information(R.string.information, R.string.information_page),
+    Accessibility(R.string.accessibility, R.string.accessibility_page),
+    Privacy(R.string.privacy, R.string.privacy_page),
+    Security(R.string.security, R.string.security_page),
+    Updates(R.string.updates, R.string.updates_page),
+    Faq(R.string.faq, R.string.faq_page),
+    Contact(R.string.contact, R.string.contact_page),
+}
 
 @Composable
 fun SettingsScreen(modifier: Modifier) {
@@ -42,278 +62,121 @@ fun SettingsScreen(modifier: Modifier) {
 
 @Composable
 fun SettingsInfo(modifier: Modifier) {
-    var detailState by remember { mutableStateOf(false) }
-    var preferenceState by remember { mutableStateOf(false) }
-    var infoState by remember { mutableStateOf(false) }
-    var accessState by remember { mutableStateOf(false) }
-    var privacyState by remember { mutableStateOf(false) }
-    var securityState by remember { mutableStateOf(false) }
-    var updateState by remember { mutableStateOf(false) }
-    var faqState by remember { mutableStateOf(false) }
-    var contactState by remember { mutableStateOf(false) }
+    var activePage by remember { mutableStateOf<SettingsPage?>(null) }
     var deleteState by remember { mutableStateOf(false) }
     var signOutState by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val auth = Firebase.auth
     val signOutSuccessfulMessage = stringResource(R.string.sign_out_successful)
     val deleteSuccessfulMessage = stringResource(R.string.delete_successful)
 
-    // Firebase
-    val auth = Firebase.auth
-    val signOutFirebase: () -> Unit = {
-        auth.signOut()
-        Toast.makeText(
-            context,
-            signOutSuccessfulMessage,
-            Toast.LENGTH_SHORT,
-        ).show()
-    }
-    val deleteFirebase: () -> Unit = {
-        auth.currentUser?.delete()
-        Toast.makeText(
-            context,
-            deleteSuccessfulMessage,
-            Toast.LENGTH_SHORT,
-        ).show()
-    }
-
     Column(
         modifier = modifier
-            .padding(5.dp)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.Top
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(AppSpacing.Large),
     ) {
         Text(
             text = stringResource(R.string.settings),
-            textAlign = TextAlign.Start,
-            style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 10.dp, bottom = 30.dp)
+            style = MaterialTheme.typography.headlineSmall,
         )
-        HorizontalDivider()
-        TextButton(onClick = {
-            detailState = true
-        }) {
-            Text(
-                text = stringResource(R.string.personal_details),
-                textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            )
-        }
-        if (detailState) {
-            MinimalDialog(stringResource(R.string.personal_details_page)) { detailState = false }
-        }
-        HorizontalDivider()
-        TextButton(onClick = {
-            preferenceState = true
-        }) {
-            Text(
-                text = stringResource(R.string.preferences),
-                textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            )
-        }
-        if (preferenceState) {
-            MinimalDialog(stringResource(R.string.preferences_page)) { preferenceState = false }
-        }
-        HorizontalDivider()
-        TextButton(onClick = {
-            infoState = true
-        }) {
-            Text(
-                text = stringResource(R.string.information),
-                textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            )
-        }
-        if (infoState) {
-            MinimalDialog(stringResource(R.string.information_page)) { infoState = false }
-        }
-        HorizontalDivider()
-        TextButton(onClick = {
-            accessState = true
-        }) {
-            Text(
-                text = stringResource(R.string.accessibility),
-                textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            )
-        }
-        if (accessState) {
-            MinimalDialog(stringResource(R.string.accessibility_page)) { accessState = false }
-        }
-        HorizontalDivider()
-        TextButton(onClick = {
-            privacyState = true
-        }) {
-            Text(
-                text = stringResource(R.string.privacy),
-                textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            )
-        }
-        if (privacyState) {
-            MinimalDialog(stringResource(R.string.privacy_page)) { privacyState = false }
-        }
-        HorizontalDivider()
-        TextButton(onClick = {
-            securityState = true
-        }) {
-            Text(
-                text = stringResource(R.string.security),
-                textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            )
-        }
-        if (securityState) {
-            MinimalDialog(stringResource(R.string.security_page)) { securityState = false }
-        }
-        HorizontalDivider()
-        TextButton(onClick = {
-            updateState = true
-        }) {
-            Text(
-                text = stringResource(R.string.updates),
-                textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            )
-        }
-        if (updateState) {
-            MinimalDialog(stringResource(R.string.updates_page)) { updateState = false }
-        }
-        HorizontalDivider()
-        TextButton(onClick = {
-            faqState = true
-        }) {
-            Text(
-                text = stringResource(R.string.faq),
-                textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            )
-        }
-        if (faqState) {
-            MinimalDialog(stringResource(R.string.faq_page)) { faqState = false }
-        }
-        HorizontalDivider()
-        TextButton(onClick = {
-            contactState = true
-        }) {
-            Text(
-                text = stringResource(R.string.contact),
-                textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            )
-        }
-        if (contactState) {
-            MinimalDialog(stringResource(R.string.contact_page)) { contactState = false }
-        }
-        HorizontalDivider()
-        Spacer(modifier = Modifier.padding(bottom = 50.dp))
+        Spacer(modifier = Modifier.height(AppSpacing.Large))
 
-        // Buttons for Firebase
-        Row(
-            modifier = Modifier
-                .padding(bottom = 20.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
+        Surface(
+            shape = AppCardShape,
+            color = MaterialTheme.colorScheme.surfaceContainerLow,
         ) {
-            ElevatedButton(
-                onClick = {
-                    signOutState = true
-                },
-                shape = RoundedCornerShape(20.dp),
-                elevation = ButtonDefaults.elevatedButtonElevation(),
-                enabled = true,
-                contentPadding = PaddingValues(
-                    start = 10.dp,
-                    end = 10.dp,
-                    top = 5.dp,
-                    bottom = 5.dp
-                ),
-                modifier = Modifier.padding(end = 40.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.sign_out),
-                    textAlign = TextAlign.Start,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier
-                        .padding(5.dp)
-                )
-            }
-            if (signOutState) {
-                AlertDialogExample(
-                    dialogTitle = stringResource(R.string.sign_out),
-                    dialogText = stringResource(R.string.are_you_sure_you_want_to_sign_out_of_your_account),
-                    onDismissRequest = { signOutState = false },
-                    onConfirmation = {
-                        signOutState = false
-                        signOutFirebase.invoke()
-                        context.startActivity(Intent(context, LoginActivity::class.java))
-                    },
-                )
-            }
-            ElevatedButton(
-                onClick = {
-                    deleteState = true
-                },
-                shape = RoundedCornerShape(20.dp),
-                elevation = ButtonDefaults.elevatedButtonElevation(),
-                enabled = true,
-                contentPadding = PaddingValues(
-                    start = 10.dp,
-                    end = 10.dp,
-                    top = 5.dp,
-                    bottom = 5.dp
-                ),
-                modifier = Modifier.padding(start = 40.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.delete_account),
-                    textAlign = TextAlign.Start,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier
-                        .padding(5.dp)
-                )
-            }
-            if (deleteState) {
-                AlertDialogExample(
-                    dialogTitle = stringResource(R.string.delete_account),
-                    dialogText = stringResource(R.string.are_you_sure_you_want_to_delete_your_account),
-                    onDismissRequest = { deleteState = false },
-                    onConfirmation = {
-                        deleteState = false
-                        deleteFirebase.invoke()
-                        context.startActivity(Intent(context, LoginActivity::class.java))
-                    },
-                )
+            Column(modifier = Modifier.fillMaxWidth()) {
+                SettingsPage.entries.forEachIndexed { index, page ->
+                    TextButton(
+                        onClick = { activePage = page },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = AppSizes.MinimumTouchTarget),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                            horizontal = AppSpacing.Large,
+                            vertical = AppSpacing.Medium,
+                        ),
+                    ) {
+                        Text(
+                            text = stringResource(page.titleRes),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                    if (index != SettingsPage.entries.lastIndex) {
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.outlineVariant,
+                            modifier = Modifier.padding(horizontal = AppSpacing.Large),
+                        )
+                    }
+                }
             }
         }
+
+        Spacer(modifier = Modifier.height(AppSpacing.ExtraLarge))
+        Text(
+            text = stringResource(R.string.account),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.Medium))
+        Column(
+            verticalArrangement = Arrangement.spacedBy(AppSpacing.Medium),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Button(
+                onClick = { signOutState = true },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = AppSizes.MinimumTouchTarget),
+            ) {
+                Text(stringResource(R.string.sign_out))
+            }
+            OutlinedButton(
+                onClick = { deleteState = true },
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error,
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = AppSizes.MinimumTouchTarget),
+            ) {
+                Text(stringResource(R.string.delete_account))
+            }
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.ExtraLarge))
+    }
+
+    activePage?.let { page ->
+        MinimalDialog(stringResource(page.contentRes)) { activePage = null }
+    }
+    if (signOutState) {
+        AlertDialogExample(
+            dialogTitle = stringResource(R.string.sign_out),
+            dialogText = stringResource(R.string.are_you_sure_you_want_to_sign_out_of_your_account),
+            onDismissRequest = { signOutState = false },
+            onConfirmation = {
+                signOutState = false
+                auth.signOut()
+                Toast.makeText(context, signOutSuccessfulMessage, Toast.LENGTH_SHORT).show()
+                context.startActivity(Intent(context, LoginActivity::class.java))
+            },
+        )
+    }
+    if (deleteState) {
+        AlertDialogExample(
+            dialogTitle = stringResource(R.string.delete_account),
+            dialogText = stringResource(R.string.are_you_sure_you_want_to_delete_your_account),
+            onDismissRequest = { deleteState = false },
+            onConfirmation = {
+                deleteState = false
+                auth.currentUser?.delete()
+                Toast.makeText(context, deleteSuccessfulMessage, Toast.LENGTH_SHORT).show()
+                context.startActivity(Intent(context, LoginActivity::class.java))
+            },
+        )
     }
 }
