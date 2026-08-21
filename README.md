@@ -136,6 +136,35 @@ Additional engineering notes are tracked in [`docs/`](docs), including the [them
 
 For visual iteration, open `app/src/debug/java/com/example/recipe_app_compose/preview/ScreenPreviews.kt` with the Debug build variant selected. Android Studio can render the main screens in light and dark mode without launching the app. Shared fixtures live beside it in `PreviewData.kt` and are excluded from release builds.
 
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/browse-cuisines.png" width="320" alt="Browse Cuisines screen in dark mode" />
+      <br />
+      <sub><strong>Browse cuisines</strong></sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/featured-dish.png" width="320" alt="Featured Dish recipe details screen in dark mode" />
+      <br />
+      <sub><strong>Featured dish</strong></sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/shops-results.png" width="320" alt="Nearby Chicago restaurant search results in dark mode" />
+      <br />
+      <sub><strong>Restaurant discovery</strong></sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/restaurant-map.png" width="320" alt="Interactive restaurant map with a Directions action" />
+      <br />
+      <sub><strong>Map and directions</strong></sub>
+    </td>
+  </tr>
+</table>
+
 ## Demonstrations
 
 ### Interface and navigation
