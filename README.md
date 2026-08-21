@@ -165,20 +165,6 @@ For visual iteration, open `app/src/debug/java/com/example/recipe_app_compose/pr
   </tr>
 </table>
 
-## Demonstrations
-
-### Interface and navigation
-
-https://github.com/user-attachments/assets/471a4c36-3430-4303-ac4d-3d97941ac137
-
-### Restaurant maps
-
-https://github.com/user-attachments/assets/85ea40df-5807-4948-b3f7-42c5830a4a0a
-
-### Local favorites
-
-https://github.com/user-attachments/assets/5f3f7408-b13d-4225-8854-7ce993fea4a4
-
 ## Contributing
 
 1. Fork the repository and create a focused branch.
