@@ -128,6 +128,8 @@ Run the primary local checks with:
 ./gradlew :app:testDebugUnitTest :app:lintDebug
 ```
 
+Additional engineering notes are tracked in [`docs/`](docs), including the [Gradle Kotlin DSL migration notes](docs/GRADLE_KOTLIN_DSL_MIGRATION.md), [KMP migration assessment](docs/KMP_MIGRATION_ASSESSMENT.md), and [Compose Multiplatform migration plan](docs/COMPOSE_MULTIPLATFORM_MIGRATION_PLAN.md).
+
 ## Demonstrations
 
 ### Interface and navigation

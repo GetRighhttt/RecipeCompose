@@ -1,11 +1,10 @@
 plugins {
-    // Existing plugins
-    alias(libs.plugins.compose.compiler)
     alias(libs.plugins.android.application)
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.google.services)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.ksp)
     alias(libs.plugins.secrets.gradle)
-    id("com.google.devtools.ksp") // ksp
-    id("com.google.gms.google-services") // google-services
 }
 
 android {
