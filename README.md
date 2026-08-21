@@ -1,8 +1,8 @@
 # Recipe Compose
 
-Recipe Compose is a portfolio Android application originally built to learn Jetpack Compose. It connects recipe discovery with restaurant search and real-world navigation: users can explore meals from TheMealDB, find restaurants through Yelp, inspect a destination on an interactive Google Map, and continue directly into driving directions.
+Recipe Compose is a portfolio Android application originally built to learn Jetpack Compose and later redesigned into a fuller mobile product sample. It connects recipe discovery with restaurant search and real-world navigation: users can explore meals from TheMealDB, find restaurants through Yelp, inspect a destination on an interactive Google Map, and continue directly into driving directions.
 
-The project has since grown into a practical demonstration of modern Compose development across state-driven UI, remote APIs, local persistence, authentication, mapping, navigation, responsive layouts, and lifecycle-aware state management. It remains a personal learning project, presented as a focused example of how an Android feature can move from content discovery to a useful real-world action.
+The project has since grown into a practical demonstration of modern Compose development across state-driven UI, remote APIs, local persistence, authentication, mapping, navigation, responsive layouts, and lifecycle-aware state management. It remains a personal project, presented as a focused example of how an Android feature can move from content discovery to a useful real-world action.
 
 ## Product capabilities
 
@@ -36,6 +36,7 @@ The project has since grown into a practical demonstration of modern Compose dev
 - Foreground-only location access with support for approximate and precise permission.
 - Graceful location fallbacks for denied permission, unavailable coordinates, and manual search.
 - Build-time credential injection, redacted authorization headers, and debug-only HTTP body logging.
+- Companion documentation for the UI redesign, Gradle Kotlin DSL migration, KMP assessment, and Compose Multiplatform migration path.
 
 ## Restaurant navigation
 
