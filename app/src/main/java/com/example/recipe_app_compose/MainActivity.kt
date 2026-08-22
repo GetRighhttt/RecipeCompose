@@ -103,7 +103,7 @@ class MainActivity : ComponentActivity() {
                     val isDrawerDestination = currentRoute == null || currentRoute in drawerRoutes
                     val isPrimaryDestination = currentRoute in primaryRoutes
                     val screenTitle = when (currentRoute) {
-                        CategoryScreen.DetailScreen.route -> R.string.details
+                        CategoryScreen.DetailScreen.route -> R.string.category_details
                         CategoryScreen.RandomMealScreen.route -> R.string.featured_dish
                         CategoryScreen.IngredientScreen.route -> R.string.search
                         CategoryScreen.IngredientDetailScreen.route -> R.string.recipe_details
@@ -133,7 +133,7 @@ class MainActivity : ComponentActivity() {
                             unselectedIcon = Icons.Outlined.Home,
                         ),
                         CategoryScreen.IngredientScreen.route to NavigationItem(
-                            title = stringResource(R.string.search),
+                            title = stringResource(R.string.search_dishes),
                             selectedIcon = Icons.Filled.Search,
                             unselectedIcon = Icons.Outlined.Search,
                         ),

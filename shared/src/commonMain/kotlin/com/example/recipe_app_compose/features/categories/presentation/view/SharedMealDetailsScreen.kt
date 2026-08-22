@@ -79,6 +79,7 @@ import kotlinx.coroutines.launch
 fun SharedMealDetailsScreen(
     meal: MealDetails,
     onBack: () -> Unit,
+    title: String,
     isSaved: Boolean = false,
     onSave: (() -> Unit)? = null,
     onRemove: (() -> Unit)? = null,
@@ -92,7 +93,7 @@ fun SharedMealDetailsScreen(
     Scaffold(
         topBar = {
             BackTopAppBar(
-                title = stringResource(Res.string.recipe_details),
+                title = title,
                 onBack = onBack,
             )
         },

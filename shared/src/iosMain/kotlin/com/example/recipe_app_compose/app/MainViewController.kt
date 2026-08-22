@@ -3,9 +3,14 @@ package com.example.recipe_app_compose.app
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.ComposeUIViewController
 import com.example.recipe_app_compose.core.persistence.iosPersistenceModule
+import com.example.recipe_app_compose.ui.theme.AppTheme
 import platform.UIKit.UIViewController
 
 /**
@@ -17,7 +22,14 @@ import platform.UIKit.UIViewController
 fun MainViewController(): UIViewController = ComposeUIViewController {
     // SwiftUI supplies a full-screen host; Compose owns the one safe-area inset
     // shared by onboarding, primary destinations, and details.
+    var showSplash by remember { mutableStateOf(true) }
     Box(Modifier.fillMaxSize().safeDrawingPadding()) {
-        RecipeComposeApp(iosPersistenceModule)
+        if (showSplash) {
+            AppTheme {
+                RecipeComposeSplashScreen(onFinished = { showSplash = false })
+            }
+        } else {
+            RecipeComposeApp(iosPersistenceModule)
+        }
     }
 }

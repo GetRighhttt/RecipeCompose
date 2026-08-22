@@ -1,5 +1,8 @@
 package com.example.recipe_app_compose.core.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -44,6 +47,10 @@ fun RecipeApp(navController: NavHostController, modifier: Modifier) {
         navController = navController,
         startDestination = CategoryScreen.RecipeScreen.route,
         modifier = modifier,
+        enterTransition = { fadeIn(animationSpec = tween(durationMillis = 220)) },
+        exitTransition = { fadeOut(animationSpec = tween(durationMillis = 120)) },
+        popEnterTransition = { fadeIn(animationSpec = tween(durationMillis = 220)) },
+        popExitTransition = { fadeOut(animationSpec = tween(durationMillis = 120)) },
     ) {
         composable(
             route = CategoryScreen.RecipeScreen.route

@@ -1,5 +1,10 @@
 package com.example.recipe_app_compose.app
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -50,6 +55,7 @@ import com.example.recipe_app_compose.features.location.presentation.map.toMapDe
 import com.example.recipe_app_compose.features.onboarding.presentation.OnboardingScreen
 import com.example.recipe_app_compose.shared.generated.resources.Res
 import com.example.recipe_app_compose.shared.generated.resources.explore
+import com.example.recipe_app_compose.shared.generated.resources.featured_dish
 import com.example.recipe_app_compose.shared.generated.resources.home
 import com.example.recipe_app_compose.shared.generated.resources.info
 import com.example.recipe_app_compose.shared.generated.resources.menu
@@ -58,6 +64,7 @@ import com.example.recipe_app_compose.shared.generated.resources.nav_info
 import com.example.recipe_app_compose.shared.generated.resources.nav_menu
 import com.example.recipe_app_compose.shared.generated.resources.search
 import com.example.recipe_app_compose.shared.generated.resources.nearby
+import com.example.recipe_app_compose.shared.generated.resources.recipe_details
 import com.example.recipe_app_compose.shared.generated.resources.saved
 import com.example.recipe_app_compose.ui.theme.AppTheme
 import com.example.recipe_app_compose.ui.theme.AppSpacing
@@ -130,46 +137,73 @@ private fun RecipeComposeContent() {
         initialValue = androidx.compose.material3.DrawerValue.Closed,
     )
 
-    selectedShop?.let { shop ->
-        SharedLocationSelectionScreen(
-            destination = shop.toMapDestination(),
-            onBack = { selectedShop = null },
-        )
-        return
-    }
-    selectedMeal?.let { selection ->
-        val displayedMeal = if (selection.origin == MealDetailsOrigin.Featured) {
-            featuredMeal.item.firstOrNull()?.toMealDetails() ?: selection.meal
-        } else {
-            selection.meal
-        }
-        val isSaved = favoritesState.list.containsSavedMeal(displayedMeal.id)
-        SharedMealDetailsScreen(
-            meal = displayedMeal,
-            onBack = { selectedMeal = null },
-            isSaved = isSaved,
-            onSave = if (selection.origin == MealDetailsOrigin.Saved) null else {
-                { favoritesStore.saveMeal(displayedMeal.toRandomMeal()) }
-            },
-            onRemove = if (selection.origin == MealDetailsOrigin.Saved) {
-                {
-                    favoritesStore.deleteMeal(displayedMeal.toRandomMeal())
-                    selectedMeal = null
-                }
-            } else null,
-            onRefresh = if (selection.origin == MealDetailsOrigin.Featured) {
-                { store.fetchRandomMeal() }
-            } else null,
-            isRefreshing = featuredMeal.loading,
-        )
-        return
-    }
-    selectedCategory?.let { category ->
-        DetailScreen(category, onBack = { selectedCategory = null })
-        return
+    val activeSurface = when {
+        selectedShop != null -> AppSurface.Shop(selectedShop!!)
+        selectedMeal != null -> AppSurface.Meal(selectedMeal!!)
+        selectedCategory != null -> AppSurface.CategoryDetails(selectedCategory!!)
+        else -> AppSurface.Main
     }
 
-    ModalNavigationDrawer(
+    AnimatedContent(
+        targetState = activeSurface,
+        transitionSpec = {
+            fadeIn(animationSpec = tween(durationMillis = 220)) togetherWith
+                fadeOut(animationSpec = tween(durationMillis = 120))
+        },
+        label = "app surface",
+    ) { surface ->
+        when (surface) {
+            is AppSurface.Shop -> SharedLocationSelectionScreen(
+                destination = surface.shop.toMapDestination(),
+                onBack = { selectedShop = null },
+            )
+
+            is AppSurface.Meal -> {
+                val selection = surface.selection
+                val displayedMeal = if (selection.origin == MealDetailsOrigin.Featured) {
+                    featuredMeal.item.firstOrNull()?.toMealDetails() ?: selection.meal
+                } else {
+                    selection.meal
+                }
+                val isSaved = favoritesState.list.containsSavedMeal(displayedMeal.id)
+                SharedMealDetailsScreen(
+                    meal = displayedMeal,
+                    onBack = { selectedMeal = null },
+                    title = stringResource(
+                        if (selection.origin == MealDetailsOrigin.Featured) {
+                            Res.string.featured_dish
+                        } else {
+                            Res.string.recipe_details
+                        },
+                    ),
+                    isSaved = isSaved,
+                    onSave = if (selection.origin == MealDetailsOrigin.Saved) null else {
+                        { favoritesStore.saveMeal(displayedMeal.toRandomMeal()) }
+                    },
+                    onRemove = if (selection.origin == MealDetailsOrigin.Saved) {
+                        {
+                            favoritesStore.deleteMeal(displayedMeal.toRandomMeal())
+                            selectedMeal = null
+                        }
+                    } else null,
+                    onRefresh = if (selection.origin == MealDetailsOrigin.Featured) {
+                        { store.fetchRandomMeal() }
+                    } else null,
+                    isRefreshing = featuredMeal.loading,
+                )
+            }
+
+            is AppSurface.CategoryDetails -> DetailScreen(
+                category = surface.category,
+                onBack = { selectedCategory = null },
+            )
+
+            AppSurface.Main -> Unit
+        }
+
+        if (surface != AppSurface.Main) return@AnimatedContent
+
+        ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
@@ -196,7 +230,7 @@ private fun RecipeComposeContent() {
                 }
             }
         },
-    ) {
+        ) {
         Scaffold(
             topBar = {
                 if (!showInfo && destination != SharedDestination.Explore) {
@@ -218,48 +252,58 @@ private fun RecipeComposeContent() {
                 }
             },
         ) { paddingValues ->
-        if (showInfo) {
-            SharedInfoScreen(Modifier.padding(paddingValues))
-        } else when (destination) {
-            SharedDestination.Explore -> RecipeScreen(
-                uiState = categories,
-                featuredMealState = featuredMeal,
-                navigateToDetail = { selectedCategory = it },
-                onSearch = { destination = SharedDestination.Search },
-                onNearbyShops = { destination = SharedDestination.Nearby },
-                onFavorites = { destination = SharedDestination.Saved },
-                onFeaturedDish = {
-                    selectedMeal = featuredMeal.item.firstOrNull()?.toMealDetails()?.let {
-                        SelectedMeal(it, MealDetailsOrigin.Featured)
-                    }
+            AnimatedContent(
+                targetState = showInfo to destination,
+                transitionSpec = {
+                    fadeIn(animationSpec = tween(durationMillis = 220)) togetherWith
+                        fadeOut(animationSpec = tween(durationMillis = 120))
                 },
-                onRetry = store::fetchCategories,
-                modifier = Modifier.padding(paddingValues),
-            )
-            SharedDestination.Search -> SharedSearchScreen(
-                store = store,
-                query = query,
-                results = results,
-                isLoading = ingredientState.loading,
-                onDishSelected = {
-                    selectedMeal = SelectedMeal(it.toMealDetails(), MealDetailsOrigin.Search)
-                },
-                modifier = Modifier.padding(paddingValues),
-            )
-            SharedDestination.Nearby -> SharedNearbyScreen(
-                onShopSelected = { selectedShop = it },
-                modifier = Modifier.padding(paddingValues),
-            )
-            SharedDestination.Saved -> SharedFavoritesScreen(
-                uiState = favoritesState,
-                onMealSelected = {
-                    selectedMeal = SelectedMeal(it.toMealDetails(), MealDetailsOrigin.Saved)
-                },
-                onDeleteMeal = favoritesStore::deleteMeal,
-                onDeleteAll = favoritesStore::deleteAllMeals,
-                onRetry = favoritesStore::retry,
-                modifier = Modifier.padding(paddingValues),
-            )
+                label = "primary destination",
+            ) { (showingInfo, visibleDestination) ->
+                if (showingInfo) {
+                    SharedInfoScreen(Modifier.padding(paddingValues))
+                } else when (visibleDestination) {
+                    SharedDestination.Explore -> RecipeScreen(
+                        uiState = categories,
+                        featuredMealState = featuredMeal,
+                        navigateToDetail = { selectedCategory = it },
+                        onSearch = { destination = SharedDestination.Search },
+                        onNearbyShops = { destination = SharedDestination.Nearby },
+                        onFavorites = { destination = SharedDestination.Saved },
+                        onFeaturedDish = {
+                            selectedMeal = featuredMeal.item.firstOrNull()?.toMealDetails()?.let {
+                                SelectedMeal(it, MealDetailsOrigin.Featured)
+                            }
+                        },
+                        onRetry = store::fetchCategories,
+                        modifier = Modifier.padding(paddingValues),
+                    )
+                    SharedDestination.Search -> SharedSearchScreen(
+                        store = store,
+                        query = query,
+                        results = results,
+                        isLoading = ingredientState.loading,
+                        onDishSelected = {
+                            selectedMeal = SelectedMeal(it.toMealDetails(), MealDetailsOrigin.Search)
+                        },
+                        modifier = Modifier.padding(paddingValues),
+                    )
+                    SharedDestination.Nearby -> SharedNearbyScreen(
+                        onShopSelected = { selectedShop = it },
+                        modifier = Modifier.padding(paddingValues),
+                    )
+                    SharedDestination.Saved -> SharedFavoritesScreen(
+                        uiState = favoritesState,
+                        onMealSelected = {
+                            selectedMeal = SelectedMeal(it.toMealDetails(), MealDetailsOrigin.Saved)
+                        },
+                        onDeleteMeal = favoritesStore::deleteMeal,
+                        onDeleteAll = favoritesStore::deleteAllMeals,
+                        onRetry = favoritesStore::retry,
+                        modifier = Modifier.padding(paddingValues),
+                    )
+                }
+            }
         }
         }
     }
@@ -271,6 +315,13 @@ private data class SelectedMeal(
 )
 
 private enum class MealDetailsOrigin { Featured, Search, Saved }
+
+private sealed interface AppSurface {
+    data object Main : AppSurface
+    data class CategoryDetails(val category: Category) : AppSurface
+    data class Meal(val selection: SelectedMeal) : AppSurface
+    data class Shop(val shop: YelpShop) : AppSurface
+}
 
 @Composable
 private fun PrimaryDestinationTopAppBar(title: String) {

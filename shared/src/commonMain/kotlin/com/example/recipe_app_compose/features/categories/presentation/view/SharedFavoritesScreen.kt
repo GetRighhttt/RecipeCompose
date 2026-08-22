@@ -5,10 +5,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -45,6 +47,7 @@ import com.example.recipe_app_compose.shared.generated.resources.cancel
 import com.example.recipe_app_compose.shared.generated.resources.error
 import com.example.recipe_app_compose.shared.generated.resources.no_saved_dishes
 import com.example.recipe_app_compose.shared.generated.resources.no_saved_dishes_message
+import com.example.recipe_app_compose.shared.generated.resources.nav_favorite_outline
 import com.example.recipe_app_compose.shared.generated.resources.remove
 import com.example.recipe_app_compose.shared.generated.resources.remove_from_saved
 import com.example.recipe_app_compose.shared.generated.resources.remove_all_saved_dishes
@@ -187,6 +190,13 @@ private fun EmptyFavorites() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
+        Icon(
+            painter = painterResource(Res.drawable.nav_favorite_outline),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(40.dp),
+        )
+        Spacer(Modifier.height(AppSpacing.Small))
         Text(
             text = stringResource(Res.string.no_saved_dishes),
             style = MaterialTheme.typography.titleLarge,
