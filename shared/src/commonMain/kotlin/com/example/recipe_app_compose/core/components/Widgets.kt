@@ -1,8 +1,5 @@
 package com.example.recipe_app_compose.core.components
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
@@ -20,7 +17,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -50,8 +51,8 @@ import kotlinx.coroutines.isActive
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * App-owned indeterminate indicator with an explicit rotation animation.
- * This avoids platform differences in the stock Material indicator animation.
+ * App-owned indeterminate indicator driven directly by rendered frame time.
+ * This avoids platform differences in Material and duration-scaled animations.
  */
 @Composable
 fun AppLoadingIndicator(
@@ -59,15 +60,15 @@ fun AppLoadingIndicator(
     color: Color = MaterialTheme.colorScheme.primary,
     strokeWidth: Dp = 4.dp,
 ) {
-    val rotation = remember { Animatable(0f) }
+    var rotation by remember { mutableFloatStateOf(0f) }
 
     LaunchedEffect(Unit) {
+        var previousFrame = withFrameNanos { it }
         while (isActive) {
-            rotation.snapTo(0f)
-            rotation.animateTo(
-                targetValue = 360f,
-                animationSpec = tween(durationMillis = 850, easing = LinearEasing),
-            )
+            val frame = withFrameNanos { it }
+            val elapsedMillis = (frame - previousFrame) / 1_000_000f
+            rotation = (rotation + elapsedMillis * DEGREES_PER_MILLISECOND) % 360f
+            previousFrame = frame
         }
     }
 
@@ -75,7 +76,7 @@ fun AppLoadingIndicator(
         modifier = modifier
             .size(40.dp)
             .semantics { progressBarRangeInfo = ProgressBarRangeInfo.Indeterminate }
-            .rotate(rotation.value),
+            .rotate(rotation),
     ) {
         drawArc(
             color = color,
@@ -104,6 +105,8 @@ fun ConfirmationDialog(
         dismissButton = { TextButton(onClick = onDismiss) { Text(dismissLabel) } },
     )
 }
+
+private const val DEGREES_PER_MILLISECOND = 360f / 850f
 
 @Composable
 fun AppMediaCard(
