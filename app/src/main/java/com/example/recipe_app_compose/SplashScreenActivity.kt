@@ -22,22 +22,41 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.lifecycleScope
+import com.example.recipe_app_compose.core.onboarding.OnboardingPreferences
+import com.example.recipe_app_compose.core.onboarding.StartupDestination
+import com.example.recipe_app_compose.core.onboarding.resolveStartupDestination
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import kotlinx.coroutines.launch
 
 @SuppressLint("CustomSplashScreen")
 class SplashScreenActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent {
-            AppTheme {
-                SplashScreen(
-                    onFinished = {
-                        startActivity(Intent(this, LoginActivity::class.java))
-                        finish()
-                    }
-                )
+        lifecycleScope.launch {
+            val destination = resolveStartupDestination(
+                completedOnboardingVersion = OnboardingPreferences(this@SplashScreenActivity)
+                    .completedVersion(),
+                isSignedIn = Firebase.auth.currentUser != null,
+            )
+            setContent {
+                AppTheme {
+                    SplashScreen(onFinished = { openDestination(destination) })
+                }
             }
         }
+    }
+
+    private fun openDestination(destination: StartupDestination) {
+        val destinationActivity = when (destination) {
+            StartupDestination.Onboarding -> OnboardingActivity::class.java
+            StartupDestination.Login -> LoginActivity::class.java
+            StartupDestination.Main -> MainActivity::class.java
+        }
+        startActivity(Intent(this, destinationActivity))
+        finish()
     }
 }
 

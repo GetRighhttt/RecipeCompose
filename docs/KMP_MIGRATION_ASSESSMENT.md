@@ -1,8 +1,10 @@
 # Kotlin Multiplatform migration assessment
 
-Status: discovery complete<br>
-Date: 2026-08-15<br>
+Status: discovery complete; UI-strategy decision superseded by the Compose Multiplatform plan<br>
+Date: 2026-08-15; decision updated 2026-08-21<br>
 Scope: current Android app in `:app`, with Android and iOS as the likely future targets
+
+> Decision update: the project will use Compose Multiplatform for shared Android/iOS UI, Koin for dependency injection, and Ktor with `kotlinx.serialization` for shared networking. The staged execution plan and current toolchain baseline are maintained in [Compose Multiplatform migration plan](COMPOSE_MULTIPLATFORM_MIGRATION_PLAN.md). This assessment remains the detailed inventory of Android coupling and migration risks.
 
 ## Executive recommendation
 

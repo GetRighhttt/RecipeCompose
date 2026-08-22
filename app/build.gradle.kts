@@ -70,6 +70,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose.v286)
+    implementation(libs.androidx.datastore.preferences)
 
     // LiveData
     implementation(libs.androidx.lifecycle.livedata.ktx)

@@ -105,9 +105,9 @@ Material 3 can separate layers through tonal surfaces as well as shadows. Small 
 
 The supporting palette is warm but relatively quiet. Recipe photos and restaurant imagery can provide the broad range of saturated colors. The interface should frame that content rather than compete with it.
 
-## Recommended next pass
+## Screen-level objectives
 
-The theme is a foundation, not a complete product redesign. The next pass should be completed screen by screen:
+The theme established a foundation rather than a complete product redesign. The following objectives guided the screen-by-screen work documented in part two:
 
 1. Standardize horizontal screen padding and vertical section spacing.
 2. Define reusable card treatments for recipes, favorites, and restaurants.
@@ -115,7 +115,7 @@ The theme is a foundation, not a complete product redesign. The next pass should
 4. Make the primary action visually obvious on login, details, maps, and settings.
 5. Replace rows that use spacer padding for alignment with responsive arrangements and constraints.
 6. Review compact phones, large phones, tablets, landscape, font scaling, and both themes.
-7. Add screenshot tests only after the visual system stabilizes enough for snapshots to provide value.
+7. Capture representative device screenshots after the visual system stabilizes.
 
 ## Part two: screen-level visual system
 
@@ -142,7 +142,7 @@ Using a small scale creates rhythm. Random values such as 5, 10, 15, 20, 30, 40,
 
 ### Reusable media cards
 
-`AppMediaCard` owns the common presentation for category, meal, favorite, ingredient, and restaurant cards:
+`AppMediaCard` and `AppHorizontalMediaCard` own the common presentation for category, meal, saved-dish, and restaurant cards:
 
 - A consistent 16 dp container shape.
 - A square, cropped image area.
@@ -154,9 +154,9 @@ Keeping the full card clickable improves discoverability and provides a larger t
 
 ### Adaptive grids
 
-The browse, category-meal, ingredient, favorites, and restaurant grids now use `GridCells.Adaptive` with a minimum card width of 152 dp. Compose calculates how many columns can fit in the available width.
+Grid layouts remain only where rapid visual scanning is the primary task. Category meals use `GridCells.Adaptive` with the standard 152 dp minimum width. Dish search uses a denser 104 dp minimum to produce three image-first columns on a typical 360 dp phone; at a system font scale of 1.3 or greater it returns to the wider 152 dp minimum so labels retain room to breathe.
 
-This replaces fixed two-column and three-column assumptions. A compact phone can reduce the column count when necessary, while a tablet or landscape layout can use the additional space without a separate screen implementation. The card width, grid spacing, and screen padding stay predictable.
+This replaces fixed two-column assumptions without forcing every destination into a grid. Compose calculates how many columns fit in the available width, while editorial content, saved dishes, and restaurants use layouts that better match their information density.
 
 ### Clearer card content hierarchy
 
@@ -166,7 +166,7 @@ Card titles now use `titleMedium`, allow two lines, and truncate safely when req
 - The rating uses the tertiary accent for a compact highlight.
 - The address uses `onSurfaceVariant` to remain readable without competing with the name.
 
-Decorative emoji was removed from rating text in favor of a stable star character and semantic color. Phone numbers were removed from the compact grid tile to reduce density; the tile's job is to support quick comparison and navigation.
+Decorative emoji was removed from rating text in favor of a stable star character and semantic color. Phone numbers were removed from the compact restaurant row to reduce density; the row's job is to support quick comparison and navigation.
 
 ### Natural detail-page scrolling
 
@@ -213,13 +213,13 @@ The information page now uses a centered, width-constrained tonal surface so its
 
 The existing network and location fallback screens already followed the desired pattern: one clear title, supporting explanation, primary recovery action, and secondary alternative. They were reviewed but did not need structural changes in this pass.
 
-### Featured dish and meal-dialog refinement
+### Featured dish and saved-meal refinement
 
 The original `See Our Best Dishes!` title sounded more like promotional copy than application navigation. The useful random-meal experience is now titled `Featured Dish`.
 
 The Featured Dish page keeps both of its useful actions, but no longer places two bare icons around a compressed title. The meal name now leads a tonal header card. Below it, `Save` is a labeled tonal button and `Another` is a labeled outlined button. Labels reduce icon ambiguity, while the different button treatments establish priority. After a successful save, the action reads `Saved` and is disabled to prevent repeated inserts from the same visible meal.
 
-The Favorites dialog is now a purpose-specific `FavoriteMealDialog`. Source and YouTube links were removed because that surface is for managing saved meals. It contains only the meal name, image, a neutral `Dismiss` action, and an error-colored `Delete Meal` action. This keeps the destructive choice clear without competing with unrelated links.
+Saved dishes no longer open a small management dialog. Selecting one now navigates to the complete recipe-details destination so saved content has the same reading experience as search and Featured Dish. An error-colored close action replaces the save heart in the title card. Its container stays transparent at rest, appears only while pressed, and opens a confirmation before deletion. Swipe-to-delete remains available on the list for users who prefer the faster management gesture.
 
 The separate Explore Dishes modal was removed after product review. It fetched a random category, displayed another image grid, and offered Refresh without advancing the recipe-discovery or navigation workflow. Its bottom-bar entry point, modal UI, screen, ViewModel state, repository method, API endpoint, response models, and unused preview dialog were removed together.
 
@@ -242,7 +242,7 @@ The content is constrained to 640 dp on wide displays so instructions remain com
 
 Selecting a dish from search previously opened an older detail layout with a square image, generic dividers, raw metadata labels, and a separate ingredient-row treatment. The search flow now opens a dedicated `Recipe Details` page that uses the same editorial hierarchy as Featured Dish.
 
-The common image, metadata, resources, instructions, and ingredient sections are owned by one `MealDetailsContent` composable. Featured Dish supplies its Save and Another Dish controls through an optional action slot; a searched recipe omits those featured-only controls. This keeps the destination honest while preventing two implementations of the same recipe information from drifting visually.
+The common image, metadata, resources, instructions, and ingredient sections are owned by `MealDetailsContent`. `MealDetailsPage` also owns the width constraint, outer scrolling, and page padding shared by search and saved-dish routes. Featured Dish supplies its Save and Another Dish controls through an optional action slot. Search supplies a title-level save heart whose state is derived from Room, while a saved dish supplies the title-level remove action. This keeps each destination honest without allowing separate details implementations to drift visually.
 
 API-provided category and cuisine values are optional. When either value is blank, the metadata card now displays `Unknown` rather than rendering an apparently broken empty value. Optional source and YouTube actions remain hidden when their URLs are absent.
 
@@ -250,7 +250,7 @@ API-provided category and cuisine values are optional. When either value is blan
 
 The project now includes a debug-only screen preview catalog under `app/src/debug`. Shared preview fixtures provide realistic categories, recipes, favorites, and restaurant results without shipping fake data in release builds.
 
-The catalog renders paired light and dark previews for login, cuisine browsing and details, dish search and recipe details, Featured Dish, Favorites, Shops, the location-permission fallback, Account, Info, offline handling, and map fallback/control states. Service-owning entry points remain responsible for Firebase, ViewModels, permissions, Room, and network setup; previews call extracted stateless content instead. This separation makes layout editing fast without making production composables aware of preview mode.
+The catalog renders paired light and dark previews for onboarding, login, cuisine browsing and details, dish search and recipe details, Featured Dish, Saved, saved-dish details, Shops, location choice and permission fallbacks, Account, Info, offline handling, and map fallback/control states. Service-owning entry points remain responsible for Firebase, ViewModels, permissions, Room, and network setup; previews call extracted stateless content instead. This separation makes layout editing fast without making production composables aware of preview mode.
 
 Google Maps does not reliably render its live map canvas in Android Studio Preview. The catalog therefore previews the real Directions control on a neutral map placeholder and separately previews the invalid-location fallback. Marker movement, map loading, and Google-rendered controls still require a device or emulator.
 
@@ -259,15 +259,48 @@ Google Maps does not reliably render its live map canvas in Android Studio Previ
 Using a two-column grid everywhere made unrelated screens feel generic and forced information-rich cards into narrow spaces. Layouts are now selected according to what the user is doing:
 
 - Browse Cuisines uses a single-column editorial feed with wide 16:9 images. Categories are broad entry points and benefit from visual presence.
-- Ingredient search retains an adaptive grid because compact scanning is useful for a potentially large result set.
-- Favorites uses a compact horizontal list because it is a saved-item management screen, and the wider swipe surface makes deletion easier to understand.
+- Dish search uses a compact image-first adaptive grid because fast scanning is useful for a potentially large result set. Labels are secondary to imagery, and the minimum tile width expands under larger font scales.
+- Saved uses a compact horizontal list because it is a local collection and management screen, and the wider swipe surface makes deletion easier to understand.
 - Restaurants uses a compact horizontal list so business name, rating, and address remain readable while comparing nearby options.
 
 `AppHorizontalMediaCard` provides the common foundation for compact list items, while `AppMediaCard` supports a configurable image ratio for galleries and editorial cards. Sharing these primitives keeps shape, color, image cropping, and touch behavior consistent without forcing every feature into the same layout.
 
-## Part-two verification checklist
+## Part three: product-flow refinement
 
-The code compiles, but visual QA should still be performed on real Compose layouts. Check the following before treating part two as complete from a product perspective:
+The final design pass focused on how the screens connect, not only how each screen looks in isolation.
+
+### First-run onboarding
+
+A three-page onboarding flow now introduces discovery, local saving, and nearby restaurant navigation before authentication. The artwork is built from Material color roles and vector icons, so it follows light and dark mode without maintaining separate image assets. Users can move through the pager, go back between pages, or skip immediately.
+
+Completion is stored with Preferences DataStore. Its coroutine and Flow APIs keep persistence off the main thread, while the startup decision remains explicit: onboarding is shown only until completion, then startup proceeds to authentication. A stateless content boundary keeps the screen previewable without introducing preview-only behavior into production code.
+
+### Explore as an action hub
+
+The former home experience depended heavily on generic content lists and a separate Explore Dishes experiment that only refreshed data. The redesigned Explore page gives the product a clear starting point:
+
+- Search dishes, Nearby shops, and Saved dishes are visible as primary shortcuts.
+- A featured meal adds useful discovery content rather than another duplicate grid.
+- The same four destinations remain available in the persistent bottom bar.
+- Bottom-navigation selection is route driven, so opening Search from the home shortcut still selects Search and leaves Explore available as a one-tap return path.
+
+This consolidates existing capabilities instead of adding a screen without a distinct job.
+
+### User-driven and bounded location resolution
+
+Nearby now begins in an explicit `LocationChoiceRequired` state. It does not resolve location or request permission simply because the route was opened. The user chooses **Use my location** or enters a city or ZIP code, and Android permission is requested only after the location action.
+
+When location is authorized, the provider accepts a coordinate cached within the last five minutes before requesting a fresh one. The ViewModel bounds the complete resolution attempt to 12 seconds. A missing or slow coordinate therefore becomes a visible retry/manual-search fallback instead of an indefinite loading state. Permission denial and coordinate unavailability remain separate states because only the former should direct a user to application settings.
+
+Successful restaurant results and their search origin remain in the route-scoped ViewModel while that navigation entry is alive. This avoids replacing useful content during ordinary recomposition or a temporary Activity recreation.
+
+### Portfolio screenshot set
+
+The README now uses six current light-theme device captures: onboarding, Explore, dish search, recipe details, nearby restaurant results, and the interactive map. The map capture verifies that the destination marker renders and that the Directions button remains on the left, clear of Google's zoom controls. Older screenshots and demonstrations are no longer presented as the current interface.
+
+## Verification and remaining visual checks
+
+The debug build, location ViewModel unit tests, and primary device journeys were exercised after the final pass. The remaining checks are useful release-hardening work rather than blockers for the redesign documentation:
 
 1. Compact phone in portrait with the keyboard open on login and search.
 2. Standard phone in light and dark mode.
@@ -275,7 +308,7 @@ The code compiles, but visual QA should still be performed on real Compose layou
 4. System font scales of 1.0, 1.3, and 1.5.
 5. Very long recipe, meal, and restaurant names.
 6. Missing or slow-loading remote images.
-7. Favorites swipe behavior on compact and expanded list widths.
+7. Saved-dish swipe behavior on compact and expanded list widths.
 8. Map zoom controls and the directions button in portrait and landscape.
 
 ## Accessibility checks
@@ -299,10 +332,18 @@ Before calling the redesign complete, verify:
 - `app/src/main/java/com/example/recipe_app_compose/LoginActivity.kt`
 - `app/src/main/java/com/example/recipe_app_compose/SplashScreenActivity.kt`
 - `app/src/main/java/com/example/recipe_app_compose/MainActivity.kt`
+- `app/src/main/java/com/example/recipe_app_compose/OnboardingActivity.kt`
+- `app/src/main/java/com/example/recipe_app_compose/core/navigation/CategoryNavigation.kt`
+- `app/src/main/java/com/example/recipe_app_compose/core/navigation/RecipeApp.kt`
+- `app/src/main/java/com/example/recipe_app_compose/core/onboarding/OnboardingPreferences.kt`
 - `app/src/main/java/com/example/recipe_app_compose/core/components/Widgets.kt`
 - `app/src/main/java/com/example/recipe_app_compose/features/categories/presentation/view/FavoritesScreen.kt`
 - `app/src/main/java/com/example/recipe_app_compose/features/categories/presentation/view/IngredientScreen.kt`
 - `app/src/main/java/com/example/recipe_app_compose/features/categories/presentation/view/MealDetailsContent.kt`
 - `app/src/main/java/com/example/recipe_app_compose/features/categories/presentation/view/AccountScreen.kt`
+- `app/src/main/java/com/example/recipe_app_compose/features/location/data/location/AndroidCurrentLocationProvider.kt`
+- `app/src/main/java/com/example/recipe_app_compose/features/location/presentation/view/YelpScreen.kt`
+- `app/src/main/java/com/example/recipe_app_compose/features/location/presentation/viewmodel/YelpViewModel.kt`
+- `app/src/main/java/com/example/recipe_app_compose/features/onboarding/presentation/OnboardingScreen.kt`
 - `app/src/debug/java/com/example/recipe_app_compose/preview/PreviewData.kt`
 - `app/src/debug/java/com/example/recipe_app_compose/preview/ScreenPreviews.kt`

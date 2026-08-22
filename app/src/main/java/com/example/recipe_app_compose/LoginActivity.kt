@@ -94,6 +94,7 @@ class LoginActivity : ComponentActivity() {
         val user = auth.currentUser
         if (user != null) {
             startActivity(Intent(this, MainActivity::class.java))
+            finish()
             Log.d("USER_FIREBASE", "User: $user - ${user.email}")
         }
     }

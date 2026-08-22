@@ -25,13 +25,16 @@ class YelpViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     @Test
-    fun `initial state waits for the permission check`() {
+    fun `initial state waits for the user to choose a location source`() {
         val viewModel = YelpViewModel(
             repository = FakeYelpRepository(),
             currentLocationProvider = { null },
         )
 
-        assertEquals(YelpSearchArea.Initializing, viewModel.uiState.value.searchArea)
+        assertEquals(
+            YelpSearchArea.LocationChoiceRequired,
+            viewModel.uiState.value.searchArea,
+        )
     }
 
     @Test
@@ -91,6 +94,28 @@ class YelpViewModelTest {
             val viewModel = YelpViewModel(
                 repository = repository,
                 currentLocationProvider = { null },
+            )
+
+            viewModel.loadNearbyShops()
+            advanceUntilIdle()
+
+            assertEquals(
+                YelpSearchArea.LocationUnavailable,
+                viewModel.uiState.value.searchArea,
+            )
+            assertTrue(repository.requests.isEmpty())
+        }
+
+    @Test
+    fun `location resolution timeout exposes fallback instead of loading forever`() =
+        runTest(mainDispatcherRule.dispatcher) {
+            val repository = FakeYelpRepository()
+            val viewModel = YelpViewModel(
+                repository = repository,
+                currentLocationProvider = {
+                    delay(Long.MAX_VALUE.milliseconds)
+                    null
+                },
             )
 
             viewModel.loadNearbyShops()

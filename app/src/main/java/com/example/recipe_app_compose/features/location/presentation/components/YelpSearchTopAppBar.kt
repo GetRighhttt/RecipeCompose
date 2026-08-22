@@ -37,6 +37,7 @@ internal fun YelpSearchTopAppBar(
     onQueryChange: (String) -> Unit,
     onSearchActiveChange: (Boolean) -> Unit,
     onNavigateBack: () -> Unit,
+    showBackNavigation: Boolean = true,
 ) {
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
@@ -103,13 +104,15 @@ internal fun YelpSearchTopAppBar(
             }
         },
         navigationIcon = {
-            IconButton(onClick = if (showSearchField) ::closeSearch else onNavigateBack) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(
-                        if (showSearchField) R.string.close_search else R.string.back
-                    ),
-                )
+            if (showSearchField || showBackNavigation) {
+                IconButton(onClick = if (showSearchField) ::closeSearch else onNavigateBack) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(
+                            if (showSearchField) R.string.close_search else R.string.back
+                        ),
+                    )
+                }
             }
         },
         actions = {
