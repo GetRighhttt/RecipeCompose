@@ -1,9 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.google.services)
-    alias(libs.plugins.kotlin.parcelize)
-    alias(libs.plugins.ksp)
     alias(libs.plugins.secrets.gradle)
 }
 
@@ -55,7 +52,6 @@ android {
 kotlin {
     compilerOptions {
         languageVersion = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_4
-        freeCompilerArgs.add("-Xexplicit-backing-fields")
     }
 }
 
@@ -66,59 +62,28 @@ secrets {
 }
 
 dependencies {
+    implementation(project(":shared"))
+    implementation(libs.coil3.compose)
+
+    // Koin replaces the former global service locator. Android keeps the
+    // platform-specific implementations while common code adopts Koin later.
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
+
     // viewmodel
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(libs.androidx.lifecycle.viewmodel.compose.v286)
     implementation(libs.androidx.datastore.preferences)
-
-    // LiveData
-    implementation(libs.androidx.lifecycle.livedata.ktx)
 
     // Jetpack Compose navigation
     implementation(libs.androidx.navigation.compose)
-
-    // ROOM Database
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler)
-
-    // Google - Firebase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics) // analytics
-    implementation(libs.firebase.perf) // performance
-    implementation(libs.firebase.firestore) // firestore
-    implementation(libs.firebase.auth) // authentication
-
-    // Google play - Maps
-    implementation(libs.maps.compose)
-    implementation(libs.play.services.location)
-
-    // network
-    implementation(libs.retrofit)
-
-    // logging
-    implementation(libs.okhttp)
-    implementation(libs.logging.interceptor)
-
-    // Gson
-    implementation(libs.converter.gson)
-
-    // image loading with coil
-    implementation(libs.coil.compose)
-
-    // glide just in case
-    implementation(libs.glide)
-    annotationProcessor(libs.compiler)
-
-    // splash screen
-    implementation(libs.androidx.core.splashscreen)
 
     // material 3
     implementation(libs.androidx.material3)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
@@ -131,7 +96,6 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)

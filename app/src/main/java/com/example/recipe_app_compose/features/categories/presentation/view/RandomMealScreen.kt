@@ -15,8 +15,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -34,31 +34,48 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.Lifecycle
 import com.example.recipe_app_compose.R
-import com.example.recipe_app_compose.core.components.AlertDialogExample
+import com.example.recipe_app_compose.core.components.ConfirmationDialog
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
+import com.example.recipe_app_compose.features.categories.domain.model.details.containsSavedMeal
+import com.example.recipe_app_compose.features.categories.domain.model.details.toMealDetails
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.DatabaseViewModel
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 import com.example.recipe_app_compose.ui.theme.AppSizes
 import com.example.recipe_app_compose.ui.theme.AppSpacing
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun RandomMealPage(modifier: Modifier = Modifier) {
-    val viewModel: RecipeViewModel = viewModel()
-    val uiState by viewModel.randUiState.collectAsStateWithLifecycle()
+fun RandomMealPage(
+    viewModel: RecipeViewModel,
+    modifier: Modifier = Modifier,
+) {
+    val uiState by viewModel.randUiState.collectAsStateWithLifecycle(
+        minActiveState = Lifecycle.State.RESUMED,
+    )
     var showErrorDialog by remember { mutableStateOf(false) }
     var favoriteDialogState by remember { mutableStateOf(false) }
-    var favoriteViewState by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.error) {
         showErrorDialog = uiState.error != null
     }
 
-    val databaseViewModel: DatabaseViewModel = viewModel()
+    val databaseViewModel: DatabaseViewModel = koinViewModel()
+    val databaseUiState by databaseViewModel.uiState.collectAsStateWithLifecycle(
+        minActiveState = Lifecycle.State.RESUMED,
+    )
     val context = LocalContext.current
-    val currentMeal = uiState.item?.firstOrNull()
-    val addedToFavoritesMessage = stringResource(R.string.added_to_favorites)
+    val currentMeal = uiState.item.firstOrNull()
+    val isFavorite = databaseUiState.list.containsSavedMeal(currentMeal?.idMeal)
+    val dishSavedMessage = stringResource(
+        R.string.dish_saved_message,
+        currentMeal?.strMeal ?: stringResource(R.string.unknown),
+    )
+    val dishAlreadySavedMessage = stringResource(
+        R.string.dish_already_saved_message,
+        currentMeal?.strMeal ?: stringResource(R.string.unknown),
+    )
 
     Box(
         modifier = modifier
@@ -70,54 +87,58 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
                 modifier = Modifier.align(Alignment.Center)
             )
 
-            uiState.error != null && showErrorDialog -> AlertDialogExample(
-                dialogTitle = stringResource(R.string.error),
-                dialogText = stringResource(
+            uiState.error != null && showErrorDialog -> ConfirmationDialog(
+                title = stringResource(R.string.error),
+                message = stringResource(
                     R.string.error_occurred,
                     uiState.error ?: ""
                 ),
-                onDismissRequest = { showErrorDialog = false },
-                onConfirmation = {
+                onDismiss = { showErrorDialog = false },
+                onConfirm = {
                     showErrorDialog = false
                     viewModel.fetchRandomMeal()
-                }
+                },
+                confirmLabel = stringResource(R.string.try_again),
             )
 
             else -> RandomCategoryScreen(
-                categories = uiState.item.orEmpty(),
-                isFavorite = favoriteViewState,
+                categories = uiState.item,
+                isFavorite = isFavorite,
                 onFavorite = {
-                    favoriteDialogState = true
-                    favoriteViewState = true
+                    if (isFavorite) {
+                        Toast.makeText(
+                            context,
+                            dishAlreadySavedMessage,
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                    } else {
+                        favoriteDialogState = true
+                    }
                 },
-                onRefresh = {
-                    viewModel.fetchRandomMeal()
-                    favoriteViewState = false
-                },
+                onRefresh = viewModel::fetchRandomMeal,
             )
         }
 
         if (favoriteDialogState) {
-            AlertDialogExample(
-                dialogTitle = stringResource(R.string.favorites),
-                dialogText = stringResource(R.string.would_you_like_to_add_this_to_your_favorites),
-                onDismissRequest = {
+            ConfirmationDialog(
+                title = stringResource(R.string.saved),
+                message = stringResource(R.string.confirm_save_dish),
+                onDismiss = {
                     favoriteDialogState = false
-                    favoriteViewState = false
                 },
-                onConfirmation = {
+                onConfirm = {
                     favoriteDialogState = false
-                    favoriteViewState = true
-                    currentMeal?.let(databaseViewModel::executeInsertMeal)
-                    Toast.makeText(
-                        context,
-                        buildString {
-                            append("${currentMeal?.strMeal.orEmpty()} ")
-                            append(addedToFavoritesMessage)
-                        },
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    currentMeal?.let { meal ->
+                        databaseViewModel.saveMeal(meal) {
+                            Toast.makeText(
+                                context,
+                                dishSavedMessage,
+                                Toast.LENGTH_SHORT,
+                            ).show()
+                        }
+                    }
                 },
+                confirmLabel = stringResource(R.string.save),
             )
         }
     }
@@ -164,7 +185,7 @@ fun RandomMealItem(
     onRefresh: () -> Unit,
 ) {
     MealDetailsContent(
-        meal = category.toMealDetailsUiModel(),
+        meal = category.toMealDetails(),
         modifier = Modifier.fillMaxWidth(),
         actions = {
             Row(
@@ -173,14 +194,13 @@ fun RandomMealItem(
             ) {
                 FilledTonalButton(
                     onClick = onFavorite,
-                    enabled = !isFavorite,
                     modifier = Modifier.weight(1f),
                 ) {
                     Icon(
                         imageVector = if (isFavorite) {
                             Icons.Default.Favorite
                         } else {
-                            Icons.Default.FavoriteBorder
+                            Icons.Outlined.FavoriteBorder
                         },
                         contentDescription = null,
                     )

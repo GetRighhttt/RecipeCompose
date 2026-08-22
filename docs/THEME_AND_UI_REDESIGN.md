@@ -181,25 +181,11 @@ With one vertical owner:
 
 The category detail page also uses a maximum readable width of 640 dp. On larger displays, this prevents long lines of description text from stretching across the entire screen.
 
-### Responsive authentication
-
-The login screen no longer uses 100 dp of fixed vertical padding. Its content now:
-
-- Respects the scaffold's system-bar insets at the page level.
-- Scrolls when the keyboard or a compact display reduces available height.
-- Uses a maximum width of 480 dp on large displays.
-- Uses shared spacing and a minimum 48 dp login action.
-- Uses the standard control shape instead of a one-off 5 dp corner radius.
-
-The important modifier distinction is that `padding(innerPadding)` belongs around the screen content, not on the logo. `Scaffold` reports space consumed by system bars and app chrome; applying it to only one child leaves the rest of the screen unaware of those insets.
-
-### Account screen and honest feature scope
+### Authentication removal and honest feature scope
 
 The previous Settings destination presented nine placeholder rows even though the application did not provide configurable settings. It also repeated the Settings title inside the page below the navigation title. Those rows were useful while experimenting with dialogs and Compose state, but they implied functionality the product did not have.
 
-The destination is now Account and appears last in the drawer: Home, Info, Account. The navigation top bar is the only page title. The screen shows the authenticated email, a real Sign out action, and a visually separated danger zone for permanent account deletion.
-
-Account deletion now waits for Firebase's asynchronous result before showing success and returning to login. Failure remains on the Account screen with guidance that a recent sign-in may be required. Sign out and successful deletion clear the activity task so Back cannot reopen an authenticated screen.
+The temporary Account replacement was also removed once authentication was recognized as an experiment rather than a product requirement. Recipe discovery, local favorites, nearby shops, maps, and directions do not need an identity, so forcing account creation added friction without unlocking behavior. The drawer now contains only Home and Info, and Firebase Authentication and Analytics are no longer dependencies.
 
 ### Navigation and map review
 
@@ -250,7 +236,7 @@ API-provided category and cuisine values are optional. When either value is blan
 
 The project now includes a debug-only screen preview catalog under `app/src/debug`. Shared preview fixtures provide realistic categories, recipes, favorites, and restaurant results without shipping fake data in release builds.
 
-The catalog renders paired light and dark previews for onboarding, login, cuisine browsing and details, dish search and recipe details, Featured Dish, Saved, saved-dish details, Shops, location choice and permission fallbacks, Account, Info, offline handling, and map fallback/control states. Service-owning entry points remain responsible for Firebase, ViewModels, permissions, Room, and network setup; previews call extracted stateless content instead. This separation makes layout editing fast without making production composables aware of preview mode.
+The catalog renders paired light and dark previews for onboarding, cuisine browsing and details, dish search and recipe details, Featured Dish, Saved, saved-dish details, Shops, location choice and permission fallbacks, Info, offline handling, and map fallback/control states. Service-owning entry points remain responsible for ViewModels, permissions, Room, and network setup; previews call extracted stateless content instead. This separation makes layout editing fast without making production composables aware of preview mode.
 
 Google Maps does not reliably render its live map canvas in Android Studio Preview. The catalog therefore previews the real Directions control on a neutral map placeholder and separately previews the invalid-location fallback. Marker movement, map loading, and Google-rendered controls still require a device or emulator.
 
@@ -271,9 +257,9 @@ The final design pass focused on how the screens connect, not only how each scre
 
 ### First-run onboarding
 
-A three-page onboarding flow now introduces discovery, local saving, and nearby restaurant navigation before authentication. The artwork is built from Material color roles and vector icons, so it follows light and dark mode without maintaining separate image assets. Users can move through the pager, go back between pages, or skip immediately.
+A three-page onboarding flow now introduces discovery, local saving, and nearby restaurant navigation before the main application. The artwork is built from Material color roles and vector icons, so it follows light and dark mode without maintaining separate image assets. Users can move through the pager, go back between pages, or skip immediately.
 
-Completion is stored with Preferences DataStore. Its coroutine and Flow APIs keep persistence off the main thread, while the startup decision remains explicit: onboarding is shown only until completion, then startup proceeds to authentication. A stateless content boundary keeps the screen previewable without introducing preview-only behavior into production code.
+Completion is stored with Preferences DataStore. Its coroutine and Flow APIs keep persistence off the main thread, while the startup decision remains explicit: onboarding is shown only until completion, then startup opens the main application. A stateless content boundary keeps the screen previewable without introducing preview-only behavior into production code.
 
 ### Explore as an action hub
 
@@ -296,13 +282,13 @@ Successful restaurant results and their search origin remain in the route-scoped
 
 ### Portfolio screenshot set
 
-The README now uses six current light-theme device captures: onboarding, Explore, dish search, recipe details, nearby restaurant results, and the interactive map. The map capture verifies that the destination marker renders and that the Directions button remains on the left, clear of Google's zoom controls. Older screenshots and demonstrations are no longer presented as the current interface.
+The README now uses a current light-theme gallery covering onboarding, cuisine browsing, Explore, dish search, recipe details, Featured Dish, nearby restaurant results, the interactive map, and Saved management. The map capture verifies that the destination marker renders and that the Directions button remains on the left, clear of Google's zoom controls. Authentication captures are no longer presented because account access is not part of the product.
 
 ## Verification and remaining visual checks
 
 The debug build, location ViewModel unit tests, and primary device journeys were exercised after the final pass. The remaining checks are useful release-hardening work rather than blockers for the redesign documentation:
 
-1. Compact phone in portrait with the keyboard open on login and search.
+1. Compact phone in portrait with the keyboard open on dish and manual-location search.
 2. Standard phone in light and dark mode.
 3. Landscape phone and a tablet-sized emulator to confirm adaptive column counts.
 4. System font scales of 1.0, 1.3, and 1.5.
@@ -329,7 +315,6 @@ Before calling the redesign complete, verify:
 - `app/src/main/java/com/example/recipe_app_compose/ui/theme/Theme.kt`
 - `app/src/main/java/com/example/recipe_app_compose/ui/theme/Type.kt`
 - `app/src/main/java/com/example/recipe_app_compose/ui/theme/Dimens.kt`
-- `app/src/main/java/com/example/recipe_app_compose/LoginActivity.kt`
 - `app/src/main/java/com/example/recipe_app_compose/SplashScreenActivity.kt`
 - `app/src/main/java/com/example/recipe_app_compose/MainActivity.kt`
 - `app/src/main/java/com/example/recipe_app_compose/OnboardingActivity.kt`
@@ -340,7 +325,6 @@ Before calling the redesign complete, verify:
 - `app/src/main/java/com/example/recipe_app_compose/features/categories/presentation/view/FavoritesScreen.kt`
 - `app/src/main/java/com/example/recipe_app_compose/features/categories/presentation/view/IngredientScreen.kt`
 - `app/src/main/java/com/example/recipe_app_compose/features/categories/presentation/view/MealDetailsContent.kt`
-- `app/src/main/java/com/example/recipe_app_compose/features/categories/presentation/view/AccountScreen.kt`
 - `app/src/main/java/com/example/recipe_app_compose/features/location/data/location/AndroidCurrentLocationProvider.kt`
 - `app/src/main/java/com/example/recipe_app_compose/features/location/presentation/view/YelpScreen.kt`
 - `app/src/main/java/com/example/recipe_app_compose/features/location/presentation/viewmodel/YelpViewModel.kt`

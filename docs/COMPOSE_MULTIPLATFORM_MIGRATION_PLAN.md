@@ -1,9 +1,267 @@
 # Compose Multiplatform migration plan
 
-Status: approved direction; implementation has not started<br>
-Last revised: 2026-08-21<br>
+Status: implementation in progress; checkpoints 1–8 complete, Android/iOS feature parity reached for Nearby<br>
+Last revised: 2026-08-22<br>
 Targets: Android and iOS<br>
 Related discovery: [Kotlin Multiplatform migration assessment](KMP_MIGRATION_ASSESSMENT.md)
+
+## Implementation progress
+
+### Checkpoint 1 — shared module boundary
+
+The first migration checkpoint adds a deliberately small `:shared` module without moving production behavior:
+
+- `commonMain` owns a temporary shared-module identity and a minimal Compose compiler boundary.
+- `androidMain` and `iosMain` provide compile-time `actual` platform values for the common `expect` declaration.
+- `commonTest` verifies the common artifact identity.
+- `:app` depends on `:shared`, and an Android unit test verifies that the application resolves the Android target rather than common metadata alone.
+- The Android application remains the only installable Android module; no activity, screen, repository, database, location, or map implementation has moved.
+
+Verification completed for this checkpoint:
+
+- Shared common/iOS metadata compilation passed.
+- Shared Android host tests passed.
+- The Android shared AAR assembled.
+- Android unit tests, lint, and debug APK assembly passed while consuming `:shared`.
+- The final `iosSimulatorArm64` debug framework linked successfully with full Xcode supplied through command-scoped `DEVELOPER_DIR`.
+- `iosSimulatorArm64Test` passed on Xcode 26.6 with the installed iOS 26.5 simulator runtime.
+
+Toolchain note: Kotlin 2.4.10 officially documents compatibility through Gradle 9.5, AGP 9.1, and Xcode 26.4. This repository currently uses Gradle 9.7, AGP 9.3.1, and Xcode 26.6. The checkpoint has compiled successfully with that newer combination, but it remains a locally validated, outside-the-published-matrix configuration. The global developer directory now points to the full Xcode installation, so Apple builds no longer require a command-scoped `DEVELOPER_DIR` override. No toolchain version will be changed implicitly during migration.
+
+Compose Multiplatform 1.11.1 uses the canonical multiplatform `androidx.compose.runtime:runtime:1.11.2` artifact in `commonMain`. The older `org.jetbrains.compose.runtime` alias was avoided after it produced duplicate KLIB identity warnings alongside the Android runtime.
+
+### Checkpoint 2 — first shared Compose screen
+
+The second checkpoint moves a real production UI slice without changing Android startup behavior:
+
+- `OnboardingScreen`, its pager model, accessibility semantics, artwork, and page indicators now live in `commonMain`.
+- The complete color system, typography, spacing, sizes, shapes, and `AppTheme` now live in `commonMain` under their original package names. Existing Android screens continue consuming the same API through `:shared` without call-site rewrites.
+- Onboarding text and vector artwork moved from Android resources and AndroidX Material icon objects to Compose Multiplatform resources.
+- Android `R`, `@StringRes`, `androidx.compose.ui.res.stringResource`, and Material icon imports were removed from the shared screen.
+- System-back subscription is isolated behind `OnboardingBackHandler`: Android delegates to `BackHandler`, while iOS intentionally has no system-back action because onboarding will be its root screen. Pager state and previous-page behavior remain shared.
+- `OnboardingActivity`, `SplashScreenActivity`, startup routing, and versioned DataStore persistence remain in the Android application module for this checkpoint.
+
+Verification completed for this checkpoint:
+
+- `commonMain` and `commonTest` contain no `android.*`, Java-only, Google Android, or Android resource imports.
+- Shared Android host tests and Android AAR assembly passed.
+- Android application unit tests, lint, and debug APK assembly passed while resolving the moved screen and theme from `:shared`.
+- A fresh install on the connected Samsung SM-G990U exposed a runtime `OutlinedTextField` measurement crash in the Nearby location fallback. The feature code was not the cause: Android BOM `2026.08.00` had resolved UI and Foundation 1.12 alongside Compose Multiplatform 1.11.1 Material 3. The Android BOM was aligned to `2026.06.01`, resolving UI and Foundation 1.11.4; the rebuilt fresh-install flow and **Use my location** action were then verified successfully on the device with no new runtime crash.
+- The `iosSimulatorArm64` framework linked with the shared onboarding resources and UI.
+- The iOS simulator shared test executable compiled, linked, and passed using the globally selected Xcode 26.6 installation.
+
+This checkpoint stopped before adding an iOS application. Checkpoint 3 adds only the minimal Xcode host needed to render this already-verified shared onboarding screen.
+
+### Checkpoint 3 — minimal iOS host and runtime proof
+
+The third checkpoint adds a native iOS application shell without duplicating the shared UI:
+
+- `RecipeComposeApp.swift` owns the SwiftUI application lifecycle.
+- `ContentView.swift` contains a small `UIViewControllerRepresentable` bridge and no application state or screen implementation.
+- `MainViewController.kt` is the Kotlin/Native entry point. It creates a `ComposeUIViewController`, applies the shared `AppTheme`, and renders the shared `OnboardingScreen`.
+- Xcode invokes `:shared:embedAndSignAppleFrameworkForXcode` through a pre-compile build phase. This is direct local framework integration; CocoaPods and Swift Package Manager are not involved.
+- The host uses an explicit, source-controlled `Info.plist`. Compose's strict launch check requires `CADisableMinimumFrameDurationOnPhone` to be `true`, which permits full-rate rendering on high-refresh-rate iPhones. The same plist will later own iOS privacy usage descriptions.
+- The onboarding completion callback intentionally remains empty. iOS startup persistence, the shared application shell, networking, maps, location, signing, and final app assets have not moved into this checkpoint.
+
+Verification completed for this checkpoint:
+
+- Xcode 26.6 recognizes the `iosApp` target and shared `iosApp` scheme.
+- A Debug simulator build passed through the complete Xcode → Gradle → Kotlin framework → Swift compile/link path.
+- The first simulator launch exposed the missing ProMotion plist entry as an uncaught Kotlin exception. The explicit plist fix was verified in the built application bundle rather than bypassing Compose's strict check.
+- The corrected app installed and remained running on an iPhone 17 Pro simulator with iOS 26.5.
+- The shared onboarding theme, strings, vector artwork, paging controls, and safe-area layout rendered successfully in the iOS host.
+- `:shared:iosSimulatorArm64Test` passed.
+- Android unit tests, lint, and debug APK assembly passed after the iOS-only host was added.
+
+The host currently targets iOS 16.0. A non-blocking linker warning reports that a bundled ICU object was built with an iOS Simulator 18.5 minimum while the host links at 16.0. It does not affect the iOS 26.5 simulator proof, but deployment-target compatibility must be resolved or intentionally raised before supporting older physical devices.
+
+This checkpoint is the Phase 1 hard stop. Phase 2 will not begin until the host and migration boundary are approved.
+
+### Checkpoint 4 — shared recipe foundation
+
+The recipe feature now has a real shared foundation without duplicating its
+behavior on either platform:
+
+- Startup policy, location contracts, recipe models, repository contracts, and
+  recipe UI state live in `commonMain`.
+- TheMealDB is now a shared Ktor client using `kotlinx.serialization`, with
+  OkHttp supplied on Android and Darwin supplied on iOS.
+- `RandomMeal` is no longer an Android Room entity or a `Parcelable`. Android
+  persistence is isolated in `RandomMealEntity` and explicit mappers, which is
+  the shape Room KMP will need later.
+- The recipe business logic moved into a platform-neutral `RecipeStore`.
+  Android keeps a thin lifecycle `RecipeViewModel` adapter while a future shared
+  Compose root can own the same store directly.
+- Koin now contributes the shared recipe repository and store from `:shared`;
+  Android contributes only its database, location, Yelp, and Android ViewModel
+  bindings.
+- The old Parcelable navigation payloads were replaced with a temporary
+  Android in-memory selection bridge. Shared navigation will replace this bridge
+  with stable identifiers/typed routes in the next UI checkpoint.
+
+Verification completed for this checkpoint:
+
+- Shared iOS simulator compilation and tests passed.
+- Android compilation and unit tests passed.
+- The Android debug app was installed and launched on the connected Samsung
+  device without a crash.
+- The Xcode iOS simulator build passed after the Ktor/Darwin framework linked.
+
+The remaining recipe work is deliberately UI-focused: migrate the Compose
+screens, resources, image loader, and navigation shell as one coherent slice.
+
+### Checkpoint 5 — shared recipe experience
+
+The iOS host now progresses beyond the onboarding proof into a shared recipe
+experience:
+
+- `RecipeComposeApp` owns the shared onboarding-to-app transition and Compose
+  Koin scope.
+- Explore, category details, dish search, and recipe details are shared Compose
+  screens using Compose resources and the existing shared design system.
+- Coil moved from Android-only Coil 2 to Coil 3's Compose Multiplatform API,
+  using the Ktor 3 network component already present in `commonMain`.
+- Yelp response models, repository contract, and UI state moved to common code.
+  Native location acquisition, permission prompts, configuration secrets, maps,
+  driving directions, and favorites persistence remain platform adapters.
+
+The first iOS simulator build and launch with this shell succeeded. The
+onboarding page remains visible on a fresh process; persistent iOS onboarding
+completion and the remaining platform adapters are the next production-parity
+tasks.
+
+### Checkpoint 6 — shared persistence and saved recipes
+
+Persistence now has one shared implementation with platform-specific file
+construction:
+
+- DataStore owns the onboarding completion version and retained location choice
+  in `commonMain`. Android continues using the existing
+  `onboarding_preferences` and `location_preferences` files and keys, while iOS
+  constructs equivalent stores in its Documents directory.
+- The iOS root resolves the stored onboarding version before selecting a screen,
+  avoiding a transient onboarding page when completion is already persisted.
+- The favorites entity, DAO, Room database, repository, generated constructor,
+  and schema moved to `commonMain` using Room 2.8.4 and the bundled SQLite 2.6.2
+  driver.
+- Android continues opening the existing `randomMeal.db`; iOS creates the same
+  schema in its Documents directory. Database construction is the only
+  platform-specific Room code.
+- Saved-recipe state and UI are now shared. The iOS Saved destination lists and
+  opens recipes, recipe details can save or remove them, duplicate saves are
+  rejected by the DAO, and the collection can be cleared from the Saved screen.
+- The version 6 Room schema is source controlled under `shared/schemas`.
+
+Verification completed for this checkpoint:
+
+- Android debug assembly, Android unit tests, shared Android host tests, and iOS
+  simulator tests passed.
+- The Xcode iOS simulator build linked DataStore, Room, and bundled SQLite and
+  launched successfully into the shared onboarding flow.
+- The Android APK installed over the existing application without clearing data,
+  launched on the connected Samsung device, and remained running without an
+  application error.
+
+Manual completion remains for the behavior checklist: finish onboarding once on
+iOS, relaunch to confirm direct entry to Explore, then save, reopen, and remove a
+recipe from Saved. This is runtime acceptance testing, not unimplemented code.
+
+### Checkpoint 7 — visual parity and shared Yelp networking
+
+The next checkpoint restores the presentation details lost during the first
+shared-shell proof and completes the provider-level Yelp networking migration:
+
+- Common vector resources now supply the menu, drawer, bottom navigation,
+  Explore actions, metadata, recipe resources, back navigation, save, delete,
+  and refresh iconography. Android and iOS can keep platform-appropriate artwork
+  while sharing the same semantics and interaction hierarchy.
+- The shared Search destination uses the compact Material 3 search field and an
+  adaptive, image-first result grid. Its app bar owns back navigation, avoiding
+  the legacy text-based Back control and excessive vertical spacing.
+- Featured, Search, and Saved routes reuse one shared recipe-details layout while
+  retaining route-specific actions. Featured exposes labeled **Save/Saved** and
+  **Another dish** controls, Search exposes save, and Saved exposes remove.
+- Featured refresh updates the displayed details from `RecipeStore` state instead
+  of opening a second details implementation. This keeps the current screen and
+  its random-meal source synchronized after each refresh.
+- Yelp business search now runs through a `commonMain` Ktor client and
+  `kotlinx.serialization`. Android injects its key and base URL from `BuildConfig`;
+  shared code owns request parameters, authorization, timeout behavior, response
+  decoding, and error mapping.
+- The temporary Android Retrofit/Gson Yelp API, DTO adapter, singleton client,
+  and safe-call wrapper were deleted. Retrofit and Gson are no longer application
+  dependencies.
+- Ktor `MockEngine` tests cover coordinate and named-location parameters, the
+  authorization header, a missing API key, the top-level `businesses` mapping,
+  and representative snake-case response fields.
+
+The temporary Gson bridge was necessary because Gson does not interpret
+`kotlinx.serialization`'s `@SerialName`. Without the bridge, the shared model's
+`shops` property defaulted to an empty list, so a successful request silently
+looked like **No Results Found**. Moving the request and decoding to Ktor removes
+that split serialization contract rather than maintaining two mappings.
+
+Verification completed for this checkpoint:
+
+- Android debug assembly, Android unit tests, all shared Android/iOS tests, and
+  the Xcode iOS simulator build passed.
+- The iOS simulator launched with restored navigation, Explore, and details
+  iconography plus the shared Search and route-specific details actions.
+- The rebuilt Android APK installed on the connected Samsung device. Its retained
+  current-location choice completed a live Yelp request and rendered nearby
+  restaurant names, ratings, and addresses through the shared Ktor repository.
+
+Checkpoint 8 completes the platform integration that remained after the shared
+Yelp transport: location permission/acquisition, restaurant UI, native maps, and
+directions handoff.
+
+### Checkpoint 8 — shared Nearby discovery, location, maps, and directions
+
+Nearby restaurant discovery now runs through one shared feature on Android and
+iOS:
+
+- `NearbyStore` owns restaurant search, manual city/ZIP input, saved location
+  choice, retries, cancellation, and UI state in `commonMain`.
+- Permission requests remain user-driven. Entering Nearby does not immediately
+  display a system prompt; **Use my location** initiates the request, while
+  manual search remains fully usable without location permission.
+- Android implements the shared location contract with runtime permissions,
+  lifecycle-aware status refresh, and the fused location provider.
+- iOS implements the same contract with `CLLocationManager`, its delegate, the
+  when-in-use prompt, and an application-settings fallback.
+- `SharedNearbyScreen` renders the search field, location-choice states,
+  permission guidance, loading/error/empty states, and Yelp result cards for
+  both platforms.
+- The shared map destination owns selected coordinates, marker labels, and the
+  directions action. Android renders Google Maps Compose; iOS embeds native
+  MapKit through `UIKitView`.
+- Both maps allow a destination marker to be repositioned. Android supports map
+  taps and marker dragging; iOS supports map taps and a draggable native
+  annotation.
+- Directions hand off to Google Maps-compatible navigation on Android and Apple
+  Maps driving directions on iOS. Viewing a restaurant destination does not
+  itself require location permission.
+- Yelp configuration still originates from ignored `local.properties`. Android
+  receives it through `BuildConfig`; the iOS framework receives a generated,
+  ignored local source value with an optional Xcode build-setting override.
+- The superseded Android-only Nearby screen, ViewModel, location provider, map
+  screen, and their obsolete tests/previews were removed after both hosts used
+  the shared route.
+
+Verification completed for this checkpoint:
+
+- Shared Android and iOS compilation passed.
+- Shared tests and Android unit tests passed, including common tests for manual
+  search without permission and user-initiated current-location persistence.
+- The Android debug APK assembled, installed, and launched on the connected
+  Samsung device.
+- The Xcode simulator build succeeded for the arm64 iPhone 17 Pro destination,
+  installed, and launched on iOS 26.5.
+
+The iOS 16.0 host still emits the previously documented non-blocking warning
+that a bundled ICU object was built for iOS Simulator 18.5. This does not block
+the current iOS 26.5 simulator build, but should be resolved before claiming
+support for older physical iOS versions.
 
 ## Decision summary
 
@@ -27,7 +285,7 @@ Recommended direction:
 3. Add a small `iosApp` Xcode project that embeds the shared Compose UI.
 4. Migrate one complete vertical slice at a time while keeping Android functional.
 5. Share screens, navigation, ViewModels, repositories, networking, persistence, and resources.
-6. Keep maps, Firebase initialization, connectivity, geocoding, sharing, and external navigation behind platform implementations.
+6. Keep maps, connectivity, geocoding, sharing, and external navigation behind platform implementations.
 7. Defer desktop and web targets until Android and iOS reach feature parity.
 
 ## Revision context
@@ -35,12 +293,14 @@ Recommended direction:
 This revision reflects the application after the 2026 Android cleanup and redesign rather than the older two-year-old baseline. Since the original plan was written, the project has:
 
 - migrated and centralized its Gradle Kotlin DSL configuration;
-- upgraded to Kotlin 2.4.10, AGP 9.3.1, Gradle 9.5.0, and Java 21 for the build runtime;
+- upgraded to Kotlin 2.4.10, AGP 9.3.1, Gradle 9.7.0, and Java 21 for the build runtime;
 - adopted an action-first Explore screen and persistent top-level navigation;
 - added versioned onboarding persistence with DataStore 1.2.1;
-- centralized startup routing between onboarding, authentication, and the main application;
+- centralized startup routing between onboarding and the main application;
 - improved lifecycle-aware state collection, location permission handling, restaurant discovery, Google Maps, directions, offline UI, previews, and unit coverage;
-- retained Android-specific Firebase, Google Maps, location, activity startup, and external-intent integrations.
+- removed the experimental Firebase authentication and analytics stack because no product capability required an account;
+- moved restaurant discovery and map state to shared code while retaining Google
+  Maps on Android, MapKit on iOS, and platform-native location/directions adapters.
 
 The direction is now decided: this project will pursue shared Compose UI for Android and iOS, not a SwiftUI frontend over shared logic. The earlier KMP assessment remains useful as a dependency and platform-boundary inventory, but its UI-strategy decision point has been resolved by this document.
 
@@ -50,16 +310,16 @@ The direction is now decided: this project will pursue shared Compose UI for And
 | --- | --- | --- |
 | Kotlin | 2.4.10 | Keep the Compose compiler plugin on the same Kotlin version. |
 | Android Gradle Plugin | 9.3.1 | Use `com.android.kotlin.multiplatform.library` for the Android target in `:shared`; do not combine the KMP target with `com.android.application`. |
-| Gradle | 9.5.0 | Already suitable for the current Android build; pin the wrapper during the migration. |
+| Gradle | 9.7.0 | Already suitable for the current Android build; pin the wrapper during the migration. |
 | Build JVM | Java 21.0.11 | Keep Java 21 as the reproducible build baseline. |
 | Compose Android | BOM 2026.06.01 | The Android app can retain the BOM during extraction; common UI must use Compose Multiplatform dependencies. |
 | Compose Multiplatform candidate | 1.11.1 | Verify the complete version matrix in the proof-of-life phase before moving production screens. |
 | Koin candidate | 4.2.2 | Use Koin DSL modules in shared code first; defer annotations/compiler-plugin adoption until the base KMP graph is stable. |
 | Ktor candidate | 3.5.1 | Use shared client configuration with OkHttp on Android and Darwin on iOS. |
-| Room | 2.8.4 | KMP-capable, but database construction and migration tests remain platform-specific. |
-| DataStore | 1.2.1 | The onboarding version can move behind a common persistence contract after the first shared UI proof. |
-| Xcode | 26.5 installed | The active developer directory currently points to `/Library/Developer/CommandLineTools`; select full Xcode before building the iOS host. |
-| iOS deployment target | 14 or newer | Compose Multiplatform 1.11.1 supports iOS 14 and newer. |
+| Room | 2.8.4 | Shared schema/DAO/repository with Android and iOS builders; bundled SQLite 2.6.2 keeps behavior consistent. |
+| DataStore | 1.2.1 | Shared onboarding/location semantics with platform file construction. |
+| Xcode | 26.6 selected | The active developer directory is `/Applications/Xcode.app/Contents/Developer`; framework linking and iOS simulator tests pass. |
+| iOS deployment target | 16.0 host baseline | The host currently targets iOS 16.0; investigate the bundled ICU 18.5 linker warning before claiming older-device support. |
 
 Before the first iOS build, select full Xcode and complete any first-launch setup:
 
@@ -95,7 +355,6 @@ RecipeCompose
 │   ├── SplashScreenActivity.kt
 │   ├── OnboardingActivity.kt
 │   ├── Android application resources
-│   ├── google-services.json
 │   └── Android-only startup and configuration
 │
 ├── shared
@@ -122,12 +381,10 @@ RecipeCompose
 │   │   │   ├── data
 │   │   │   ├── domain
 │   │   │   └── presentation
-│   │   ├── features/favorites
-│   │   └── features/auth
+│   │   └── features/favorites
 │   │
 │   ├── src/androidMain
 │   │   ├── Google Maps Compose implementation
-│   │   ├── Android Firebase implementation
 │   │   ├── ConnectivityManager implementation
 │   │   ├── Android Geocoder implementation
 │   │   ├── Android external-action launchers
@@ -135,8 +392,8 @@ RecipeCompose
 │   │   └── Android configuration provider
 │   │
 │   ├── src/iosMain
+│   │   ├── MainViewController.kt
 │   │   ├── MapKit or Google Maps iOS implementation
-│   │   ├── Firebase Apple implementation
 │   │   ├── NWPathMonitor implementation
 │   │   ├── CLGeocoder implementation
 │   │   ├── iOS external-action launchers
@@ -151,11 +408,10 @@ RecipeCompose
 │
 └── iosApp
     ├── RecipeComposeApp.swift
-    ├── ComposeView.swift
+    ├── ContentView.swift
     ├── Info.plist
     ├── Assets.xcassets
-    ├── GoogleService-Info.plist
-    └── RecipeCompose.xcodeproj
+    └── iosApp.xcodeproj
 ```
 
 The platform entry points should initialize Koin with common and platform modules, then display a shared root composable:
@@ -176,7 +432,7 @@ fun RecipeComposeApp()
 | Repository contracts | `commonMain` | Keep interfaces platform-neutral. |
 | `RecipeViewModel` | `commonMain` | Replace global dependency lookup with constructor injection. |
 | `DatabaseViewModel` | `commonMain` | Inject the repository and use the multiplatform ViewModel artifact. |
-| `YelpViewModel` | `commonMain` | Inject API configuration and repository dependencies. |
+| `NearbyStore` | `commonMain` | Own Yelp search and location-choice state while receiving platform location access through a contract. |
 | Compose screens and widgets | Mostly `commonMain` | Replace `LocalContext`, Android resources, Toasts, and Intents. |
 | Explore shell and primary navigation | `commonMain` after recipe state is shared | Preserve the four destinations—Explore, Search, Nearby, and Saved—while replacing string routes with typed serializable routes. |
 | Navigation | `commonMain` | Replace Parcelable objects in `SavedStateHandle` with serializable routes or stable IDs. |
@@ -187,10 +443,9 @@ fun RecipeComposeApp()
 | Google Maps screen | Platform implementations | Keep shared destination state; render Google Maps on Android and a native map on iOS. |
 | Reverse geocoding | Platform implementations | Use Android `Geocoder` and iOS `CLGeocoder`. |
 | Connectivity | Platform implementations | Use `ConnectivityManager` and `NWPathMonitor`. |
-| Firebase authentication | Shared contract, native implementations | Wrap the official Android and Apple SDKs behind `AuthRepository`. |
 | Sharing and directions | Platform implementations | Emit shared UI events and let each platform open the appropriate application. |
 | Secrets and URLs | Injected configuration | Keep `BuildConfig` Android-specific and supply iOS values through build configuration. |
-| Application startup | Platform hosts plus common startup policy | Keep Android activities and the iOS `@main` entry point outside `commonMain`; share only destination policy and session/onboarding state. |
+| Application startup | Platform hosts plus common startup policy | Keep Android activities and the iOS `@main` entry point outside `commonMain`; share only onboarding destination policy. |
 
 ## Key technical decisions
 
@@ -209,7 +464,7 @@ org.jetbrains.kotlin.plugin.compose
 com.android.kotlin.multiplatform.library
 ```
 
-The existing `:app` keeps `com.android.application`, Google Services, Secrets, and Android packaging responsibilities. It depends on `:shared` and hosts the shared root when that root is ready.
+The existing `:app` keeps `com.android.application`, Secrets, and Android packaging responsibilities. It depends on `:shared` and hosts the shared root when that root is ready.
 
 ### UI and resources
 
@@ -259,14 +514,12 @@ androidMain
 └── androidPlatformModule
     ├── Android location provider
     ├── Room Android builder
-    ├── Firebase Android adapter
     └── Android platform actions
 
 iosMain
 └── iosPlatformModule
     ├── iOS location provider
     ├── Room iOS builder
-    ├── Firebase Apple adapter
     └── iOS platform actions
 ```
 
@@ -331,23 +584,9 @@ MapKit is the recommended initial iOS implementation because it is native and av
 
 Android can continue launching Google Maps directions. iOS can open Apple Maps or Google Maps when available. Recipe Compose does not require device-location permission merely to display a Yelp destination or hand it to a navigation application.
 
-### Firebase
+### Authentication scope
 
-Define a shared contract for session state and account actions:
-
-```kotlin
-interface AuthRepository {
-    val session: StateFlow<AuthSession>
-    suspend fun signIn(email: String, password: String): AuthResult
-    suspend fun createAccount(email: String, password: String): AuthResult
-    suspend fun signOut()
-    suspend fun deleteAccount(): AuthResult
-}
-```
-
-Use Firebase Android in `androidMain` and the Firebase Apple SDK in the iOS application or `iosMain` adapter. Initialize each platform with its native configuration file. Account deletion must model recent-login and reauthentication failures instead of assuming deletion always succeeds.
-
-Firestore, Analytics, and Performance should be audited before migration. Do not port dependencies that are not providing intentional product behavior.
+Authentication is intentionally outside the current product and migration scope. The former Firebase implementation existed only as an API experiment; recipes, local favorites, restaurant discovery, maps, and directions do not require an account. Do not introduce a shared auth contract or platform SDKs during migration unless a concrete account-backed feature—such as cross-device synchronization—first establishes the requirement.
 
 ## Ordered migration plan
 
@@ -356,7 +595,7 @@ Firestore, Analytics, and Performance should be audited before migration. Do not
 - Finish and verify the Explore, primary-navigation, and onboarding changes before moving files.
 - Resolve the compact Search-grid presentation before freezing that screen: use an adaptive image-first grid with approximately 120–136 dp minimum tiles, two-line labels, and automatic two-column fallback for constrained width or larger fonts.
 - Keep `:app:compileDebugKotlin` and `:app:testDebugUnitTest` green.
-- Record a manual parity checklist for onboarding, startup, Explore, category details, search, favorites, nearby shops, maps, directions, account actions, offline recovery, and activity recreation.
+- Record a manual parity checklist for onboarding, startup, Explore, category details, search, favorites, nearby shops, maps, directions, offline recovery, and activity recreation.
 - Record the known non-blocking warnings separately: redundant explicit-backing-fields flag, deprecated Room destructive-migration overload, and deprecated AGP properties.
 - Remove confirmed unused dependencies only when that cleanup is isolated from the KMP scaffolding change.
 - Select full Xcode and complete its first-launch setup.
@@ -376,14 +615,14 @@ Exit criteria:
 - Keep `:app` as the only Android application module and make it depend on `:shared`.
 - Add a small Xcode `iosApp` using direct local framework integration.
 - Move the theme primitives and onboarding page UI/resources as the first shared Compose proof.
-- Keep `SplashScreenActivity`, `OnboardingActivity`, Firebase session lookup, and Android DataStore construction in `:app` for this phase.
+- Keep `SplashScreenActivity`, `OnboardingActivity`, and Android DataStore construction in `:app` for this phase.
 
 Exit criteria:
 
 - Android launches the shared onboarding composable through the existing host.
 - The iOS simulator launches the same themed onboarding composable.
 - Shared tests run from Gradle.
-- No recipe, Yelp, map, database, or Firebase implementation has moved yet.
+- No recipe, Yelp, map, or database implementation has moved yet.
 
 This is the first hard stop. If the version matrix, Android-KMP plugin, Xcode framework integration, or resource generation is unstable, fix the toolchain before extracting production features.
 
@@ -398,8 +637,8 @@ This is the first hard stop. If the version matrix, Android-KMP plugin, Xcode fr
 
 Exit criteria:
 
-- `commonMain` contains no `android.*`, Java-only, Firebase Android, Play Services, or Android resource imports.
-- Android still runs against the same Retrofit, Room, Firebase, and map implementations.
+- `commonMain` contains no `android.*`, Java-only, Play Services, or Android resource imports.
+- Android still runs against the same Retrofit, Room, and map implementations.
 - Shared contract tests pass for Android and iOS simulator targets.
 
 ### Phase 3 — migrate the first recipe and Explore vertical slice
@@ -450,40 +689,39 @@ Exit criteria:
 - Loading, empty, error, permission-denied, and cancellation states have parity.
 - Authorization headers remain redacted.
 
-### Phase 6 — migrate authentication and remaining platform actions
+### Phase 6 — migrate remaining platform actions
 
-- Replace direct Firebase calls with the shared `AuthRepository` contract and explicit session state.
-- Move login and account UI to shared Compose.
-- Implement Firebase Android and Apple adapters using the official platform SDKs initially.
-- Move the startup policy to common state while keeping Android activities and the iOS entry point native.
+- Move the onboarding startup policy to common state while keeping Android activities and the iOS entry point native.
 - Add platform implementations for sharing, email, external URLs, messages, and application settings.
-- Audit Firestore, Analytics, and Performance; remove integrations without intentional product behavior.
 
 Exit criteria:
 
-- Sign-up, sign-in, sign-out, account deletion, and reauthentication failures work on Android and iOS.
-- Startup does not flash an intermediate authentication screen.
+- Startup moves directly from native launch/onboarding state into the shared application without an intermediate screen.
 - External actions behave appropriately on each platform.
 
 ### Phase 7 — parity, UX, CI, and release hardening
 
-- Review large titles, bottom navigation, drawer/account access, dialogs, and gestures specifically on iOS.
+- Review large titles, bottom navigation, drawer behavior, dialogs, and gestures specifically on iOS.
 - Verify safe areas, keyboard behavior, dark mode, dynamic type, accessibility, restoration, and reduced motion.
-- Add iOS privacy descriptions, signing, Firebase configuration, and key restrictions.
+- Add iOS privacy descriptions, signing, map configuration, and key restrictions.
 - Add CI jobs for Android, common tests, and an iOS simulator build.
 - Refresh the repository README with the final architecture, migration summary, and a curated screenshot set for Onboarding, Explore, Search, Nearby, and Maps. Capture only settled, representative states and prefer matching Android/iOS views once parity exists.
 - Run the complete parity checklist before declaring the migration complete.
 
 ## Practical stopping point for the first migration session
 
-A successful first session should finish Phase 0 and Phase 1, then stop with both platform hosts rendering the shared onboarding UI. If time remains, begin Phase 2 by moving only pure contracts and tests. Do not start networking, Room, Firebase, or maps until the shared module and iOS framework remain reproducibly green.
+A successful first session should finish Phase 0 and Phase 1, then stop with both platform hosts rendering the shared onboarding UI. If time remains, begin Phase 2 by moving only pure contracts and tests. Do not start networking, Room, or maps until the shared module and iOS framework remain reproducibly green.
+
+The implementation passed this stopping point on 2026-08-22 and has progressed
+through the persistence work in Phase 4. Restaurant, location, and map parity
+remain the next major migration slice.
 
 That stopping point is intentionally useful rather than cosmetic: it proves shared Compose rendering, resources, paging, theming, Android consumption, Xcode integration, and iOS safe-area behavior without risking the working Android feature set.
 
 ## Migration working rules
 
 - Keep every phase buildable on Android; add the iOS verification as soon as the touched code reaches a shared source set.
-- Move code before redesigning its behavior. Koin DSL and Ktor are required migration infrastructure; do not add Navigation 3, Koin annotations/compiler plugins, a database replacement, or a Firebase-wrapper experiment at the same time.
+- Move code before redesigning its behavior. Koin DSL and Ktor are required migration infrastructure; do not add Navigation 3, Koin annotations/compiler plugins, a database replacement, or an unrelated account system at the same time.
 - Prefer one complete vertical slice over moving every model, every screen, or every repository by layer.
 - Keep temporary Android adapters explicit and delete them when their shared replacement is proven.
 - Do not duplicate a mutable source of truth between `:app` and `:shared`; Android should consume the shared owner once a state holder moves.
@@ -498,18 +736,17 @@ That stopping point is intentionally useful rather than cosmetic: it proves shar
 - TheMealDB and Yelp request/response contracts.
 - HTTP errors, malformed responses, and cancellation.
 - Search debounce and stale-request prevention.
-- Startup routing for every onboarding-version and authentication combination.
+- Startup routing for incomplete and completed onboarding versions.
 - Onboarding completion-version semantics.
 - Primary navigation behavior, including Search → Explore restoration.
 - ViewModel loading, success, empty, and error transitions.
 - Favorites repository behavior.
-- Authentication state transitions with fake repositories.
 
 ### Android verification
 
-- Android application startup and Firebase initialization.
+- Android application startup.
 - Activity recreation during onboarding and top-level navigation.
-- DataStore persistence across process restart without resetting on sign-out.
+- DataStore persistence across process restart.
 - Google Maps rendering and directions intents.
 - Android connectivity and geocoding adapters.
 - Manifest placeholder and configuration generation.
@@ -520,9 +757,8 @@ That stopping point is intentionally useful rather than cosmetic: it proves shar
 - Framework linkage and simulator/device startup.
 - Onboarding paging, completion persistence, and safe-area behavior.
 - MapKit marker interaction and geocoding.
-- Firebase Apple initialization and authentication.
 - URL schemes and directions fallback behavior.
-- Keychain/session persistence, safe areas, back gestures, and accessibility.
+- Safe areas, back gestures, and accessibility.
 
 ## Decision checkpoints
 
@@ -534,7 +770,6 @@ Resolve these choices before their corresponding phase begins:
 | iOS map provider | MapKit | Google Maps branding or feature parity becomes a requirement. |
 | Dependency injection | Koin 4.2.2 with regular DSL modules | Compile-time annotations become valuable after the runtime graph and Kotlin 2.4 toolchain are stable. |
 | Navigation | Current multiplatform Navigation Compose | Android/iOS parity is complete and Navigation 3 offers a concrete benefit. |
-| Firebase integration | Platform adapters over official SDKs | Adapter maintenance becomes more expensive than a vetted KMP wrapper. |
 | Desktop/web targets | Exclude | Mobile parity is complete. |
 | iOS top-level navigation | Shared Compose shell initially | User testing shows the Android-style shell feels inappropriate on iOS. |
 | Onboarding persistence | Common version semantics with platform DataStore construction | A different Apple-native persistence requirement appears. |
@@ -548,10 +783,10 @@ Resolve these choices before their corresponding phase begins:
 | Toolchain incompatibility across Kotlin, Compose, AGP, KSP, and Room | Build setup can block feature work. | Complete the proof-of-life phase before moving production code and pin a verified version matrix. |
 | Android BOM and Compose Multiplatform dependencies coexist during extraction | Dependency resolution can produce subtle Android-only or binary-compatibility failures. | Keep the BOM in `:app`, use Compose Multiplatform coordinates only in `:shared`, and verify dependency resolution before moving screens. |
 | Koin graph errors move from the custom service locator into runtime module definitions | Missing or duplicated bindings could fail only when a screen is opened. | Keep modules small, constructor-inject every definition, and run Koin module verification tests in `commonTest`. |
-| Firebase has separate official Android and Apple SDKs | Auth cannot move unchanged into `commonMain`. | Share the contract and state; implement and test native adapters. |
 | Google Maps Compose is Android-specific | The current map composable cannot be copied into common code. | Share map state and use MapKit or Google Maps iOS behind a platform composable. |
 | Android APIs are spread through UI files | Screens may appear portable while still depending on `LocalContext`, `R`, Toasts, or Intents. | Move screens individually and require zero `android.*` imports in `commonMain`. |
 | Android-oriented navigation shell feels foreign on iOS | Functional parity may not produce good iOS UX. | Treat the root navigation shell as an explicit UX checkpoint. |
+| A bundled ICU object reports an iOS Simulator 18.5 minimum while the host targets iOS 16.0 | Older-device compatibility is not yet proven even though the current simulator runs. | Verify dependency/toolchain minimums before Phase 7, then either align the framework minimum or intentionally raise the app deployment target. |
 | Client API keys can be extracted from both mobile binaries | Moving configuration does not create secrecy. | Restrict keys and introduce a backend for credentials that must remain confidential. |
 | Thin existing test coverage | Behavior can regress during extraction. | Add state, repository, and persistence tests before each vertical slice moves. |
 
@@ -559,11 +794,11 @@ Resolve these choices before their corresponding phase begins:
 
 The migration is complete when:
 
-1. Android and iOS launch the same shared Compose application root after their native startup host resolves onboarding and session state.
-2. Onboarding, Explore, recipe browsing, ingredient search, random meals, favorites, Yelp discovery, maps, marker selection, directions, offline recovery, and authentication work on both platforms.
+1. Android and iOS launch the same shared Compose application root after their native startup host resolves onboarding state.
+2. Onboarding, Explore, recipe browsing, ingredient search, random meals, favorites, Yelp discovery, maps, marker selection, directions, and offline recovery work on both platforms.
 3. Shared UI and business logic live in `commonMain` unless a documented platform reason prevents it.
 4. Platform implementations are behind explicit interfaces or platform composables.
-5. `commonMain` has no Android, Java-only, Firebase Android, Google Play Services, or Android resource imports.
+5. `commonMain` has no Android, Java-only, Google Play Services, or Android resource imports.
 6. Common tests run without external network access.
 7. Android compilation, Android tests, shared tests, and the iOS simulator build run in CI.
 8. Real credentials remain outside version control and authorization headers remain redacted.
@@ -582,10 +817,10 @@ These are directional estimates for one developer familiar with the Android code
 | Pure contracts and first recipe/Explore vertical slice | 1–2 focused days |
 | Remaining recipes, shared navigation, DataStore, and favorites | 2–4 focused days |
 | Yelp, location, maps, and directions parity | 3–6 focused days |
-| Firebase auth and remaining platform services | 2–5 focused days |
+| Remaining platform actions | 1–3 focused days |
 | iOS polish, CI, and release hardening | 2–5 focused days |
 
-A functional prototype is much smaller than a release-quality migration. Maps, Firebase, iOS configuration, signing, accessibility, and cross-platform verification are expected to consume more time than moving most Compose layouts.
+A functional prototype is much smaller than a release-quality migration. Maps, iOS configuration, signing, accessibility, and cross-platform verification are expected to consume more time than moving most Compose layouts.
 
 ## Reference documentation
 
@@ -593,6 +828,7 @@ A functional prototype is much smaller than a release-quality migration. Maps, F
 - [Compose Multiplatform compatibility and versions](https://kotlinlang.org/docs/multiplatform/compose-compatibility-and-versioning.html)
 - [Migrating a Jetpack Compose app to Kotlin Multiplatform](https://kotlinlang.org/docs/multiplatform/migrate-from-android.html)
 - [Recommended Kotlin Multiplatform project structure](https://kotlinlang.org/docs/multiplatform/multiplatform-project-recommended-structure.html)
+- [Direct integration with an iOS Xcode project](https://kotlinlang.org/docs/multiplatform/multiplatform-direct-integration.html)
 - [Android-KMP library plugin](https://developer.android.com/kotlin/multiplatform/plugin)
 - [Compose Multiplatform supported platforms](https://kotlinlang.org/docs/multiplatform/supported-platforms.html)
 - [Compose Multiplatform resources](https://kotlinlang.org/docs/multiplatform/compose-multiplatform-resources.html)
@@ -606,4 +842,3 @@ A functional prototype is much smaller than a release-quality migration. Maps, F
 - [Koin Kotlin Multiplatform setup](https://insert-koin.io/docs/reference/koin-core/kmp-setup/)
 - [Koin for Compose Multiplatform](https://insert-koin.io/docs/reference/koin-compose/compose/)
 - [Koin releases](https://insert-koin.io/docs/support/releases/)
-- [Firebase supported platforms and SDKs](https://firebase.google.com/docs/libraries)

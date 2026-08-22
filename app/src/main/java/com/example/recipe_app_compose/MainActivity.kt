@@ -10,14 +10,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Storefront
-import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
@@ -45,7 +43,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.recipe_app_compose.core.components.NetworkUnavailableScreen
@@ -56,15 +54,10 @@ import com.example.recipe_app_compose.core.navigation.navigateToPrimaryDestinati
 import com.example.recipe_app_compose.core.util.connectivity.ConnectivityStatus
 import com.example.recipe_app_compose.core.util.connectivity.openNetworkSettings
 import com.example.recipe_app_compose.core.util.connectivity.rememberConnectivityMonitor
-import com.example.recipe_app_compose.features.location.domain.states.YelpSearchArea
-import com.example.recipe_app_compose.features.location.presentation.components.YelpSearchTopAppBar
-import com.example.recipe_app_compose.features.location.presentation.viewmodel.YelpViewModel
 import com.example.recipe_app_compose.ui.theme.AppTheme
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-
-
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,7 +66,9 @@ class MainActivity : ComponentActivity() {
             val context = LocalContext.current
 
             val connectivityMonitor = rememberConnectivityMonitor()
-            val connectionState by connectivityMonitor.status.collectAsStateWithLifecycle()
+            val connectionState by connectivityMonitor.status.collectAsStateWithLifecycle(
+                minActiveState = Lifecycle.State.RESUMED,
+            )
             val isConnected = connectionState == ConnectivityStatus.Available
 
             val navController = rememberNavController()
@@ -87,28 +82,22 @@ class MainActivity : ComponentActivity() {
                 }
             } else {
                 AppTheme {
-                    /* Navigation Drawer Code */
                     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                     val scope = rememberCoroutineScope()
                     val currentBackStackEntry by navController.currentBackStackEntryAsState()
                     val currentRoute = currentBackStackEntry?.destination?.route
-                    val yelpBackStackEntry = currentBackStackEntry?.takeIf {
-                        it.destination.route == CategoryScreen.YelpScreen.route
-                    }
                     val selectedItemIndex = when (currentRoute) {
                         CategoryScreen.InfoScreen.route -> 1
-                        CategoryScreen.AccountScreen.route -> 2
                         else -> 0
                     }
                     val drawerRoutes = setOf(
                         CategoryScreen.RecipeScreen.route,
                         CategoryScreen.InfoScreen.route,
-                        CategoryScreen.AccountScreen.route,
                     )
                     val primaryRoutes = setOf(
                         CategoryScreen.RecipeScreen.route,
                         CategoryScreen.IngredientScreen.route,
-                        CategoryScreen.YelpScreen.route,
+                        CategoryScreen.NearbyScreen.route,
                         CategoryScreen.FavoriteScreen.route,
                     )
                     val isDrawerDestination = currentRoute == null || currentRoute in drawerRoutes
@@ -119,10 +108,9 @@ class MainActivity : ComponentActivity() {
                         CategoryScreen.IngredientScreen.route -> R.string.search
                         CategoryScreen.IngredientDetailScreen.route -> R.string.recipe_details
                         CategoryScreen.FavoriteDetailScreen.route -> R.string.recipe_details
-                        CategoryScreen.AccountScreen.route -> R.string.account
-                        CategoryScreen.FavoriteScreen.route -> R.string.favorites
+                        CategoryScreen.FavoriteScreen.route -> R.string.saved
                         CategoryScreen.InfoScreen.route -> R.string.info
-                        CategoryScreen.YelpScreen.route -> R.string.shops
+                        CategoryScreen.NearbyScreen.route -> R.string.shops
                         CategoryScreen.MapScreen.route -> R.string.shop_location
                         else -> R.string.explore
                     }
@@ -136,10 +124,6 @@ class MainActivity : ComponentActivity() {
                             title = stringResource(R.string.info),
                             selectedIcon = Icons.Filled.Info,
                             unselectedIcon = Icons.Outlined.Info
-                        ), NavigationItem(
-                            title = stringResource(R.string.account),
-                            selectedIcon = Icons.Filled.AccountCircle,
-                            unselectedIcon = Icons.Outlined.AccountCircle,
                         )
                     )
                     val primaryItems = listOf(
@@ -153,7 +137,7 @@ class MainActivity : ComponentActivity() {
                             selectedIcon = Icons.Filled.Search,
                             unselectedIcon = Icons.Outlined.Search,
                         ),
-                        CategoryScreen.YelpScreen.route to NavigationItem(
+                        CategoryScreen.NearbyScreen.route to NavigationItem(
                             title = stringResource(R.string.nearby),
                             selectedIcon = Icons.Filled.Storefront,
                             unselectedIcon = Icons.Outlined.Storefront,
@@ -183,7 +167,6 @@ class MainActivity : ComponentActivity() {
                                             }
                                             val route = when (index) {
                                                 1 -> CategoryScreen.InfoScreen.route
-                                                2 -> CategoryScreen.AccountScreen.route
                                                 else -> CategoryScreen.RecipeScreen.route
                                             }
                                             navController.navigate(route) {
@@ -211,68 +194,43 @@ class MainActivity : ComponentActivity() {
                         gesturesEnabled = isDrawerDestination,
                     ) {
                         Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
-                            if (yelpBackStackEntry != null) {
-                                val yelpViewModel: YelpViewModel = viewModel(
-                                    viewModelStoreOwner = yelpBackStackEntry,
-                                )
-                                val yelpState by yelpViewModel.uiState
-                                    .collectAsStateWithLifecycle()
-                                val yelpSearchQuery by yelpViewModel.searchQuery
-                                    .collectAsStateWithLifecycle()
-                                val yelpSearchActive by yelpViewModel.isSearchActive
-                                    .collectAsStateWithLifecycle()
-                                val searchEnabled =
-                                    yelpState.searchArea == YelpSearchArea.CurrentLocation ||
-                                        yelpState.searchArea is YelpSearchArea.NamedLocation
-
-                                YelpSearchTopAppBar(
-                                    query = yelpSearchQuery,
-                                    searchActive = yelpSearchActive,
-                                    searchEnabled = searchEnabled,
-                                    onQueryChange = yelpViewModel::onSearchTextChange,
-                                    onSearchActiveChange = yelpViewModel::onSearchActiveChange,
-                                    onNavigateBack = navController::popBackStack,
-                                    showBackNavigation = false,
-                                )
-                            } else {
-                                TopAppBar(
-                                    title = {
-                                        if (currentRoute != CategoryScreen.RecipeScreen.route) {
-                                            Text(
-                                                stringResource(screenTitle),
-                                                style = MaterialTheme.typography.titleLarge,
+                            TopAppBar(
+                                title = {
+                                    if (currentRoute != CategoryScreen.RecipeScreen.route) {
+                                        Text(
+                                            stringResource(screenTitle),
+                                            style = MaterialTheme.typography.titleLarge,
+                                        )
+                                    }
+                                },
+                                navigationIcon = {
+                                    when {
+                                        isDrawerDestination -> IconButton(onClick = {
+                                            scope.launch {
+                                                if (drawerState.isClosed) {
+                                                    drawerState.open()
+                                                } else {
+                                                    drawerState.close()
+                                                }
+                                            }
+                                        }) {
+                                            Icon(
+                                                imageVector = Icons.Default.Menu,
+                                                contentDescription = stringResource(R.string.menu),
                                             )
                                         }
-                                    },
-                                    navigationIcon = {
-                                        when {
-                                            isDrawerDestination -> IconButton(onClick = {
-                                                scope.launch {
-                                                    if (drawerState.isClosed) {
-                                                        drawerState.open()
-                                                    } else {
-                                                        drawerState.close()
-                                                    }
-                                                }
-                                            }) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Menu,
-                                                    contentDescription = stringResource(R.string.menu),
-                                                )
-                                            }
 
-                                            !isPrimaryDestination -> IconButton(onClick = {
-                                                navController.popBackStack()
-                                            }) {
-                                                Icon(
-                                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                                    contentDescription = stringResource(R.string.back),
-                                                )
-                                            }
+                                        !isPrimaryDestination -> IconButton(onClick = {
+                                            navController.popBackStack()
+                                        }) {
+                                            Icon(
+                                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                contentDescription = stringResource(R.string.back),
+                                            )
                                         }
-                                    },
-                                )
-                            }
+                                    }
+                                },
+                            )
                         }, bottomBar = {
                             if (isPrimaryDestination) {
                                 NavigationBar(

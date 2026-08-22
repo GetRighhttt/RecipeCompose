@@ -24,10 +24,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -44,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -57,17 +57,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.rememberAsyncImagePainter
+import androidx.lifecycle.Lifecycle
+import coil3.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
-import com.example.recipe_app_compose.core.components.AlertDialogExample
+import com.example.recipe_app_compose.core.components.ConfirmationDialog
 import com.example.recipe_app_compose.features.categories.domain.model.ingredient.Ingredient
+import com.example.recipe_app_compose.features.categories.domain.model.details.containsSavedMeal
+import com.example.recipe_app_compose.features.categories.domain.model.details.toMealDetails
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.DatabaseViewModel
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 import com.example.recipe_app_compose.ui.theme.AppSizes
 import com.example.recipe_app_compose.ui.theme.AppCardShape
 import com.example.recipe_app_compose.ui.theme.AppSpacing
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -75,11 +78,19 @@ fun IngredientScreen(
     modifier: Modifier = Modifier,
     onIngredientSelected: (Ingredient) -> Unit,
 ) {
-    val viewModel: RecipeViewModel = viewModel()
-    val uiState by viewModel.ingUiState.collectAsStateWithLifecycle()
-    val searchText by viewModel.searchQuery.collectAsStateWithLifecycle()
-    val isSearching by viewModel.isSearching.collectAsStateWithLifecycle()
-    val searchResults by viewModel.ingredientsList.collectAsStateWithLifecycle()
+    val viewModel: RecipeViewModel = koinViewModel()
+    val uiState by viewModel.ingUiState.collectAsStateWithLifecycle(
+        minActiveState = Lifecycle.State.RESUMED,
+    )
+    val searchText by viewModel.searchQuery.collectAsStateWithLifecycle(
+        minActiveState = Lifecycle.State.RESUMED,
+    )
+    val isSearching by viewModel.isSearching.collectAsStateWithLifecycle(
+        minActiveState = Lifecycle.State.RESUMED,
+    )
+    val searchResults by viewModel.ingredientsList.collectAsStateWithLifecycle(
+        minActiveState = Lifecycle.State.RESUMED,
+    )
     var showErrorDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.error) {
@@ -96,16 +107,17 @@ fun IngredientScreen(
                 modifier = Modifier.align(Alignment.Center)
             )
 
-            uiState.error != null && showErrorDialog -> AlertDialogExample(
-                dialogTitle = stringResource(R.string.error),
-                dialogText = stringResource(R.string.error_occurred, uiState.error ?: ""),
-                onDismissRequest = { showErrorDialog = false },
-                onConfirmation = {
+            uiState.error != null && showErrorDialog -> ConfirmationDialog(
+                title = stringResource(R.string.error),
+                message = stringResource(R.string.error_occurred, uiState.error ?: ""),
+                onDismiss = { showErrorDialog = false },
+                onConfirm = {
                     showErrorDialog = false
                     viewModel.fetchIngredients(
                         searchText.ifBlank { RecipeViewModel.SEARCH_DEFAULT }
                     )
                 },
+                confirmLabel = stringResource(R.string.try_again),
             )
 
             else -> IngredientSearchContent(
@@ -156,8 +168,8 @@ internal fun IngredientSearchContent(
                 )
             }
 
-            else -> IngredientMealScreen(
-                categories = searchResults,
+            else -> DishSearchGrid(
+                meals = searchResults,
                 onIngredientSelected = onIngredientSelected,
             )
         }
@@ -237,8 +249,8 @@ private fun CompactSearchField(
 }
 
 @Composable
-private fun IngredientMealScreen(
-    categories: List<Ingredient>,
+private fun DishSearchGrid(
+    meals: List<Ingredient>,
     onIngredientSelected: (Ingredient) -> Unit,
 ) {
     val fontScale = LocalDensity.current.fontScale
@@ -255,18 +267,18 @@ private fun IngredientMealScreen(
         horizontalArrangement = Arrangement.spacedBy(AppSpacing.Small),
         verticalArrangement = Arrangement.spacedBy(AppSpacing.Large),
     ) {
-        items(categories, key = { it.idMeal ?: it.strMeal.orEmpty() }) { category ->
-            IngredientMealItem(
-                category = category,
-                onClick = { onIngredientSelected(category) },
+        items(meals, key = { it.idMeal ?: it.strMeal.orEmpty() }) { meal ->
+            DishSearchItem(
+                meal = meal,
+                onClick = { onIngredientSelected(meal) },
             )
         }
     }
 }
 
 @Composable
-private fun IngredientMealItem(
-    category: Ingredient,
+private fun DishSearchItem(
+    meal: Ingredient,
     onClick: () -> Unit,
 ) {
     Surface(
@@ -277,8 +289,8 @@ private fun IngredientMealItem(
     ) {
         Column {
             Image(
-                painter = rememberAsyncImagePainter(category.strMealThumb.orEmpty()),
-                contentDescription = category.strMeal,
+                painter = rememberAsyncImagePainter(meal.strMealThumb.orEmpty()),
+                contentDescription = meal.strMeal,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -286,7 +298,7 @@ private fun IngredientMealItem(
                     .clip(AppCardShape),
             )
             Text(
-                text = category.strMeal.orEmpty(),
+                text = meal.strMeal.orEmpty(),
                 style = MaterialTheme.typography.labelLarge,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
@@ -305,25 +317,40 @@ fun IngredientDetailScreen(
     ingredient: Ingredient,
     modifier: Modifier = Modifier,
 ) {
-    val databaseViewModel: DatabaseViewModel = viewModel()
-    val databaseUiState by databaseViewModel.uiState.collectAsStateWithLifecycle()
-    val mealId = ingredient.idMeal
-    val isFavorite = mealId != null && databaseUiState.list.orEmpty().any { savedMeal ->
-        savedMeal.idMeal == mealId
-    }
+    val databaseViewModel: DatabaseViewModel = koinViewModel()
+    val databaseUiState by databaseViewModel.uiState.collectAsStateWithLifecycle(
+        minActiveState = Lifecycle.State.RESUMED,
+    )
+    val isFavorite = databaseUiState.list.containsSavedMeal(ingredient.idMeal)
     val context = LocalContext.current
-    val addedToFavoritesMessage = stringResource(R.string.added_to_favorites)
+    val dishSavedMessage = stringResource(
+        R.string.dish_saved_message,
+        ingredient.strMeal ?: stringResource(R.string.unknown),
+    )
+    val dishAlreadySavedMessage = stringResource(
+        R.string.dish_already_saved_message,
+        ingredient.strMeal ?: stringResource(R.string.unknown),
+    )
 
     IngredientDetailContent(
         ingredient = ingredient,
         isFavorite = isFavorite,
         onFavorite = {
-            databaseViewModel.executeInsertMeal(ingredient.toRandomMeal())
-            android.widget.Toast.makeText(
-                context,
-                "${ingredient.strMeal.orEmpty()} $addedToFavoritesMessage",
-                android.widget.Toast.LENGTH_SHORT,
-            ).show()
+            if (isFavorite) {
+                android.widget.Toast.makeText(
+                    context,
+                    dishAlreadySavedMessage,
+                    android.widget.Toast.LENGTH_SHORT,
+                ).show()
+            } else {
+                databaseViewModel.saveMeal(ingredient.toRandomMeal()) {
+                    android.widget.Toast.makeText(
+                        context,
+                        dishSavedMessage,
+                        android.widget.Toast.LENGTH_SHORT,
+                    ).show()
+                }
+            }
         },
         modifier = modifier,
     )
@@ -337,24 +364,29 @@ internal fun IngredientDetailContent(
     modifier: Modifier = Modifier,
 ) {
     MealDetailsPage(
-        meal = ingredient.toMealDetailsUiModel(),
+        meal = ingredient.toMealDetails(),
         modifier = modifier.background(MaterialTheme.colorScheme.background),
         headerAction = {
-            FilledTonalIconButton(
+            IconButton(
                 onClick = onFavorite,
-                enabled = !isFavorite,
-                colors = IconButtonDefaults.filledTonalIconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                    disabledContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = if (isFavorite) {
+                        MaterialTheme.colorScheme.primaryContainer
+                    } else {
+                        Color.Transparent
+                    },
+                    contentColor = if (isFavorite) {
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.primary
+                    },
                 ),
             ) {
                 Icon(
                     imageVector = if (isFavorite) {
                         Icons.Default.Favorite
                     } else {
-                        Icons.Default.FavoriteBorder
+                        Icons.Outlined.FavoriteBorder
                     },
                     contentDescription = stringResource(
                         if (isFavorite) R.string.saved else R.string.save

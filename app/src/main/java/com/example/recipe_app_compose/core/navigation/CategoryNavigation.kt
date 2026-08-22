@@ -9,11 +9,10 @@ sealed class CategoryScreen(val route: String) {
     data object RandomMealScreen : CategoryScreen("random_meal_screen")
     data object IngredientScreen : CategoryScreen("ingredient_screen")
     data object IngredientDetailScreen : CategoryScreen("ingredient_detail_screen")
-    data object AccountScreen : CategoryScreen("account_screen")
     data object FavoriteScreen : CategoryScreen("favorite_screen")
     data object FavoriteDetailScreen : CategoryScreen("favorite_detail_screen")
     data object InfoScreen : CategoryScreen("info_screen")
-    data object YelpScreen : CategoryScreen("yelp_screen")
+    data object NearbyScreen : CategoryScreen("nearby_screen")
     data object MapScreen : CategoryScreen(
         "map_screen?latitude={latitude}&longitude={longitude}"
     ) {

@@ -9,7 +9,9 @@
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 .DS_Store
-/build
+**/build/
+xcuserdata/
+*.xcuserstate
 /captures
 .externalNativeBuild
 .cxx

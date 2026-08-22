@@ -37,29 +37,17 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
+import coil3.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
-import com.example.recipe_app_compose.features.categories.domain.model.ingredient.Ingredient
-import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
+import com.example.recipe_app_compose.features.categories.domain.model.details.MealDetails
 import com.example.recipe_app_compose.ui.theme.AppCardShape
 import com.example.recipe_app_compose.ui.theme.AppControlShape
 import com.example.recipe_app_compose.ui.theme.AppSizes
 import com.example.recipe_app_compose.ui.theme.AppSpacing
 
-internal data class MealDetailsUiModel(
-    val name: String,
-    val imageUrl: String,
-    val category: String,
-    val cuisine: String,
-    val sourceUrl: String,
-    val youtubeUrl: String,
-    val instructions: String,
-    val ingredients: List<String>,
-)
-
 @Composable
 internal fun MealDetailsPage(
-    meal: MealDetailsUiModel,
+    meal: MealDetails,
     modifier: Modifier = Modifier,
     headerAction: (@Composable () -> Unit)? = null,
 ) {
@@ -85,7 +73,7 @@ internal fun MealDetailsPage(
 
 @Composable
 internal fun MealDetailsContent(
-    meal: MealDetailsUiModel,
+    meal: MealDetails,
     modifier: Modifier = Modifier,
     actions: (@Composable () -> Unit)? = null,
     headerAction: (@Composable () -> Unit)? = null,
@@ -226,52 +214,6 @@ internal fun MealDetailsContent(
         }
     }
 }
-
-internal fun RandomMeal.toMealDetailsUiModel() = MealDetailsUiModel(
-    name = strMeal.orEmpty().trim(),
-    imageUrl = strMealThumb.orEmpty().trim(),
-    category = strCategory.orEmpty().trim(),
-    cuisine = strArea.orEmpty().trim(),
-    sourceUrl = strSource.orEmpty().trim(),
-    youtubeUrl = strYoutube.orEmpty().trim(),
-    instructions = strInstructions.orEmpty().trim(),
-    ingredients = mealIngredients(
-        strIngredient1,
-        strIngredient2,
-        strIngredient3,
-        strIngredient4,
-        strIngredient5,
-        strIngredient6,
-        strIngredient7,
-        strIngredient8,
-        strIngredient9,
-    ),
-)
-
-internal fun Ingredient.toMealDetailsUiModel() = MealDetailsUiModel(
-    name = strMeal.orEmpty().trim(),
-    imageUrl = strMealThumb.orEmpty().trim(),
-    category = strCategory.orEmpty().trim(),
-    cuisine = strArea.orEmpty().trim(),
-    sourceUrl = strSource.orEmpty().trim(),
-    youtubeUrl = strYoutube.orEmpty().trim(),
-    instructions = strInstructions.orEmpty().trim(),
-    ingredients = mealIngredients(
-        strIngredient1,
-        strIngredient2,
-        strIngredient3,
-        strIngredient4,
-        strIngredient5,
-        strIngredient6,
-        strIngredient7,
-        strIngredient8,
-        strIngredient9,
-    ),
-)
-
-private fun mealIngredients(vararg values: String?): List<String> = values
-    .mapNotNull { it?.trim()?.takeIf(String::isNotEmpty) }
-    .distinct()
 
 @Composable
 private fun MealMetadataCard(
