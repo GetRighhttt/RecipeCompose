@@ -86,7 +86,6 @@ kotlin {
             implementation(libs.coil3.network.ktor3)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.koin.compose)
-            implementation(libs.koin.compose.viewmodel)
             implementation(libs.koin.core)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.client.core)
