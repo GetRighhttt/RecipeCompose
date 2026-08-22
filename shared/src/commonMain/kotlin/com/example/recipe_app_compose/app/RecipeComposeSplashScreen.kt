@@ -30,7 +30,7 @@ import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
-/** A branded transition while the iOS host creates the shared Compose app. */
+/** Branded startup transition shared by the Android and iOS hosts. */
 @Composable
 fun RecipeComposeSplashScreen(onFinished: () -> Unit) {
     val entrance = remember { Animatable(0f) }
@@ -41,39 +41,45 @@ fun RecipeComposeSplashScreen(onFinished: () -> Unit) {
         onFinished()
     }
 
-    Box(
+    Surface(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
+        color = MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.onBackground,
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.alpha(entrance.value).scale(0.92f + (entrance.value * 0.08f)),
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
         ) {
-            Surface(
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                modifier = Modifier.size(AppSpacing.ExtraLarge * 3),
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.alpha(entrance.value).scale(0.92f + (entrance.value * 0.08f)),
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        painter = painterResource(Res.drawable.onboarding_discover),
-                        contentDescription = null,
-                        modifier = Modifier.size(AppSpacing.ExtraLarge * 2),
-                    )
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.size(AppSpacing.ExtraLarge * 3),
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            painter = painterResource(Res.drawable.onboarding_discover),
+                            contentDescription = null,
+                            modifier = Modifier.size(AppSpacing.ExtraLarge * 2),
+                        )
+                    }
                 }
+                Spacer(Modifier.height(AppSpacing.Large))
+                Text(
+                    text = stringResource(Res.string.app_name),
+                    style = MaterialTheme.typography.headlineMedium,
+                )
+                Spacer(Modifier.height(AppSpacing.Large))
+                AppLoadingIndicator(
+                    modifier = Modifier.size(AppSpacing.ExtraLarge),
+                    strokeWidth = AppSpacing.ExtraSmall,
+                )
             }
-            Spacer(Modifier.height(AppSpacing.Large))
-            Text(
-                text = stringResource(Res.string.app_name),
-                style = MaterialTheme.typography.headlineMedium,
-            )
-            Spacer(Modifier.height(AppSpacing.Large))
-            AppLoadingIndicator(
-                modifier = Modifier.size(AppSpacing.ExtraLarge),
-                strokeWidth = AppSpacing.ExtraSmall,
-            )
         }
     }
 }
