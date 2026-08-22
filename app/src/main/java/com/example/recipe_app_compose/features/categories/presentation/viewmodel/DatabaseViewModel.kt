@@ -2,7 +2,6 @@ package com.example.recipe_app_compose.features.categories.presentation.viewmode
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.recipe_app_compose.di.DependencyInjector
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
 import com.example.recipe_app_compose.features.categories.domain.repository.DatabaseRepository
 import com.example.recipe_app_compose.features.categories.domain.states.DatabaseUiState
@@ -16,7 +15,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class DatabaseViewModel(
-    private val repository: DatabaseRepository = DependencyInjector.databaseRepository,
+    private val repository: DatabaseRepository,
 ) : ViewModel() {
     val uiState: StateFlow<DatabaseUiState> field = MutableStateFlow(DatabaseUiState())
     private var mealsJob: Job? = null

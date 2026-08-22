@@ -2,7 +2,7 @@ package com.example.recipe_app_compose.features.location.data.repoimpl
 
 import com.example.recipe_app_compose.core.util.Constants
 import com.example.recipe_app_compose.core.util.Resource
-import com.example.recipe_app_compose.features.categories.data.util.safeApiCall
+import com.example.recipe_app_compose.features.location.data.util.safeApiCall
 import com.example.recipe_app_compose.features.location.data.api.YelpApi
 import com.example.recipe_app_compose.features.location.data.retrofit.YelpRetrofitInstance.yelpApiService
 import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpSearchOrigin

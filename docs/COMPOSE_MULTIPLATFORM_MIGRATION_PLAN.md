@@ -1,6 +1,6 @@
 # Compose Multiplatform migration plan
 
-Status: implementation in progress; checkpoints 1–3 complete, awaiting approval before Phase 2 pure contracts<br>
+Status: implementation in progress; checkpoints 1–4 complete, shared recipe UI extraction next<br>
 Last revised: 2026-08-22<br>
 Targets: Android and iOS<br>
 Related discovery: [Kotlin Multiplatform migration assessment](KMP_MIGRATION_ASSESSMENT.md)
@@ -76,6 +76,39 @@ Verification completed for this checkpoint:
 The host currently targets iOS 16.0. A non-blocking linker warning reports that a bundled ICU object was built with an iOS Simulator 18.5 minimum while the host links at 16.0. It does not affect the iOS 26.5 simulator proof, but deployment-target compatibility must be resolved or intentionally raised before supporting older physical devices.
 
 This checkpoint is the Phase 1 hard stop. Phase 2 will not begin until the host and migration boundary are approved.
+
+### Checkpoint 4 — shared recipe foundation
+
+The recipe feature now has a real shared foundation without duplicating its
+behavior on either platform:
+
+- Startup policy, location contracts, recipe models, repository contracts, and
+  recipe UI state live in `commonMain`.
+- TheMealDB is now a shared Ktor client using `kotlinx.serialization`, with
+  OkHttp supplied on Android and Darwin supplied on iOS.
+- `RandomMeal` is no longer an Android Room entity or a `Parcelable`. Android
+  persistence is isolated in `RandomMealEntity` and explicit mappers, which is
+  the shape Room KMP will need later.
+- The recipe business logic moved into a platform-neutral `RecipeStore`.
+  Android keeps a thin lifecycle `RecipeViewModel` adapter while a future shared
+  Compose root can own the same store directly.
+- Koin now contributes the shared recipe repository and store from `:shared`;
+  Android contributes only its database, location, Yelp, and Android ViewModel
+  bindings.
+- The old Parcelable navigation payloads were replaced with a temporary
+  Android in-memory selection bridge. Shared navigation will replace this bridge
+  with stable identifiers/typed routes in the next UI checkpoint.
+
+Verification completed for this checkpoint:
+
+- Shared iOS simulator compilation and tests passed.
+- Android compilation and unit tests passed.
+- The Android debug app was installed and launched on the connected Samsung
+  device without a crash.
+- The Xcode iOS simulator build passed after the Ktor/Darwin framework linked.
+
+The remaining recipe work is deliberately UI-focused: migrate the Compose
+screens, resources, image loader, and navigation shell as one coherent slice.
 
 ## Decision summary
 

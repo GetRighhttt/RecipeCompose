@@ -57,17 +57,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.ConfirmationDialog
 import com.example.recipe_app_compose.features.categories.domain.model.ingredient.Ingredient
+import com.example.recipe_app_compose.features.categories.domain.model.details.containsSavedMeal
+import com.example.recipe_app_compose.features.categories.domain.model.details.toMealDetails
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.DatabaseViewModel
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 import com.example.recipe_app_compose.ui.theme.AppSizes
 import com.example.recipe_app_compose.ui.theme.AppCardShape
 import com.example.recipe_app_compose.ui.theme.AppSpacing
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -75,7 +77,7 @@ fun IngredientScreen(
     modifier: Modifier = Modifier,
     onIngredientSelected: (Ingredient) -> Unit,
 ) {
-    val viewModel: RecipeViewModel = viewModel()
+    val viewModel: RecipeViewModel = koinViewModel()
     val uiState by viewModel.ingUiState.collectAsStateWithLifecycle()
     val searchText by viewModel.searchQuery.collectAsStateWithLifecycle()
     val isSearching by viewModel.isSearching.collectAsStateWithLifecycle()
@@ -306,7 +308,7 @@ fun IngredientDetailScreen(
     ingredient: Ingredient,
     modifier: Modifier = Modifier,
 ) {
-    val databaseViewModel: DatabaseViewModel = viewModel()
+    val databaseViewModel: DatabaseViewModel = koinViewModel()
     val databaseUiState by databaseViewModel.uiState.collectAsStateWithLifecycle()
     val isFavorite = databaseUiState.list.containsSavedMeal(ingredient.idMeal)
     val context = LocalContext.current
@@ -351,7 +353,7 @@ internal fun IngredientDetailContent(
     modifier: Modifier = Modifier,
 ) {
     MealDetailsPage(
-        meal = ingredient.toMealDetailsUiModel(),
+        meal = ingredient.toMealDetails(),
         modifier = modifier.background(MaterialTheme.colorScheme.background),
         headerAction = {
             IconButton(

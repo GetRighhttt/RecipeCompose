@@ -66,6 +66,12 @@ secrets {
 dependencies {
     implementation(project(":shared"))
 
+    // Koin replaces the former global service locator. Android keeps the
+    // platform-specific implementations while common code adopts Koin later.
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
+
     // viewmodel
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)

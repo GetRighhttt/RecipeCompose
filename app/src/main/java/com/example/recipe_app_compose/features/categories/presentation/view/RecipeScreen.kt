@@ -67,7 +67,7 @@ fun RecipeScreen(
 
             uiState.error != null -> ConfirmationDialog(
                 title = stringResource(R.string.error),
-                message = stringResource(R.string.error_occurred, uiState.error),
+                message = stringResource(R.string.error_occurred, uiState.error.orEmpty()),
                 onDismiss = onRetry,
                 onConfirm = onRetry,
                 confirmLabel = stringResource(R.string.try_again),

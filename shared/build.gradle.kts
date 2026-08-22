@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.jetbrains.compose)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {
@@ -45,18 +46,31 @@ kotlin {
             implementation(libs.compose.runtime)
             implementation(libs.compose.ui)
             implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
+            implementation(libs.koin.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.kotlinx.serialization.json)
         }
 
         androidMain.dependencies {
             // Android owns its system back dispatcher; common onboarding only
             // depends on the small expect/actual adapter around this API.
             implementation(libs.androidx.activity.compose)
+            implementation(libs.ktor.client.okhttp)
+        }
+
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
 
         // These tests are compiled for every enabled target. Android host tests
         // are explicitly enabled above because the Android-KMP plugin defaults off.
         commonTest.dependencies {
             implementation(kotlin("test"))
+            implementation(libs.koin.test)
         }
     }
 }

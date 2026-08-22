@@ -43,7 +43,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.recipe_app_compose.core.components.NetworkUnavailableScreen
@@ -59,6 +58,7 @@ import com.example.recipe_app_compose.features.location.presentation.components.
 import com.example.recipe_app_compose.features.location.presentation.viewmodel.YelpViewModel
 import com.example.recipe_app_compose.ui.theme.AppTheme
 import kotlinx.coroutines.launch
+import org.koin.compose.viewmodel.koinViewModel
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -199,7 +199,7 @@ class MainActivity : ComponentActivity() {
                     ) {
                         Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
                             if (yelpBackStackEntry != null) {
-                                val yelpViewModel: YelpViewModel = viewModel(
+                                val yelpViewModel: YelpViewModel = koinViewModel(
                                     viewModelStoreOwner = yelpBackStackEntry,
                                 )
                                 val yelpState by yelpViewModel.uiState

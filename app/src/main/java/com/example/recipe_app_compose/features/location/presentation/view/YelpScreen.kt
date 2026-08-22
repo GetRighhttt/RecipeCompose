@@ -49,7 +49,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AppHorizontalMediaCard
@@ -62,6 +61,7 @@ import com.example.recipe_app_compose.features.location.domain.states.YelpSearch
 import com.example.recipe_app_compose.features.location.domain.states.YelpUiState
 import com.example.recipe_app_compose.features.location.presentation.viewmodel.YelpViewModel
 import com.example.recipe_app_compose.ui.theme.AppSpacing
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun YelpScreen(
@@ -70,7 +70,7 @@ fun YelpScreen(
 ) {
     val context = LocalContext.current
 
-    val viewModel: YelpViewModel = viewModel()
+    val viewModel: YelpViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val manualLocationText by viewModel.manualLocationQuery.collectAsStateWithLifecycle()
 

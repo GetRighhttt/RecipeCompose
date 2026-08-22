@@ -15,10 +15,10 @@ private val Context.onboardingDataStore by preferencesDataStore(
     name = ONBOARDING_DATA_STORE_NAME,
 )
 
-class OnboardingPreferences(context: Context) {
+class OnboardingPreferences(context: Context) : OnboardingCompletionStore {
     private val dataStore = context.applicationContext.onboardingDataStore
 
-    suspend fun completedVersion(): Int = dataStore.data
+    override suspend fun completedVersion(): Int = dataStore.data
         .catch { exception ->
             if (exception is IOException) {
                 emit(emptyPreferences())
@@ -29,7 +29,7 @@ class OnboardingPreferences(context: Context) {
         .map { preferences -> preferences[COMPLETED_VERSION_KEY] ?: 0 }
         .first()
 
-    suspend fun markCompleted(version: Int = CURRENT_ONBOARDING_VERSION) {
+    override suspend fun markCompleted(version: Int) {
         dataStore.edit { preferences ->
             preferences[COMPLETED_VERSION_KEY] = version
         }
@@ -39,5 +39,3 @@ class OnboardingPreferences(context: Context) {
         val COMPLETED_VERSION_KEY = intPreferencesKey("completed_onboarding_version")
     }
 }
-
-const val CURRENT_ONBOARDING_VERSION = 1

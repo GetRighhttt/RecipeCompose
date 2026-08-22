@@ -34,18 +34,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.ConfirmationDialog
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
+import com.example.recipe_app_compose.features.categories.domain.model.details.containsSavedMeal
+import com.example.recipe_app_compose.features.categories.domain.model.details.toMealDetails
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.DatabaseViewModel
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 import com.example.recipe_app_compose.ui.theme.AppSizes
 import com.example.recipe_app_compose.ui.theme.AppSpacing
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun RandomMealPage(modifier: Modifier = Modifier) {
-    val viewModel: RecipeViewModel = viewModel()
+    val viewModel: RecipeViewModel = koinViewModel()
     val uiState by viewModel.randUiState.collectAsStateWithLifecycle()
     var showErrorDialog by remember { mutableStateOf(false) }
     var favoriteDialogState by remember { mutableStateOf(false) }
@@ -54,7 +56,7 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
         showErrorDialog = uiState.error != null
     }
 
-    val databaseViewModel: DatabaseViewModel = viewModel()
+    val databaseViewModel: DatabaseViewModel = koinViewModel()
     val databaseUiState by databaseViewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val currentMeal = uiState.item.firstOrNull()
@@ -162,7 +164,7 @@ fun RandomMealItem(
     onRefresh: () -> Unit,
 ) {
     MealDetailsContent(
-        meal = category.toMealDetailsUiModel(),
+        meal = category.toMealDetails(),
         modifier = Modifier.fillMaxWidth(),
         actions = {
             Row(

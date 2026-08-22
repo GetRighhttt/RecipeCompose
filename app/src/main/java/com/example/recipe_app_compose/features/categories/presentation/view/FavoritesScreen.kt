@@ -47,21 +47,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.ConfirmationDialog
 import com.example.recipe_app_compose.core.components.AppHorizontalMediaCard
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
+import com.example.recipe_app_compose.features.categories.domain.model.details.toMealDetails
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.DatabaseViewModel
 import com.example.recipe_app_compose.ui.theme.AppSpacing
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun FavoritesScreen(
     onMealSelected: (RandomMeal) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val viewModel: DatabaseViewModel = viewModel()
+    val viewModel: DatabaseViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showErrorDialog by remember { mutableStateOf(false) }
 
@@ -223,7 +224,7 @@ fun SavedMealDetailScreen(
     onDeleted: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val viewModel: DatabaseViewModel = viewModel()
+    val viewModel: DatabaseViewModel = koinViewModel()
     val context = LocalContext.current
     val mealDeletedMessage = stringResource(R.string.dish_removed)
     var showDeleteConfirmation by remember { mutableStateOf(false) }
@@ -282,7 +283,7 @@ internal fun SavedMealDetailContent(
     modifier: Modifier = Modifier,
 ) {
     MealDetailsPage(
-        meal = meal.toMealDetailsUiModel(),
+        meal = meal.toMealDetails(),
         modifier = modifier,
         headerAction = {
             IconButton(

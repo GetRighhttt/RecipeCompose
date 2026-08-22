@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipe_app_compose.core.util.Constants
 import com.example.recipe_app_compose.core.util.Resource
-import com.example.recipe_app_compose.di.DependencyInjector
 import com.example.recipe_app_compose.features.location.domain.location.CurrentLocationProvider
 import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpSearchOrigin
 import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpSearchRequest
@@ -25,11 +24,9 @@ import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.time.Duration.Companion.milliseconds
 
 class YelpViewModel(
-    private val repository: YelpRepository = DependencyInjector.yelpRepository,
-    private val currentLocationProvider: CurrentLocationProvider =
-        DependencyInjector.currentLocationProvider,
-    private val locationPreferenceStore: LocationPreferenceStore =
-        DependencyInjector.locationPreferenceStore,
+    private val repository: YelpRepository,
+    private val currentLocationProvider: CurrentLocationProvider,
+    private val locationPreferenceStore: LocationPreferenceStore,
 ) : ViewModel() {
 
     val searchQuery: StateFlow<String> field = MutableStateFlow("")

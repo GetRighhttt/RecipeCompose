@@ -1,6 +1,7 @@
 package com.example.recipe_app_compose.features.categories.presentation.view
 
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
+import com.example.recipe_app_compose.features.categories.domain.model.details.containsSavedMeal
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
