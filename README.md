@@ -206,48 +206,51 @@ For visual iteration, open `app/src/debug/java/com/example/recipe_app_compose/pr
 <table>
   <tr>
     <td align="center">
-      <img src="docs/screenshots/onboarding.png" width="280" alt="Recipe Compose first-run onboarding screen" />
+      <img src="docs/screenshots/onboarding.png" width="260" alt="Recipe Compose first-run onboarding screen" />
       <br />
       <sub><strong>First-run onboarding</strong></sub>
     </td>
     <td align="center">
-      <img src="docs/screenshots/explore.png" width="280" alt="Explore home screen with primary feature shortcuts and a featured meal" />
+      <img src="docs/screenshots/account-access.png" width="260" alt="Recipe Compose email and password form for signing in or creating an account" />
+      <br />
+      <sub><strong>Account access</strong></sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/explore.png" width="260" alt="Explore home screen with primary feature shortcuts and a featured meal" />
       <br />
       <sub><strong>Explore and discover</strong></sub>
     </td>
   </tr>
   <tr>
     <td align="center">
-      <img src="docs/screenshots/search-dishes.png" width="280" alt="Compact image-first dish search results" />
+      <img src="docs/screenshots/search-dishes.png" width="260" alt="Compact image-first dish search results" />
       <br />
       <sub><strong>Search dishes</strong></sub>
     </td>
     <td align="center">
-      <img src="docs/screenshots/recipe-details.png" width="280" alt="Recipe details with source, video, and save action" />
+      <img src="docs/screenshots/recipe-details.png" width="260" alt="Recipe details with source, video, and save action" />
       <br />
       <sub><strong>Recipe details and saving</strong></sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/featured-dish.png" width="260" alt="Featured dish page with save and refresh actions" />
+      <br />
+      <sub><strong>Featured dish discovery</strong></sub>
     </td>
   </tr>
   <tr>
     <td align="center">
-      <img src="docs/screenshots/nearby-restaurants.png" width="280" alt="Restaurants returned for a manual Chicago area search" />
+      <img src="docs/screenshots/nearby-restaurants.png" width="260" alt="Restaurants returned for a manual Chicago area search" />
       <br />
       <sub><strong>Nearby restaurant discovery</strong></sub>
     </td>
     <td align="center">
-      <img src="docs/screenshots/restaurant-map.png" width="280" alt="Interactive restaurant map with marker and Directions action" />
+      <img src="docs/screenshots/restaurant-map.png" width="260" alt="Interactive restaurant map with marker and Directions action" />
       <br />
       <sub><strong>Map and driving directions</strong></sub>
     </td>
-  </tr>
-  <tr>
     <td align="center">
-      <img src="docs/screenshots/featured-dish.png" width="280" alt="Featured dish page with save and refresh actions" />
-      <br />
-      <sub><strong>Featured dish discovery</strong></sub>
-    </td>
-    <td align="center">
-      <img src="docs/screenshots/saved-details.png" width="280" alt="Saved recipe details with a prominent remove action" />
+      <img src="docs/screenshots/saved-details.png" width="260" alt="Saved recipe details with a prominent remove action" />
       <br />
       <sub><strong>Saved-dish management</strong></sub>
     </td>
