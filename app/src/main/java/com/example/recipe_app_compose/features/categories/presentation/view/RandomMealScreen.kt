@@ -72,6 +72,10 @@ fun RandomMealPage(
         R.string.dish_saved_message,
         currentMeal?.strMeal ?: stringResource(R.string.unknown),
     )
+    val dishAlreadySavedMessage = stringResource(
+        R.string.dish_already_saved_message,
+        currentMeal?.strMeal ?: stringResource(R.string.unknown),
+    )
 
     Box(
         modifier = modifier
@@ -100,7 +104,17 @@ fun RandomMealPage(
             else -> RandomCategoryScreen(
                 categories = uiState.item,
                 isFavorite = isFavorite,
-                onFavorite = { favoriteDialogState = true },
+                onFavorite = {
+                    if (isFavorite) {
+                        Toast.makeText(
+                            context,
+                            dishAlreadySavedMessage,
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                    } else {
+                        favoriteDialogState = true
+                    }
+                },
                 onRefresh = viewModel::fetchRandomMeal,
             )
         }
@@ -180,7 +194,6 @@ fun RandomMealItem(
             ) {
                 FilledTonalButton(
                     onClick = onFavorite,
-                    enabled = !isFavorite,
                     modifier = Modifier.weight(1f),
                 ) {
                     Icon(

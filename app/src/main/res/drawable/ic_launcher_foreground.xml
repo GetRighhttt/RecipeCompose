@@ -3,5 +3,5 @@
     android:inset="18dp">
     <bitmap
         android:gravity="fill"
-        android:src="@drawable/dinner" />
+        android:src="@drawable/recipe_app_icon_foreground" />
 </inset>

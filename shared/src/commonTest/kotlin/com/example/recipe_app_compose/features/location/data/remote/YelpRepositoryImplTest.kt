@@ -4,6 +4,7 @@ import com.example.recipe_app_compose.core.util.Resource
 import com.example.recipe_app_compose.features.location.domain.model.location.LocationData
 import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpSearchOrigin
 import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpSearchRequest
+import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpSearchResult
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -17,6 +18,7 @@ import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 class YelpRepositoryImplTest {
@@ -38,8 +40,8 @@ class YelpRepositoryImplTest {
             ),
         )
 
-        val success = assertIs<Resource.Success<*>>(result)
-        val shop = result.data!!.shops.single()
+        assertIs<Resource.Success<YelpSearchResult>>(result)
+        val shop = assertNotNull(result.data).shops.single()
         assertEquals("Recipe Cafe", shop.name)
         assertEquals(42u, shop.reviewCount)
         assertEquals("https://example.com/shop.jpg", shop.imageUrl)
@@ -52,7 +54,6 @@ class YelpRepositoryImplTest {
         assertEquals("-82.35", request.url.parameters["longitude"])
         assertEquals("16000", request.url.parameters["radius"])
         assertNull(request.url.parameters["location"])
-        @Suppress("UNUSED_VARIABLE") val decoded = success
     }
 
     @Test

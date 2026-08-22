@@ -93,14 +93,15 @@ private fun RecipeComposeContent() {
         }.getOrDefault(0)
     }
 
-    if (completedOnboardingVersion == null) {
+    val completedVersion = completedOnboardingVersion
+    if (completedVersion == null) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
         }
         return
     }
 
-    if (completedOnboardingVersion!! < CURRENT_ONBOARDING_VERSION) {
+    if (completedVersion < CURRENT_ONBOARDING_VERSION) {
         OnboardingScreen(
             onFinished = {
                 scope.launch {
