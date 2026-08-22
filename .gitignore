@@ -10,6 +10,8 @@
 /.idea/assetWizardSettings.xml
 .DS_Store
 **/build/
+xcuserdata/
+*.xcuserstate
 /captures
 .externalNativeBuild
 .cxx

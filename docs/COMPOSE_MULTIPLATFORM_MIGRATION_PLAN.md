@@ -1,6 +1,6 @@
 # Compose Multiplatform migration plan
 
-Status: implementation in progress; checkpoints 1 and 2 complete, awaiting approval before the iOS host<br>
+Status: implementation in progress; checkpoints 1–3 complete, awaiting approval before Phase 2 pure contracts<br>
 Last revised: 2026-08-22<br>
 Targets: Android and iOS<br>
 Related discovery: [Kotlin Multiplatform migration assessment](KMP_MIGRATION_ASSESSMENT.md)
@@ -50,7 +50,32 @@ Verification completed for this checkpoint:
 - The `iosSimulatorArm64` framework linked with the shared onboarding resources and UI.
 - The iOS simulator shared test executable compiled, linked, and passed using the globally selected Xcode 26.6 installation.
 
-This checkpoint stops before adding an iOS application. The next approved checkpoint will create only the minimal Xcode host and render this already-verified shared onboarding screen.
+This checkpoint stopped before adding an iOS application. Checkpoint 3 adds only the minimal Xcode host needed to render this already-verified shared onboarding screen.
+
+### Checkpoint 3 — minimal iOS host and runtime proof
+
+The third checkpoint adds a native iOS application shell without duplicating the shared UI:
+
+- `RecipeComposeApp.swift` owns the SwiftUI application lifecycle.
+- `ContentView.swift` contains a small `UIViewControllerRepresentable` bridge and no application state or screen implementation.
+- `MainViewController.kt` is the Kotlin/Native entry point. It creates a `ComposeUIViewController`, applies the shared `AppTheme`, and renders the shared `OnboardingScreen`.
+- Xcode invokes `:shared:embedAndSignAppleFrameworkForXcode` through a pre-compile build phase. This is direct local framework integration; CocoaPods and Swift Package Manager are not involved.
+- The host uses an explicit, source-controlled `Info.plist`. Compose's strict launch check requires `CADisableMinimumFrameDurationOnPhone` to be `true`, which permits full-rate rendering on high-refresh-rate iPhones. The same plist will later own iOS privacy usage descriptions.
+- The onboarding completion callback intentionally remains empty. iOS startup persistence, the shared application shell, networking, maps, location, signing, and final app assets have not moved into this checkpoint.
+
+Verification completed for this checkpoint:
+
+- Xcode 26.6 recognizes the `iosApp` target and shared `iosApp` scheme.
+- A Debug simulator build passed through the complete Xcode → Gradle → Kotlin framework → Swift compile/link path.
+- The first simulator launch exposed the missing ProMotion plist entry as an uncaught Kotlin exception. The explicit plist fix was verified in the built application bundle rather than bypassing Compose's strict check.
+- The corrected app installed and remained running on an iPhone 17 Pro simulator with iOS 26.5.
+- The shared onboarding theme, strings, vector artwork, paging controls, and safe-area layout rendered successfully in the iOS host.
+- `:shared:iosSimulatorArm64Test` passed.
+- Android unit tests, lint, and debug APK assembly passed after the iOS-only host was added.
+
+The host currently targets iOS 16.0. A non-blocking linker warning reports that a bundled ICU object was built with an iOS Simulator 18.5 minimum while the host links at 16.0. It does not affect the iOS 26.5 simulator proof, but deployment-target compatibility must be resolved or intentionally raised before supporting older physical devices.
+
+This checkpoint is the Phase 1 hard stop. Phase 2 will not begin until the host and migration boundary are approved.
 
 ## Decision summary
 
@@ -107,7 +132,7 @@ The direction is now decided: this project will pursue shared Compose UI for And
 | Room | 2.8.4 | KMP-capable, but database construction and migration tests remain platform-specific. |
 | DataStore | 1.2.1 | The onboarding version can move behind a common persistence contract after the first shared UI proof. |
 | Xcode | 26.6 selected | The active developer directory is `/Applications/Xcode.app/Contents/Developer`; framework linking and iOS simulator tests pass. |
-| iOS deployment target | 14 or newer | Compose Multiplatform 1.11.1 supports iOS 14 and newer. |
+| iOS deployment target | 16.0 host baseline | The host currently targets iOS 16.0; investigate the bundled ICU 18.5 linker warning before claiming older-device support. |
 
 Before the first iOS build, select full Xcode and complete any first-launch setup:
 
@@ -180,6 +205,7 @@ RecipeCompose
 │   │   └── Android configuration provider
 │   │
 │   ├── src/iosMain
+│   │   ├── MainViewController.kt
 │   │   ├── MapKit or Google Maps iOS implementation
 │   │   ├── NWPathMonitor implementation
 │   │   ├── CLGeocoder implementation
@@ -195,10 +221,10 @@ RecipeCompose
 │
 └── iosApp
     ├── RecipeComposeApp.swift
-    ├── ComposeView.swift
+    ├── ContentView.swift
     ├── Info.plist
     ├── Assets.xcassets
-    └── RecipeCompose.xcodeproj
+    └── iosApp.xcodeproj
 ```
 
 The platform entry points should initialize Koin with common and platform modules, then display a shared root composable:
@@ -499,6 +525,8 @@ Exit criteria:
 
 A successful first session should finish Phase 0 and Phase 1, then stop with both platform hosts rendering the shared onboarding UI. If time remains, begin Phase 2 by moving only pure contracts and tests. Do not start networking, Room, or maps until the shared module and iOS framework remain reproducibly green.
 
+The implementation reached this stopping point on 2026-08-22. Phase 2 remains approval-gated.
+
 That stopping point is intentionally useful rather than cosmetic: it proves shared Compose rendering, resources, paging, theming, Android consumption, Xcode integration, and iOS safe-area behavior without risking the working Android feature set.
 
 ## Migration working rules
@@ -569,6 +597,7 @@ Resolve these choices before their corresponding phase begins:
 | Google Maps Compose is Android-specific | The current map composable cannot be copied into common code. | Share map state and use MapKit or Google Maps iOS behind a platform composable. |
 | Android APIs are spread through UI files | Screens may appear portable while still depending on `LocalContext`, `R`, Toasts, or Intents. | Move screens individually and require zero `android.*` imports in `commonMain`. |
 | Android-oriented navigation shell feels foreign on iOS | Functional parity may not produce good iOS UX. | Treat the root navigation shell as an explicit UX checkpoint. |
+| A bundled ICU object reports an iOS Simulator 18.5 minimum while the host targets iOS 16.0 | Older-device compatibility is not yet proven even though the current simulator runs. | Verify dependency/toolchain minimums before Phase 7, then either align the framework minimum or intentionally raise the app deployment target. |
 | Client API keys can be extracted from both mobile binaries | Moving configuration does not create secrecy. | Restrict keys and introduce a backend for credentials that must remain confidential. |
 | Thin existing test coverage | Behavior can regress during extraction. | Add state, repository, and persistence tests before each vertical slice moves. |
 
@@ -610,6 +639,7 @@ A functional prototype is much smaller than a release-quality migration. Maps, i
 - [Compose Multiplatform compatibility and versions](https://kotlinlang.org/docs/multiplatform/compose-compatibility-and-versioning.html)
 - [Migrating a Jetpack Compose app to Kotlin Multiplatform](https://kotlinlang.org/docs/multiplatform/migrate-from-android.html)
 - [Recommended Kotlin Multiplatform project structure](https://kotlinlang.org/docs/multiplatform/multiplatform-project-recommended-structure.html)
+- [Direct integration with an iOS Xcode project](https://kotlinlang.org/docs/multiplatform/multiplatform-direct-integration.html)
 - [Android-KMP library plugin](https://developer.android.com/kotlin/multiplatform/plugin)
 - [Compose Multiplatform supported platforms](https://kotlinlang.org/docs/multiplatform/supported-platforms.html)
 - [Compose Multiplatform resources](https://kotlinlang.org/docs/multiplatform/compose-multiplatform-resources.html)
