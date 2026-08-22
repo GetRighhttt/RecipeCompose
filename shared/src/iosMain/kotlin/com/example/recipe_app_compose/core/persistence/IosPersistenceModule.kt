@@ -6,6 +6,8 @@ import androidx.datastore.preferences.core.Preferences
 import com.example.recipe_app_compose.core.onboarding.DataStoreOnboardingCompletionStore
 import com.example.recipe_app_compose.core.onboarding.OnboardingCompletionStore
 import com.example.recipe_app_compose.features.location.data.preferences.DataStoreLocationPreferenceStore
+import com.example.recipe_app_compose.features.location.data.remote.YelpApiConfiguration
+import com.example.recipe_app_compose.features.location.data.remote.localIosYelpApiKey
 import com.example.recipe_app_compose.features.location.domain.preferences.LocationPreferenceStore
 import com.example.recipe_app_compose.features.categories.data.datasources.local.db.RandomMealDatabase
 import com.example.recipe_app_compose.features.categories.data.datasources.local.db.buildRandomMealDatabase
@@ -13,6 +15,7 @@ import com.example.recipe_app_compose.features.categories.data.datasources.local
 import okio.Path.Companion.toPath
 import org.koin.dsl.module
 import platform.Foundation.NSHomeDirectory
+import platform.Foundation.NSBundle
 
 private val onboardingDataStore by lazy {
     createPreferenceDataStore("onboarding_preferences")
@@ -31,6 +34,13 @@ val iosPersistenceModule = module {
     single<LocationPreferenceStore> {
         DataStoreLocationPreferenceStore(locationDataStore)
     }
+    single {
+        YelpApiConfiguration(
+            apiKey = infoPlistValue("YELP_API_KEY").ifBlank { localIosYelpApiKey },
+            baseUrl = infoPlistValue("YELP_BASE_URL")
+                .ifBlank { "https://api.yelp.com/v3/" },
+        )
+    }
 }
 
 private fun createPreferenceDataStore(name: String): DataStore<Preferences> =
@@ -39,3 +49,8 @@ private fun createPreferenceDataStore(name: String): DataStore<Preferences> =
             "${NSHomeDirectory()}/Documents/$name.preferences_pb".toPath()
         },
     )
+
+private fun infoPlistValue(key: String): String =
+    (NSBundle.mainBundle.objectForInfoDictionaryKey(key) as? String)
+        ?.takeUnless { it.startsWith("$(") && it.endsWith(')') }
+        .orEmpty()

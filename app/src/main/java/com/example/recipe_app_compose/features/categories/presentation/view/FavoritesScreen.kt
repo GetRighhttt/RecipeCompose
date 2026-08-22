@@ -47,6 +47,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.Lifecycle
 import coil3.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.ConfirmationDialog
@@ -63,7 +64,9 @@ fun FavoritesScreen(
     modifier: Modifier = Modifier,
 ) {
     val viewModel: DatabaseViewModel = koinViewModel()
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle(
+        minActiveState = Lifecycle.State.RESUMED,
+    )
     var showErrorDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.error) {

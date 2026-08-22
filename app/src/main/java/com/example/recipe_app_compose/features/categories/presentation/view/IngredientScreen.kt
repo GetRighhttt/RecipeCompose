@@ -57,6 +57,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.Lifecycle
 import coil3.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.ConfirmationDialog
@@ -78,10 +79,18 @@ fun IngredientScreen(
     onIngredientSelected: (Ingredient) -> Unit,
 ) {
     val viewModel: RecipeViewModel = koinViewModel()
-    val uiState by viewModel.ingUiState.collectAsStateWithLifecycle()
-    val searchText by viewModel.searchQuery.collectAsStateWithLifecycle()
-    val isSearching by viewModel.isSearching.collectAsStateWithLifecycle()
-    val searchResults by viewModel.ingredientsList.collectAsStateWithLifecycle()
+    val uiState by viewModel.ingUiState.collectAsStateWithLifecycle(
+        minActiveState = Lifecycle.State.RESUMED,
+    )
+    val searchText by viewModel.searchQuery.collectAsStateWithLifecycle(
+        minActiveState = Lifecycle.State.RESUMED,
+    )
+    val isSearching by viewModel.isSearching.collectAsStateWithLifecycle(
+        minActiveState = Lifecycle.State.RESUMED,
+    )
+    val searchResults by viewModel.ingredientsList.collectAsStateWithLifecycle(
+        minActiveState = Lifecycle.State.RESUMED,
+    )
     var showErrorDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.error) {
@@ -309,7 +318,9 @@ fun IngredientDetailScreen(
     modifier: Modifier = Modifier,
 ) {
     val databaseViewModel: DatabaseViewModel = koinViewModel()
-    val databaseUiState by databaseViewModel.uiState.collectAsStateWithLifecycle()
+    val databaseUiState by databaseViewModel.uiState.collectAsStateWithLifecycle(
+        minActiveState = Lifecycle.State.RESUMED,
+    )
     val isFavorite = databaseUiState.list.containsSavedMeal(ingredient.idMeal)
     val context = LocalContext.current
     val dishSavedMessage = stringResource(

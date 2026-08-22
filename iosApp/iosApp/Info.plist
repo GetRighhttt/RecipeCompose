@@ -26,10 +26,16 @@
 	<string>public.app-category.food-and-drink</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Recipe Compose uses your location only when you choose to find nearby restaurants.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchScreen</key>
 	<dict/>
+	<key>YELP_API_KEY</key>
+	<string>$(YELP_API_KEY)</string>
+	<key>YELP_BASE_URL</key>
+	<string>$(YELP_BASE_URL)</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

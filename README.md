@@ -2,7 +2,7 @@
 
 Recipe Compose is a portfolio mobile application originally built to learn Jetpack Compose and later redesigned into a fuller product sample. It connects recipe discovery with restaurant search and real-world navigation: users can explore meals from TheMealDB, save recipes locally, find restaurants through Yelp, inspect a destination on an interactive map, and continue into driving directions.
 
-The project now demonstrates incremental Compose Multiplatform migration as well as modern Compose development across state-driven UI, Ktor networking, Room persistence, navigation, responsive layouts, and platform services. Shared onboarding, discovery, search, recipe details, saved dishes, theming, networking, and persistence run on Android and iOS. Android remains the complete product baseline while native iOS location, maps, and directions are migrated behind platform contracts.
+The project now demonstrates an incremental Compose Multiplatform migration as well as modern Compose development across state-driven UI, Ktor networking, Room persistence, navigation, responsive layouts, and platform services. Its primary experience—including onboarding, recipe discovery, search, saved dishes, nearby restaurants, location access, interactive maps, and directions—runs on Android and iOS from shared UI and state.
 
 ## Product capabilities
 
@@ -13,7 +13,7 @@ The project now demonstrates incremental Compose Multiplatform migration as well
 - Open saved dishes as full recipe details, remove an individual dish with confirmation, or use swipe-to-delete for quick list management.
 - Discover Yelp restaurants after explicitly choosing the device's current location, remember that choice for later visits, or enter a city or ZIP code instead.
 - Search the loaded area by restaurant name or cuisine.
-- View a selected restaurant on an interactive Google Map.
+- View a selected restaurant on an interactive Google Map on Android or native MapKit map on iOS.
 - Reposition the destination marker and launch driving directions to the active pin.
 - Respond to loading, error, and network-connectivity states.
 
@@ -56,12 +56,12 @@ Interactive map and destination marker
         ↓
 Optional marker adjustment
         ↓
-Google Maps driving directions
+Platform driving directions
 ```
 
-Location access is requested only after the user chooses **Use my location**. After a successful resolution, Preferences DataStore remembers that choice so later Nearby visits can resolve the current area automatically. Android remains the source of truth for the actual permission grant: if access is revoked, the app returns to its permission/manual fallback instead of treating the stored preference as authorization. The app first accepts a recent coordinate and otherwise performs a bounded fresh-location request, so it cannot remain on a location spinner indefinitely. If access is declined or coordinates are unavailable, the Nearby screen remains usable through a city or ZIP code search. Exact coordinates and location history are never persisted, and the app does not request background location.
+Location access is requested only after the user chooses **Use my location**. After a successful resolution, Preferences DataStore remembers that choice so later Nearby visits can resolve the current area automatically. The operating system remains the source of truth for the actual permission grant on both platforms: if access is revoked, the app returns to its permission/manual fallback instead of treating the stored preference as authorization. The app first accepts a recent coordinate and otherwise performs a bounded fresh-location request, so it cannot remain on a location spinner indefinitely. If access is declined or coordinates are unavailable, the Nearby screen remains usable through a city or ZIP code search. Exact coordinates and location history are never persisted, and the app does not request background location.
 
-The directions action uses either the restaurant marker or the user-adjusted marker as its destination. Google Maps manages the route origin and its own navigation permissions after the handoff.
+The directions action uses either the restaurant marker or the user-adjusted marker as its destination. Android hands the destination to Google Maps-compatible navigation; iOS opens Apple Maps for driving directions. The navigation app manages the route origin after the handoff.
 
 ## Architecture
 
@@ -93,10 +93,10 @@ flowchart LR
         Directions[Google Maps directions]
     end
 
-    subgraph iOSServices[iOS platform services in progress]
+    subgraph iOSServices[iOS platform services]
         CoreLocation[Core Location]
-        MapKit[MapKit or Google Maps iOS]
-        AppleDirections[External directions]
+        MapKit[Native MapKit]
+        AppleDirections[Apple Maps directions]
     end
 
     Android --> Shared
@@ -122,7 +122,7 @@ Contributor rule of thumb: place portable UI and route behavior in `shared/src/c
 | Local persistence | Room KMP, Preferences DataStore |
 | Recipe data | TheMealDB API |
 | Restaurant discovery | Yelp Fusion API |
-| Location and mapping | Fused Location Provider, Google Maps Compose, Google Maps directions handoff |
+| Location and mapping | Fused Location Provider/Google Maps on Android; Core Location/MapKit on iOS |
 | Dependency injection | Koin |
 | Build tooling | Kotlin Multiplatform, Kotlin DSL, version catalogs, KSP, Secrets Gradle Plugin, Xcode |
 
@@ -131,6 +131,7 @@ Contributor rule of thumb: place portable UI and route behavior in `shared/src/c
 ### Prerequisites
 
 - Android Studio and a compatible Android SDK.
+- Xcode with the iOS simulator runtime for iOS development.
 - A Google Maps Platform API key with Maps SDK for Android enabled.
 - A Yelp Fusion API key.
 
@@ -160,13 +161,13 @@ Contributor rule of thumb: place portable UI and route behavior in `shared/src/c
    ./gradlew :app:assembleDebug
    ```
 
-4. Run the `app` configuration on an Android device or emulator with Google APIs.
+4. Run the `app` configuration on an Android device or emulator with Google APIs. For iOS, open `iosApp/iosApp.xcodeproj` in Xcode or use the checked-in `iosApp` Xcode Application configuration in Android Studio.
 
 On the first Nearby visit, choose **Use my location** and grant approximate or precise foreground access to load local restaurants. The permission prompt is user initiated and can be declined without blocking the feature; enter a city or ZIP code instead. A successful device-location choice is remembered for later visits, and **Choose another location** resets that behavior.
 
 ## Credential handling
 
-The Secrets Gradle Plugin exposes local configuration through generated `BuildConfig` values and Android manifest placeholders while keeping real credentials out of source control.
+Local configuration is injected without committing credentials. Android receives the values through generated `BuildConfig` fields and manifest placeholders; the iOS framework receives the Yelp configuration from ignored build output with an optional Xcode build-setting override.
 
 This protects the repository, not the compiled APK. For an appropriate deployment configuration:
 
@@ -189,56 +190,50 @@ For visual iteration, open `app/src/debug/java/com/example/recipe_app_compose/pr
 
 ## Screenshots
 
+These iOS screens are rendered by the shared Compose Multiplatform UI. Core
+Location and MapKit remain native platform adapters behind the common feature
+contracts.
+
 <table>
   <tr>
     <td align="center">
-      <img src="docs/screenshots/onboarding.png" width="260" alt="Recipe Compose first-run onboarding screen" />
+      <img src="docs/screenshots/ios-onboarding.png" width="260" alt="Recipe Compose onboarding running on iOS" />
       <br />
-      <sub><strong>First-run onboarding</strong></sub>
+      <sub><strong>Shared first-run onboarding</strong></sub>
     </td>
     <td align="center">
-      <img src="docs/screenshots/browse-cuisines.png" width="260" alt="Recipe Compose cuisine categories displayed in an adaptive image grid" />
-      <br />
-      <sub><strong>Browse cuisines</strong></sub>
-    </td>
-    <td align="center">
-      <img src="docs/screenshots/explore.png" width="260" alt="Explore home screen with primary feature shortcuts and a featured meal" />
+      <img src="docs/screenshots/ios-explore.png" width="260" alt="Recipe Compose Explore screen running on iOS" />
       <br />
       <sub><strong>Explore and discover</strong></sub>
     </td>
-  </tr>
-  <tr>
     <td align="center">
-      <img src="docs/screenshots/search-dishes.png" width="260" alt="Compact image-first dish search results" />
+      <img src="docs/screenshots/ios-search.png" width="260" alt="Adaptive image-first recipe search running on iOS" />
       <br />
       <sub><strong>Search dishes</strong></sub>
     </td>
-    <td align="center">
-      <img src="docs/screenshots/recipe-details.png" width="260" alt="Recipe details with source, video, and save action" />
-      <br />
-      <sub><strong>Recipe details and saving</strong></sub>
-    </td>
-    <td align="center">
-      <img src="docs/screenshots/featured-dish.png" width="260" alt="Featured dish page with save and refresh actions" />
-      <br />
-      <sub><strong>Featured dish discovery</strong></sub>
-    </td>
   </tr>
   <tr>
     <td align="center">
-      <img src="docs/screenshots/nearby-restaurants.png" width="260" alt="Restaurants returned for a manual Chicago area search" />
+      <img src="docs/screenshots/ios-nearby.png" width="260" alt="User-driven nearby location choice running on iOS" />
       <br />
-      <sub><strong>Nearby restaurant discovery</strong></sub>
+      <sub><strong>Location-aware discovery</strong></sub>
     </td>
     <td align="center">
-      <img src="docs/screenshots/restaurant-map.png" width="260" alt="Interactive restaurant map with marker and Directions action" />
+      <img src="docs/screenshots/ios-map.png" width="260" alt="Native MapKit restaurant destination with directions action" />
       <br />
-      <sub><strong>Map and driving directions</strong></sub>
+      <sub><strong>Native MapKit destination</strong></sub>
     </td>
     <td align="center">
-      <img src="docs/screenshots/saved-details.png" width="260" alt="Saved recipe details with a prominent remove action" />
+      <img src="docs/screenshots/ios-saved.png" width="260" alt="Locally persisted saved recipes running on iOS" />
       <br />
-      <sub><strong>Saved-dish management</strong></sub>
+      <sub><strong>Local saved dishes</strong></sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" colspan="3">
+      <img src="docs/screenshots/ios-saved-details.png" width="260" alt="Shared saved recipe details with a remove action running on iOS" />
+      <br />
+      <sub><strong>Shared recipe details and saved-dish management</strong></sub>
     </td>
   </tr>
 </table>

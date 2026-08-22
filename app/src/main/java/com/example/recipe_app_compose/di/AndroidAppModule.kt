@@ -7,15 +7,10 @@ import com.example.recipe_app_compose.features.categories.data.datasources.local
 import com.example.recipe_app_compose.features.categories.data.datasources.local.db.RandomMealDatabase
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.DatabaseViewModel
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
-import com.example.recipe_app_compose.features.location.data.location.AndroidCurrentLocationProvider
 import com.example.recipe_app_compose.features.location.data.preferences.DataStoreLocationPreferenceStore
 import com.example.recipe_app_compose.features.location.data.preferences.locationPreferenceDataStore
 import com.example.recipe_app_compose.features.location.data.remote.YelpApiConfiguration
-import com.example.recipe_app_compose.features.location.data.remote.YelpRepositoryImpl
-import com.example.recipe_app_compose.features.location.domain.location.CurrentLocationProvider
 import com.example.recipe_app_compose.features.location.domain.preferences.LocationPreferenceStore
-import com.example.recipe_app_compose.features.location.domain.repo.YelpRepository
-import com.example.recipe_app_compose.features.location.presentation.viewmodel.YelpViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -32,20 +27,16 @@ val androidAppModule = module {
     }
     single { get<RandomMealDatabase>().randomMealDao() }
 
-    single<YelpRepository> {
-        YelpRepositoryImpl(
-            configuration = YelpApiConfiguration(
-                apiKey = BuildConfig.YELP_API_KEY,
-                baseUrl = BuildConfig.YELP_BASE_URL,
-            ),
+    single {
+        YelpApiConfiguration(
+            apiKey = BuildConfig.YELP_API_KEY,
+            baseUrl = BuildConfig.YELP_BASE_URL,
         )
     }
-    single<CurrentLocationProvider> { AndroidCurrentLocationProvider(androidContext()) }
     single<LocationPreferenceStore> {
         DataStoreLocationPreferenceStore(locationPreferenceDataStore(androidContext()))
     }
 
     viewModel { RecipeViewModel(get()) }
     viewModel { DatabaseViewModel(get()) }
-    viewModel { YelpViewModel(get(), get(), get()) }
 }

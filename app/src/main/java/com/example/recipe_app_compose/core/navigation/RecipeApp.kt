@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -19,8 +20,9 @@ import com.example.recipe_app_compose.features.categories.presentation.view.Reci
 import com.example.recipe_app_compose.features.categories.presentation.view.SavedMealDetailScreen
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 import com.example.recipe_app_compose.features.location.domain.model.location.LocationData
-import com.example.recipe_app_compose.features.location.presentation.view.GoogleLocationSelectionScreen
-import com.example.recipe_app_compose.features.location.presentation.view.YelpScreen
+import com.example.recipe_app_compose.features.location.presentation.SharedNearbyScreen
+import com.example.recipe_app_compose.features.location.presentation.map.MapDestination
+import com.example.recipe_app_compose.features.location.presentation.map.SharedLocationSelectionScreen
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.compose.koinInject
 
@@ -31,8 +33,12 @@ File for Navigation.
 fun RecipeApp(navController: NavHostController, modifier: Modifier) {
     val recipeViewModel: RecipeViewModel = koinViewModel()
     val selection: RecipeNavigationSelection = koinInject()
-    val navState by recipeViewModel.uiState.collectAsStateWithLifecycle()
-    val featuredMealState by recipeViewModel.randUiState.collectAsStateWithLifecycle()
+    val navState by recipeViewModel.uiState.collectAsStateWithLifecycle(
+        minActiveState = Lifecycle.State.RESUMED,
+    )
+    val featuredMealState by recipeViewModel.randUiState.collectAsStateWithLifecycle(
+        minActiveState = Lifecycle.State.RESUMED,
+    )
 
     NavHost(
         navController = navController,
@@ -59,7 +65,7 @@ fun RecipeApp(navController: NavHostController, modifier: Modifier) {
                     )
                 },
                 onNearbyShops = {
-                    navController.navigateToPrimaryDestination(CategoryScreen.YelpScreen.route)
+                    navController.navigateToPrimaryDestination(CategoryScreen.NearbyScreen.route)
                 },
                 onFavorites = {
                     navController.navigateToPrimaryDestination(
@@ -107,7 +113,10 @@ fun RecipeApp(navController: NavHostController, modifier: Modifier) {
         composable(
             route = CategoryScreen.RandomMealScreen.route
         ) {
-            RandomMealPage(modifier = Modifier)
+            RandomMealPage(
+                viewModel = recipeViewModel,
+                modifier = Modifier,
+            )
         }
         composable(
             route = CategoryScreen.FavoriteScreen.route
@@ -141,15 +150,15 @@ fun RecipeApp(navController: NavHostController, modifier: Modifier) {
             InfoScreen(modifier = Modifier)
         }
         composable(
-            route = CategoryScreen.YelpScreen.route
+            route = CategoryScreen.NearbyScreen.route
         ) {
-            YelpScreen(
+            SharedNearbyScreen(
                 modifier = Modifier,
-                onShopSelected = { location ->
+                onShopSelected = { shop ->
                     navController.navigate(
                         CategoryScreen.MapScreen.createRoute(
-                            latitude = location.latitude,
-                            longitude = location.longitude,
+                            latitude = shop.coordinates.latitude,
+                            longitude = shop.coordinates.longitude,
                         )
                     ) {
                         launchSingleTop = true
@@ -176,8 +185,14 @@ fun RecipeApp(navController: NavHostController, modifier: Modifier) {
                 ?.toDoubleOrNull()
 
             if (latitude != null && longitude != null) {
-                GoogleLocationSelectionScreen(
-                    location = LocationData(latitude, longitude)
+                SharedLocationSelectionScreen(
+                    destination = MapDestination(
+                        location = LocationData(latitude, longitude),
+                        title = "",
+                        subtitle = "",
+                    ),
+                    onBack = navController::popBackStack,
+                    showTopAppBar = false,
                 )
             }
         }

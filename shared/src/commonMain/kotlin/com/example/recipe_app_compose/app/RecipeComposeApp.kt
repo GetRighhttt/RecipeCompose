@@ -27,7 +27,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import com.example.recipe_app_compose.di.sharedAppModule
 import com.example.recipe_app_compose.core.onboarding.CURRENT_ONBOARDING_VERSION
 import com.example.recipe_app_compose.core.onboarding.OnboardingCompletionStore
@@ -44,10 +43,12 @@ import com.example.recipe_app_compose.features.categories.presentation.view.Shar
 import com.example.recipe_app_compose.features.categories.presentation.view.SharedFavoritesScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.SharedInfoScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.SharedSearchScreen
+import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpShop
+import com.example.recipe_app_compose.features.location.presentation.SharedNearbyScreen
+import com.example.recipe_app_compose.features.location.presentation.map.SharedLocationSelectionScreen
+import com.example.recipe_app_compose.features.location.presentation.map.toMapDestination
 import com.example.recipe_app_compose.features.onboarding.presentation.OnboardingScreen
 import com.example.recipe_app_compose.shared.generated.resources.Res
-import com.example.recipe_app_compose.shared.generated.resources.feature_not_available_message
-import com.example.recipe_app_compose.shared.generated.resources.feature_not_available_title
 import com.example.recipe_app_compose.shared.generated.resources.explore
 import com.example.recipe_app_compose.shared.generated.resources.home
 import com.example.recipe_app_compose.shared.generated.resources.info
@@ -121,12 +122,20 @@ private fun RecipeComposeContent() {
     val favoritesState by favoritesStore.uiState.collectAsState()
     var selectedCategory by remember { mutableStateOf<Category?>(null) }
     var selectedMeal by remember { mutableStateOf<SelectedMeal?>(null) }
+    var selectedShop by remember { mutableStateOf<YelpShop?>(null) }
     var destination by remember { mutableStateOf(SharedDestination.Explore) }
     var showInfo by remember { mutableStateOf(false) }
     val drawerState = androidx.compose.material3.rememberDrawerState(
         initialValue = androidx.compose.material3.DrawerValue.Closed,
     )
 
+    selectedShop?.let { shop ->
+        SharedLocationSelectionScreen(
+            destination = shop.toMapDestination(),
+            onBack = { selectedShop = null },
+        )
+        return
+    }
     selectedMeal?.let { selection ->
         val displayedMeal = if (selection.origin == MealDetailsOrigin.Featured) {
             featuredMeal.item.firstOrNull()?.toMealDetails() ?: selection.meal
@@ -236,12 +245,16 @@ private fun RecipeComposeContent() {
                 },
                 modifier = Modifier.padding(paddingValues),
             )
-            SharedDestination.Nearby -> NativeFeaturePending(Modifier.padding(paddingValues))
+            SharedDestination.Nearby -> SharedNearbyScreen(
+                onShopSelected = { selectedShop = it },
+                modifier = Modifier.padding(paddingValues),
+            )
             SharedDestination.Saved -> SharedFavoritesScreen(
                 uiState = favoritesState,
                 onMealSelected = {
                     selectedMeal = SelectedMeal(it.toMealDetails(), MealDetailsOrigin.Saved)
                 },
+                onDeleteMeal = favoritesStore::deleteMeal,
                 onDeleteAll = favoritesStore::deleteAllMeals,
                 onRetry = favoritesStore::retry,
                 modifier = Modifier.padding(paddingValues),
@@ -288,31 +301,4 @@ private fun drawerLabel(destination: SharedDrawerDestination): String = when (de
 private fun SharedDrawerDestination.icon(): DrawableResource = when (this) {
     SharedDrawerDestination.Home -> Res.drawable.nav_home
     SharedDrawerDestination.Info -> Res.drawable.nav_info
-}
-
-@Composable
-private fun NativeFeaturePending(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier.fillMaxSize().padding(AppSpacing.ExtraLarge),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(AppSpacing.Small),
-        ) {
-            Text(
-                text = stringResource(Res.string.feature_not_available_title),
-                style = MaterialTheme.typography.headlineSmall,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            Text(
-                text = stringResource(Res.string.feature_not_available_message),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-    }
 }

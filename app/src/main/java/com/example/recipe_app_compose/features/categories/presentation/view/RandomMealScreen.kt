@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.Lifecycle
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.ConfirmationDialog
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
@@ -46,9 +47,13 @@ import com.example.recipe_app_compose.ui.theme.AppSpacing
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun RandomMealPage(modifier: Modifier = Modifier) {
-    val viewModel: RecipeViewModel = koinViewModel()
-    val uiState by viewModel.randUiState.collectAsStateWithLifecycle()
+fun RandomMealPage(
+    viewModel: RecipeViewModel,
+    modifier: Modifier = Modifier,
+) {
+    val uiState by viewModel.randUiState.collectAsStateWithLifecycle(
+        minActiveState = Lifecycle.State.RESUMED,
+    )
     var showErrorDialog by remember { mutableStateOf(false) }
     var favoriteDialogState by remember { mutableStateOf(false) }
 
@@ -57,7 +62,9 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
     }
 
     val databaseViewModel: DatabaseViewModel = koinViewModel()
-    val databaseUiState by databaseViewModel.uiState.collectAsStateWithLifecycle()
+    val databaseUiState by databaseViewModel.uiState.collectAsStateWithLifecycle(
+        minActiveState = Lifecycle.State.RESUMED,
+    )
     val context = LocalContext.current
     val currentMeal = uiState.item.firstOrNull()
     val isFavorite = databaseUiState.list.containsSavedMeal(currentMeal?.idMeal)

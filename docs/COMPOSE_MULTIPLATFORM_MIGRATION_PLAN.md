@@ -1,6 +1,6 @@
 # Compose Multiplatform migration plan
 
-Status: implementation in progress; checkpoints 1–7 complete, iOS location and maps remain<br>
+Status: implementation in progress; checkpoints 1–8 complete, Android/iOS feature parity reached for Nearby<br>
 Last revised: 2026-08-22<br>
 Targets: Android and iOS<br>
 Related discovery: [Kotlin Multiplatform migration assessment](KMP_MIGRATION_ASSESSMENT.md)
@@ -211,10 +211,57 @@ Verification completed for this checkpoint:
   current-location choice completed a live Yelp request and rendered nearby
   restaurant names, ratings, and addresses through the shared Ktor repository.
 
-The remaining restaurant work is platform integration rather than response
-decoding: iOS still needs native location permission/acquisition, restaurant UI
-wiring, MapKit or Google Maps rendering, and directions handoff behind the shared
-contracts.
+Checkpoint 8 completes the platform integration that remained after the shared
+Yelp transport: location permission/acquisition, restaurant UI, native maps, and
+directions handoff.
+
+### Checkpoint 8 — shared Nearby discovery, location, maps, and directions
+
+Nearby restaurant discovery now runs through one shared feature on Android and
+iOS:
+
+- `NearbyStore` owns restaurant search, manual city/ZIP input, saved location
+  choice, retries, cancellation, and UI state in `commonMain`.
+- Permission requests remain user-driven. Entering Nearby does not immediately
+  display a system prompt; **Use my location** initiates the request, while
+  manual search remains fully usable without location permission.
+- Android implements the shared location contract with runtime permissions,
+  lifecycle-aware status refresh, and the fused location provider.
+- iOS implements the same contract with `CLLocationManager`, its delegate, the
+  when-in-use prompt, and an application-settings fallback.
+- `SharedNearbyScreen` renders the search field, location-choice states,
+  permission guidance, loading/error/empty states, and Yelp result cards for
+  both platforms.
+- The shared map destination owns selected coordinates, marker labels, and the
+  directions action. Android renders Google Maps Compose; iOS embeds native
+  MapKit through `UIKitView`.
+- Both maps allow a destination marker to be repositioned. Android supports map
+  taps and marker dragging; iOS supports map taps and a draggable native
+  annotation.
+- Directions hand off to Google Maps-compatible navigation on Android and Apple
+  Maps driving directions on iOS. Viewing a restaurant destination does not
+  itself require location permission.
+- Yelp configuration still originates from ignored `local.properties`. Android
+  receives it through `BuildConfig`; the iOS framework receives a generated,
+  ignored local source value with an optional Xcode build-setting override.
+- The superseded Android-only Nearby screen, ViewModel, location provider, map
+  screen, and their obsolete tests/previews were removed after both hosts used
+  the shared route.
+
+Verification completed for this checkpoint:
+
+- Shared Android and iOS compilation passed.
+- Shared tests and Android unit tests passed, including common tests for manual
+  search without permission and user-initiated current-location persistence.
+- The Android debug APK assembled, installed, and launched on the connected
+  Samsung device.
+- The Xcode simulator build succeeded for the arm64 iPhone 17 Pro destination,
+  installed, and launched on iOS 26.5.
+
+The iOS 16.0 host still emits the previously documented non-blocking warning
+that a bundled ICU object was built for iOS Simulator 18.5. This does not block
+the current iOS 26.5 simulator build, but should be resolved before claiming
+support for older physical iOS versions.
 
 ## Decision summary
 
@@ -252,7 +299,8 @@ This revision reflects the application after the 2026 Android cleanup and redesi
 - centralized startup routing between onboarding and the main application;
 - improved lifecycle-aware state collection, location permission handling, restaurant discovery, Google Maps, directions, offline UI, previews, and unit coverage;
 - removed the experimental Firebase authentication and analytics stack because no product capability required an account;
-- retained Android-specific Google Maps, location, activity startup, and external-intent integrations.
+- moved restaurant discovery and map state to shared code while retaining Google
+  Maps on Android, MapKit on iOS, and platform-native location/directions adapters.
 
 The direction is now decided: this project will pursue shared Compose UI for Android and iOS, not a SwiftUI frontend over shared logic. The earlier KMP assessment remains useful as a dependency and platform-boundary inventory, but its UI-strategy decision point has been resolved by this document.
 
@@ -384,7 +432,7 @@ fun RecipeComposeApp()
 | Repository contracts | `commonMain` | Keep interfaces platform-neutral. |
 | `RecipeViewModel` | `commonMain` | Replace global dependency lookup with constructor injection. |
 | `DatabaseViewModel` | `commonMain` | Inject the repository and use the multiplatform ViewModel artifact. |
-| `YelpViewModel` | `commonMain` | Inject API configuration and repository dependencies. |
+| `NearbyStore` | `commonMain` | Own Yelp search and location-choice state while receiving platform location access through a contract. |
 | Compose screens and widgets | Mostly `commonMain` | Replace `LocalContext`, Android resources, Toasts, and Intents. |
 | Explore shell and primary navigation | `commonMain` after recipe state is shared | Preserve the four destinations—Explore, Search, Nearby, and Saved—while replacing string routes with typed serializable routes. |
 | Navigation | `commonMain` | Replace Parcelable objects in `SavedStateHandle` with serializable routes or stable IDs. |

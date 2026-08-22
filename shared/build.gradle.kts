@@ -1,4 +1,36 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
+
+val localProperties = Properties().apply {
+    val propertiesFile = rootProject.file("local.properties")
+    if (propertiesFile.isFile) {
+        propertiesFile.inputStream().use(::load)
+    }
+}
+val generatedIosConfigurationDirectory =
+    layout.buildDirectory.dir("generated/iosYelpConfiguration/iosMain")
+val generateIosYelpConfiguration = tasks.register("generateIosYelpConfiguration") {
+    val escapedApiKey = localProperties.getProperty("YELP_API_KEY", "")
+        .replace("\\", "\\\\")
+        .replace("\"", "\\\"")
+        .replace("$", "\\$")
+    inputs.property("yelpApiKey", escapedApiKey)
+    outputs.dir(generatedIosConfigurationDirectory)
+    doLast {
+        val output = generatedIosConfigurationDirectory.get().file(
+            "com/example/recipe_app_compose/features/location/data/remote/LocalIosYelpConfiguration.kt"
+        ).asFile
+        output.parentFile.mkdirs()
+        output.writeText(
+            """
+            package com.example.recipe_app_compose.features.location.data.remote
+
+            /** Generated locally from the ignored root local.properties file. */
+            internal const val localIosYelpApiKey: String = "$escapedApiKey"
+            """.trimIndent()
+        )
+    }
+}
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -66,12 +98,17 @@ kotlin {
             // Android owns its system back dispatcher; common onboarding only
             // depends on the small expect/actual adapter around this API.
             implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.core.ktx)
+            implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.maps.compose)
+            implementation(libs.play.services.location)
         }
 
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
         }
+        getByName("iosMain").kotlin.srcDir(generatedIosConfigurationDirectory)
 
         // These tests are compiled for every enabled target. Android host tests
         // are explicitly enabled above because the Android-KMP plugin defaults off.
@@ -82,6 +119,21 @@ kotlin {
             implementation(libs.ktor.client.mock)
         }
     }
+}
+
+tasks.matching {
+    it.name.startsWith("compileKotlinIos") || it.name.startsWith("kspKotlinIos")
+}.configureEach {
+    dependsOn(generateIosYelpConfiguration)
+}
+
+// KSP contributes generated Room sources to Android host tests. Gradle 9.7
+// requires lint's model writer to declare that producer explicitly.
+tasks.matching {
+    it.name == "generateAndroidHostTestLintModel" ||
+        it.name == "lintAnalyzeAndroidHostTest"
+}.configureEach {
+    dependsOn("kspAndroidHostTest")
 }
 
 dependencies {
