@@ -35,6 +35,7 @@
     <string name="clear_search">Clear search</string>
     <string name="no_results_found">No results found</string>
     <string name="recipe_details">Recipe Details</string>
+    <string name="featured_dish">Featured Dish</string>
     <string name="category_details">Category Details</string>
     <string name="category">Category</string>
     <string name="cuisine">Cuisine</string>
@@ -56,10 +57,10 @@
     <string name="finding_nearby_shops">Finding shops near you…</string>
     <string name="location_unavailable">Location unavailable</string>
     <string name="location_unavailable_message">We couldn’t determine your current location. Try again or search using a city or ZIP code.</string>
-    <string name="near_your_current_location">Near your location</string>
+    <string name="near_your_location">Near your location</string>
     <string name="searching_near_location">Near %1$s</string>
     <string name="unable_to_load_shops">Unable to load shops</string>
-    <string name="search_nearby_restaurants">Search nearby shops</string>
+    <string name="search_nearby_shops">Search nearby shops</string>
     <string name="shop_location">Location</string>
     <string name="business_location_unavailable">This business does not have a valid map location.</string>
     <string name="open_driving_directions">Directions</string>
@@ -68,6 +69,7 @@
     <string name="home">Home</string>
     <string name="info">Info</string>
     <string name="app_version_label">Recipe Compose · Version 1.0</string>
+    <string name="app_name">Recipe Compose</string>
     <string name="apis_used">APIs used</string>
     <string name="the_mealdb">TheMealDB</string>
     <string name="yelp_fusion_api">Yelp Fusion API</string>

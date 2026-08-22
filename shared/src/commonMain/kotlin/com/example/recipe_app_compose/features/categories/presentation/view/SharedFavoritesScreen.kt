@@ -5,15 +5,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +37,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.core.components.AppHorizontalMediaCard
+import com.example.recipe_app_compose.core.components.AppLoadingIndicator
 import com.example.recipe_app_compose.core.components.ConfirmationDialog
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
 import com.example.recipe_app_compose.features.categories.domain.states.DatabaseUiState
@@ -45,6 +47,7 @@ import com.example.recipe_app_compose.shared.generated.resources.cancel
 import com.example.recipe_app_compose.shared.generated.resources.error
 import com.example.recipe_app_compose.shared.generated.resources.no_saved_dishes
 import com.example.recipe_app_compose.shared.generated.resources.no_saved_dishes_message
+import com.example.recipe_app_compose.shared.generated.resources.nav_favorite_outline
 import com.example.recipe_app_compose.shared.generated.resources.remove
 import com.example.recipe_app_compose.shared.generated.resources.remove_from_saved
 import com.example.recipe_app_compose.shared.generated.resources.remove_all_saved_dishes
@@ -72,7 +75,7 @@ fun SharedFavoritesScreen(
 
     Box(modifier.fillMaxSize()) {
         when {
-            uiState.loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
+            uiState.loading -> AppLoadingIndicator(Modifier.align(Alignment.Center))
             uiState.error != null && showError -> ConfirmationDialog(
                 title = stringResource(Res.string.error),
                 message = uiState.error,
@@ -187,6 +190,13 @@ private fun EmptyFavorites() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
+        Icon(
+            painter = painterResource(Res.drawable.nav_favorite_outline),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(40.dp),
+        )
+        Spacer(Modifier.height(AppSpacing.Small))
         Text(
             text = stringResource(Res.string.no_saved_dishes),
             style = MaterialTheme.typography.titleLarge,

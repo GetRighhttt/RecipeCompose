@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -41,6 +40,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.core.components.BackTopAppBar
+import com.example.recipe_app_compose.core.components.AppLoadingIndicator
 import com.example.recipe_app_compose.features.categories.domain.model.details.MealDetails
 import com.example.recipe_app_compose.shared.generated.resources.Res
 import com.example.recipe_app_compose.shared.generated.resources.action_close
@@ -79,6 +79,7 @@ import kotlinx.coroutines.launch
 fun SharedMealDetailsScreen(
     meal: MealDetails,
     onBack: () -> Unit,
+    title: String,
     isSaved: Boolean = false,
     onSave: (() -> Unit)? = null,
     onRemove: (() -> Unit)? = null,
@@ -92,7 +93,7 @@ fun SharedMealDetailsScreen(
     Scaffold(
         topBar = {
             BackTopAppBar(
-                title = stringResource(Res.string.recipe_details),
+                title = title,
                 onBack = onBack,
             )
         },
@@ -296,7 +297,7 @@ private fun FeaturedMealActions(
             modifier = Modifier.weight(1f),
         ) {
             if (isRefreshing) {
-                CircularProgressIndicator(
+                AppLoadingIndicator(
                     modifier = Modifier.size(18.dp),
                     strokeWidth = 2.dp,
                 )

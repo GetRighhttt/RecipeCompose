@@ -3,7 +3,6 @@ package com.example.recipe_app_compose.features.location.presentation.map
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -15,6 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.example.recipe_app_compose.core.components.BackTopAppBar
+import com.example.recipe_app_compose.core.components.AppLoadingIndicator
 import com.example.recipe_app_compose.features.location.domain.model.location.LocationData
 import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpShop
 import com.example.recipe_app_compose.shared.generated.resources.Res
@@ -92,7 +92,7 @@ fun SharedLocationSelectionScreen(
                 modifier = Modifier.fillMaxSize(),
             )
             if (!isMapLoaded) {
-                CircularProgressIndicator(Modifier.align(Alignment.Center))
+                AppLoadingIndicator(Modifier.align(Alignment.Center))
             }
             ExtendedFloatingActionButton(
                 onClick = { directionsLauncher.openDrivingDirections(selectedLocation) },

@@ -22,7 +22,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -45,6 +44,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
+import com.example.recipe_app_compose.core.components.AppLoadingIndicator
 import com.example.recipe_app_compose.features.categories.domain.model.ingredient.Ingredient
 import com.example.recipe_app_compose.features.categories.presentation.RecipeStore
 import com.example.recipe_app_compose.shared.generated.resources.Res
@@ -91,7 +91,7 @@ fun SharedSearchScreen(
 
             when {
                 isLoading -> Box(Modifier.fillMaxSize()) {
-                    CircularProgressIndicator(Modifier.align(Alignment.Center))
+                    AppLoadingIndicator(Modifier.align(Alignment.Center))
                 }
 
                 results.isEmpty() -> Box(Modifier.fillMaxSize()) {
