@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.time.Duration.Companion.milliseconds
 
 class YelpViewModel(
@@ -49,7 +50,9 @@ class YelpViewModel(
             }
 
             val location = try {
-                currentLocationProvider.getCurrentLocation()
+                withTimeoutOrNull(LOCATION_RESOLUTION_TIMEOUT_MILLIS) {
+                    currentLocationProvider.getCurrentLocation()
+                }
             } catch (cancellation: CancellationException) {
                 throw cancellation
             } catch (_: Exception) {
@@ -182,5 +185,6 @@ class YelpViewModel(
         val SEARCH_DEBOUNCE = 500L.milliseconds
         const val DEFAULT_RADIUS_METERS = 16_000
         const val DEFAULT_ERROR_MESSAGE = "Error fetching businesses."
+        const val LOCATION_RESOLUTION_TIMEOUT_MILLIS = 12_000L
     }
 }

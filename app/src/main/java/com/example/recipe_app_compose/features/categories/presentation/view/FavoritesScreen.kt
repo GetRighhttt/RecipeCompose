@@ -1,29 +1,40 @@
 package com.example.recipe_app_compose.features.categories.presentation.view
 
 import android.widget.Toast
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.sharp.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -44,13 +56,13 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
 import com.example.recipe_app_compose.core.components.AppHorizontalMediaCard
-import com.example.recipe_app_compose.core.components.FavoriteMealDialog
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.DatabaseViewModel
 import com.example.recipe_app_compose.ui.theme.AppSpacing
 
 @Composable
 fun FavoritesScreen(
+    onMealSelected: (RandomMeal) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val viewModel: DatabaseViewModel = viewModel()
@@ -80,7 +92,8 @@ fun FavoritesScreen(
                 MealDBScreen(
                     meals = uiState.list.orEmpty(),
                     onDeleteAll = viewModel::executeDeleteAll,
-                    onDeleteMeal = viewModel::executeDeleteMeal
+                    onDeleteMeal = viewModel::executeDeleteMeal,
+                    onMealSelected = onMealSelected,
                 )
             }
         }
@@ -93,10 +106,41 @@ fun FavoritesScreen(
 fun MealDBScreen(
     meals: List<RandomMeal>,
     onDeleteAll: () -> Unit,
-    onDeleteMeal: (RandomMeal) -> Unit
+    onDeleteMeal: (RandomMeal) -> Unit,
+    onMealSelected: (RandomMeal) -> Unit,
 ) {
     val context = LocalContext.current
     val allMealsDeletedMessage = stringResource(R.string.all_meals_deleted)
+
+    if (meals.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(AppSpacing.Small),
+                modifier = Modifier.padding(AppSpacing.ExtraLarge),
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.FavoriteBorder,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(40.dp),
+                )
+                Text(
+                    text = stringResource(R.string.no_saved_dishes),
+                    style = MaterialTheme.typography.titleLarge,
+                )
+                Text(
+                    text = stringResource(R.string.no_saved_dishes_message),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        return
+    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -107,7 +151,11 @@ fun MealDBScreen(
             items = meals,
             key = { it.idMeal ?: "local:${it.id}" },
         ) { meal ->
-            MealDBItem(meal = meal, onDeleteMeal = onDeleteMeal)
+            MealDBItem(
+                meal = meal,
+                onDeleteMeal = onDeleteMeal,
+                onClick = { onMealSelected(meal) },
+            )
         }
 
         item(key = "delete_all_meals") {
@@ -126,7 +174,6 @@ fun MealDBScreen(
                             Toast.LENGTH_SHORT,
                         ).show()
                     },
-                    enabled = meals.isNotEmpty(),
                     elevation = ButtonDefaults.elevatedButtonElevation(),
                 ) {
                     Text(
@@ -140,11 +187,11 @@ fun MealDBScreen(
 }
 
 @Composable
-fun MealDBItem(meal: RandomMeal, onDeleteMeal: (RandomMeal) -> Unit) {
-    val context = LocalContext.current
-    var alertState by remember { mutableStateOf(false) }
-    val mealDeletedMessage = stringResource(R.string.meal_deleted)
-
+fun MealDBItem(
+    meal: RandomMeal,
+    onDeleteMeal: (RandomMeal) -> Unit,
+    onClick: () -> Unit,
+) {
     val dismissState = rememberSwipeToDismissBoxState()
 
     SwipeToDismissBox(
@@ -157,7 +204,7 @@ fun MealDBItem(meal: RandomMeal, onDeleteMeal: (RandomMeal) -> Unit) {
             AppHorizontalMediaCard(
                 painter = rememberAsyncImagePainter(meal.strMealThumb),
                 imageDescription = meal.strMeal,
-                onClick = { alertState = true },
+                onClick = onClick,
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(
@@ -168,24 +215,102 @@ fun MealDBItem(meal: RandomMeal, onDeleteMeal: (RandomMeal) -> Unit) {
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
-            if (alertState) {
-                FavoriteMealDialog(
-                    text = meal.strMeal ?: "",
-                    painter = rememberAsyncImagePainter(meal.strMealThumb.orEmpty()),
-                    imageDescription = stringResource(R.string.image),
-                    onDismissRequest = { alertState = false },
-                    onDelete = {
-                        onDeleteMeal(meal)
+        })
+}
+
+@Composable
+fun SavedMealDetailScreen(
+    meal: RandomMeal,
+    onDeleted: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val viewModel: DatabaseViewModel = viewModel()
+    val context = LocalContext.current
+    val mealDeletedMessage = stringResource(R.string.meal_deleted)
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
+
+    SavedMealDetailContent(
+        meal = meal,
+        onRemove = { showDeleteConfirmation = true },
+        modifier = modifier,
+    )
+
+    if (showDeleteConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirmation = false },
+            title = { Text(stringResource(R.string.remove_saved_dish_title)) },
+            text = {
+                Text(
+                    stringResource(
+                        R.string.remove_saved_dish_message,
+                        meal.strMeal.orEmpty(),
+                    )
+                )
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirmation = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteConfirmation = false
+                        viewModel.executeDeleteMeal(meal)
                         Toast.makeText(
                             context,
                             mealDeletedMessage,
                             Toast.LENGTH_SHORT,
                         ).show()
-                        alertState = false
+                        onDeleted()
                     },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error,
+                    ),
+                ) {
+                    Text(stringResource(R.string.remove))
+                }
+            },
+        )
+    }
+}
+
+@Composable
+internal fun SavedMealDetailContent(
+    meal: RandomMeal,
+    onRemove: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val removeInteractionSource = remember { MutableInteractionSource() }
+    val isRemovePressed by removeInteractionSource.collectIsPressedAsState()
+    val removeContainerColor by animateColorAsState(
+        targetValue = if (isRemovePressed) {
+            MaterialTheme.colorScheme.errorContainer
+        } else {
+            Color.Transparent
+        },
+        label = "Remove saved meal container",
+    )
+
+    MealDetailsPage(
+        meal = meal.toMealDetailsUiModel(),
+        modifier = modifier,
+        headerAction = {
+            IconButton(
+                onClick = onRemove,
+                interactionSource = removeInteractionSource,
+                colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = removeContainerColor,
+                    contentColor = MaterialTheme.colorScheme.error,
+                ),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = stringResource(R.string.remove_from_saved),
                 )
             }
-        })
+        },
+    )
 }
 
 @Composable

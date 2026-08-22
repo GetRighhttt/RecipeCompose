@@ -14,6 +14,7 @@ object AppSpacing {
 
 object AppSizes {
     val MinimumTouchTarget = 48.dp
+    val MinimumCompactGridCardWidth = 104.dp
     val MinimumGridCardWidth = 152.dp
     val MaximumReadableWidth = 640.dp
 }

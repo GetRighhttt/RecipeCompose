@@ -4,14 +4,18 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.PlayArrow
@@ -39,6 +43,7 @@ import com.example.recipe_app_compose.features.categories.domain.model.ingredien
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
 import com.example.recipe_app_compose.ui.theme.AppCardShape
 import com.example.recipe_app_compose.ui.theme.AppControlShape
+import com.example.recipe_app_compose.ui.theme.AppSizes
 import com.example.recipe_app_compose.ui.theme.AppSpacing
 
 internal data class MealDetailsUiModel(
@@ -53,10 +58,37 @@ internal data class MealDetailsUiModel(
 )
 
 @Composable
+internal fun MealDetailsPage(
+    meal: MealDetailsUiModel,
+    modifier: Modifier = Modifier,
+    headerAction: (@Composable () -> Unit)? = null,
+) {
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.TopCenter,
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .widthIn(max = AppSizes.MaximumReadableWidth)
+                .fillMaxWidth(),
+            contentPadding = PaddingValues(AppSpacing.Large),
+        ) {
+            item {
+                MealDetailsContent(
+                    meal = meal,
+                    headerAction = headerAction,
+                )
+            }
+        }
+    }
+}
+
+@Composable
 internal fun MealDetailsContent(
     meal: MealDetailsUiModel,
     modifier: Modifier = Modifier,
     actions: (@Composable () -> Unit)? = null,
+    headerAction: (@Composable () -> Unit)? = null,
 ) {
     val uriHandler = LocalUriHandler.current
     val category = meal.category.ifBlank { stringResource(R.string.unknown) }
@@ -69,12 +101,22 @@ internal fun MealDetailsContent(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Column(modifier = Modifier.padding(AppSpacing.Large)) {
-                Text(
-                    text = meal.name,
-                    style = MaterialTheme.typography.headlineSmall,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(
+                        text = meal.name,
+                        style = MaterialTheme.typography.headlineSmall,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f),
+                    )
+                    headerAction?.let {
+                        Spacer(modifier = Modifier.width(AppSpacing.Medium))
+                        it()
+                    }
+                }
                 actions?.let {
                     Spacer(modifier = Modifier.height(AppSpacing.Medium))
                     it()

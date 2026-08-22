@@ -24,7 +24,7 @@ class AndroidCurrentLocationProvider(context: Context) : CurrentLocationProvider
     override suspend fun getCurrentLocation(): LocationData? {
         if (!applicationContext.hasForegroundLocationPermission()) return null
 
-        val location = requestCurrentLocation() ?: requestRecentLocation()
+        val location = requestRecentLocation() ?: requestCurrentLocation()
         return location?.let { LocationData(it.latitude, it.longitude) }
     }
 
@@ -96,7 +96,7 @@ class AndroidCurrentLocationProvider(context: Context) : CurrentLocationProvider
 
     private companion object {
         const val MAX_LOCATION_AGE_MILLIS = 5 * 60 * 1000L
-        const val MAX_LAST_LOCATION_AGE_MILLIS = 15 * 60 * 1000L
+        const val MAX_LAST_LOCATION_AGE_MILLIS = 5 * 60 * 1000L
         const val LOCATION_TIMEOUT_MILLIS = 10_000L
     }
 }

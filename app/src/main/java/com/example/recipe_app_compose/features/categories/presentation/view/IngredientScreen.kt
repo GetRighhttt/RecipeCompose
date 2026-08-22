@@ -1,26 +1,38 @@
 package com.example.recipe_app_compose.features.categories.presentation.view
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,22 +43,30 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AlertDialogExample
-import com.example.recipe_app_compose.core.components.AppMediaCard
 import com.example.recipe_app_compose.features.categories.domain.model.ingredient.Ingredient
+import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
+import com.example.recipe_app_compose.features.categories.presentation.viewmodel.DatabaseViewModel
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 import com.example.recipe_app_compose.ui.theme.AppSizes
+import com.example.recipe_app_compose.ui.theme.AppCardShape
 import com.example.recipe_app_compose.ui.theme.AppSpacing
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -112,26 +132,11 @@ internal fun IngredientSearchContent(
     val focusManager = LocalFocusManager.current
 
     Column(modifier = modifier.fillMaxSize()) {
-        OutlinedTextField(
+        CompactSearchField(
             value = searchText,
             onValueChange = onSearchTextChange,
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Search,
-                keyboardType = KeyboardType.Text,
-                showKeyboardOnFocus = true,
-            ),
-            keyboardActions = KeyboardActions(
-                onSearch = { focusManager.clearFocus() }
-            ),
-            singleLine = true,
-            placeholder = {
-                Text(stringResource(R.string.search_for_specific_meals))
-            },
-            shape = RoundedCornerShape(30.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp)
-                .focusable(),
+            onSearch = { focusManager.clearFocus() },
+            modifier = Modifier.padding(bottom = AppSpacing.Medium),
         )
 
         when {
@@ -145,8 +150,8 @@ internal fun IngredientSearchContent(
                 Text(
                     text = stringResource(R.string.no_results_found),
                     textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.displayLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.align(Alignment.Center),
                 )
             }
@@ -160,16 +165,95 @@ internal fun IngredientSearchContent(
 }
 
 @Composable
+private fun CompactSearchField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    onSearch: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val contentColor = MaterialTheme.colorScheme.onSurface
+
+    BasicTextField(
+        value = value,
+        onValueChange = onValueChange,
+        singleLine = true,
+        textStyle = MaterialTheme.typography.bodyLarge.copy(color = contentColor),
+        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+        interactionSource = interactionSource,
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Search,
+            keyboardType = KeyboardType.Text,
+            showKeyboardOnFocus = true,
+        ),
+        keyboardActions = KeyboardActions(onSearch = { onSearch() }),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(AppSizes.MinimumTouchTarget)
+            .background(
+                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                shape = RoundedCornerShape(16.dp),
+            )
+            .padding(start = AppSpacing.Large),
+        decorationBox = { innerTextField ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp),
+                )
+                Box(
+                    contentAlignment = Alignment.CenterStart,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = AppSpacing.Medium),
+                ) {
+                    if (value.isEmpty()) {
+                        Text(
+                            text = stringResource(R.string.search_dishes_by_name),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
+                    innerTextField()
+                }
+                if (value.isNotEmpty()) {
+                    IconButton(onClick = { onValueChange("") }) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = stringResource(R.string.clear_search),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(18.dp),
+                        )
+                    }
+                }
+            }
+        },
+    )
+}
+
+@Composable
 private fun IngredientMealScreen(
     categories: List<Ingredient>,
     onIngredientSelected: (Ingredient) -> Unit,
 ) {
+    val fontScale = LocalDensity.current.fontScale
+    val minimumTileWidth = if (fontScale >= 1.3f) {
+        AppSizes.MinimumGridCardWidth
+    } else {
+        AppSizes.MinimumCompactGridCardWidth
+    }
+
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = AppSizes.MinimumGridCardWidth),
+        columns = GridCells.Adaptive(minSize = minimumTileWidth),
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = AppSpacing.Small),
-        horizontalArrangement = Arrangement.spacedBy(AppSpacing.Medium),
-        verticalArrangement = Arrangement.spacedBy(AppSpacing.Medium),
+        horizontalArrangement = Arrangement.spacedBy(AppSpacing.Small),
+        verticalArrangement = Arrangement.spacedBy(AppSpacing.Large),
     ) {
         items(categories, key = { it.idMeal ?: it.strMeal.orEmpty() }) { category ->
             IngredientMealItem(
@@ -185,19 +269,34 @@ private fun IngredientMealItem(
     category: Ingredient,
     onClick: () -> Unit,
 ) {
-    AppMediaCard(
-        painter = rememberAsyncImagePainter(category.strMealThumb.orEmpty()),
-        imageDescription = category.strMeal,
+    Surface(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
+        shape = AppCardShape,
+        color = MaterialTheme.colorScheme.background,
     ) {
-        Text(
-            text = category.strMeal.orEmpty(),
-            style = MaterialTheme.typography.titleMedium,
-            textAlign = TextAlign.Center,
-            maxLines = 2,
-            modifier = Modifier.fillMaxWidth(),
-        )
+        Column {
+            Image(
+                painter = rememberAsyncImagePainter(category.strMealThumb.orEmpty()),
+                contentDescription = category.strMeal,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+                    .clip(AppCardShape),
+            )
+            Text(
+                text = category.strMeal.orEmpty(),
+                style = MaterialTheme.typography.labelLarge,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(
+                    start = AppSpacing.ExtraSmall,
+                    top = AppSpacing.Small,
+                    end = AppSpacing.ExtraSmall,
+                ),
+            )
+        }
     }
 }
 
@@ -206,21 +305,83 @@ fun IngredientDetailScreen(
     ingredient: Ingredient,
     modifier: Modifier = Modifier,
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-        contentAlignment = Alignment.TopCenter,
-    ) {
-        LazyColumn(
-            modifier = Modifier
-                .widthIn(max = AppSizes.MaximumReadableWidth)
-                .fillMaxWidth(),
-            contentPadding = PaddingValues(AppSpacing.Large),
-        ) {
-            item {
-                MealDetailsContent(meal = ingredient.toMealDetailsUiModel())
-            }
-        }
+    val databaseViewModel: DatabaseViewModel = viewModel()
+    val databaseUiState by databaseViewModel.uiState.collectAsStateWithLifecycle()
+    val mealId = ingredient.idMeal
+    val isFavorite = mealId != null && databaseUiState.list.orEmpty().any { savedMeal ->
+        savedMeal.idMeal == mealId
     }
+    val context = LocalContext.current
+    val addedToFavoritesMessage = stringResource(R.string.added_to_favorites)
+
+    IngredientDetailContent(
+        ingredient = ingredient,
+        isFavorite = isFavorite,
+        onFavorite = {
+            databaseViewModel.executeInsertMeal(ingredient.toRandomMeal())
+            android.widget.Toast.makeText(
+                context,
+                "${ingredient.strMeal.orEmpty()} $addedToFavoritesMessage",
+                android.widget.Toast.LENGTH_SHORT,
+            ).show()
+        },
+        modifier = modifier,
+    )
 }
+
+@Composable
+internal fun IngredientDetailContent(
+    ingredient: Ingredient,
+    isFavorite: Boolean,
+    onFavorite: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    MealDetailsPage(
+        meal = ingredient.toMealDetailsUiModel(),
+        modifier = modifier.background(MaterialTheme.colorScheme.background),
+        headerAction = {
+            FilledTonalIconButton(
+                onClick = onFavorite,
+                enabled = !isFavorite,
+                colors = IconButtonDefaults.filledTonalIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    disabledContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                ),
+            ) {
+                Icon(
+                    imageVector = if (isFavorite) {
+                        Icons.Default.Favorite
+                    } else {
+                        Icons.Default.FavoriteBorder
+                    },
+                    contentDescription = stringResource(
+                        if (isFavorite) R.string.saved else R.string.save
+                    ),
+                )
+            }
+        },
+    )
+}
+
+private fun Ingredient.toRandomMeal() = RandomMeal(
+    id = 0,
+    idMeal = idMeal,
+    strMeal = strMeal,
+    strCategory = strCategory,
+    strArea = strArea,
+    strInstructions = strInstructions,
+    strMealThumb = strMealThumb,
+    strYoutube = strYoutube,
+    strIngredient1 = strIngredient1,
+    strIngredient2 = strIngredient2,
+    strIngredient3 = strIngredient3,
+    strIngredient4 = strIngredient4,
+    strIngredient5 = strIngredient5,
+    strIngredient6 = strIngredient6,
+    strIngredient7 = strIngredient7,
+    strIngredient8 = strIngredient8,
+    strIngredient9 = strIngredient9,
+    strSource = strSource,
+)

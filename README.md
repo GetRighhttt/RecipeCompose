@@ -6,12 +6,13 @@ The project has since grown into a practical demonstration of modern Compose dev
 
 ## Product capabilities
 
-- Browse recipe categories and cuisine information.
-- Search for dishes by name and open a complete recipe details page.
-- Discover a featured dish, save it, or open its source and video instructions when available.
-- Save and manage favorite meals locally.
-- Discover nearby Yelp restaurants from the device's current location.
-- Search by restaurant name or cuisine, with a city or ZIP code fallback.
+- Learn the core discovery, saving, and restaurant features through a focused first-run onboarding flow.
+- Move between recipe discovery, search, nearby restaurants, and saved dishes from a persistent navigation bar.
+- Browse recipe categories or use a compact, image-first search to find dishes by name.
+- Open a complete recipe details page, follow its original source or video, and save the dish locally.
+- Open saved dishes as full recipe details, remove an individual dish with confirmation, or use swipe-to-delete for quick list management.
+- Discover Yelp restaurants after explicitly choosing the device's current location, or enter a city or ZIP code instead.
+- Search the loaded area by restaurant name or cuisine.
 - View a selected restaurant on an interactive Google Map.
 - Reposition the destination marker and launch driving directions to the active pin.
 - Authenticate users with Firebase.
@@ -27,14 +28,15 @@ The project has since grown into a practical demonstration of modern Compose dev
 - Repository boundaries for Retrofit services and Room persistence.
 - Navigation Compose routes with state passed between destinations.
 - Reusable Compose components for dialogs, form fields, lists, and application chrome.
-- A shared recipe-detail presentation reused by Featured Dish and search-result destinations.
+- A shared recipe-details page reused by Featured Dish, search results, and saved-dish destinations.
 - A debug-only screen preview catalog with representative data and paired light/dark renders.
 - Purpose-built editorial feeds, adaptive galleries, and compact management lists for different content types.
 - A semantic Material 3 design system with coordinated light/dark palettes, typography, spacing, and shapes.
 - Local-first favorites with Room and swipe-to-delete interactions.
+- Preferences DataStore for non-blocking onboarding completion state.
 - External navigation handoff that follows the currently selected map marker.
 - Foreground-only location access with support for approximate and precise permission.
-- Graceful location fallbacks for denied permission, unavailable coordinates, and manual search.
+- User-initiated permission requests, cache-first location resolution, a bounded fresh-location attempt, and manual search fallbacks.
 - Build-time credential injection, redacted authorization headers, and debug-only HTTP body logging.
 - Companion documentation for the UI redesign, Gradle Kotlin DSL migration, KMP assessment, and Compose Multiplatform migration path.
 
@@ -43,7 +45,9 @@ The project has since grown into a practical demonstration of modern Compose dev
 The restaurant workflow turns the user's current area into an actionable destination:
 
 ```text
-Foreground location (approximate or precise)
+User chooses current location or enters an area
+        ↓
+Foreground permission when needed (approximate or precise)
         ↓
 Nearby Yelp restaurant discovery
         ↓
@@ -56,7 +60,7 @@ Optional marker adjustment
 Google Maps driving directions
 ```
 
-If foreground location is denied or unavailable, the Shops screen remains usable through a city or ZIP code search. The app does not request background location.
+Location access is requested only after the user chooses **Use my location**. The app first accepts a recent coordinate and otherwise performs a bounded fresh-location request, so it cannot remain on a location spinner indefinitely. If access is declined or coordinates are unavailable, the Nearby screen remains usable through a city or ZIP code search. The app does not request background location.
 
 The directions action uses either the restaurant marker or the user-adjusted marker as its destination. Google Maps manages the route origin and its own navigation permissions after the handoff.
 
@@ -68,7 +72,7 @@ The directions action uses either the restaurant marker or the user-adjusted mar
 | State and lifecycle | ViewModel, StateFlow, lifecycle-aware collection |
 | Navigation | Navigation Compose |
 | Networking | Retrofit, OkHttp, Gson |
-| Local persistence | Room |
+| Local persistence | Room, Preferences DataStore |
 | Recipe data | TheMealDB API |
 | Restaurant discovery | Yelp Fusion API |
 | Location and mapping | Fused Location Provider, Google Maps Compose, Google Maps directions handoff |
@@ -112,7 +116,7 @@ The directions action uses either the restaurant marker or the user-adjusted mar
 
 4. Run the `app` configuration on an Android device or emulator with Google APIs.
 
-On first opening Shops, choose **Use my location** and grant approximate or precise foreground access to load nearby restaurants. The permission prompt is user initiated and can be declined without blocking the feature; enter a city or ZIP code instead.
+When opening Nearby, choose **Use my location** and grant approximate or precise foreground access to load local restaurants. The permission prompt is user initiated and can be declined without blocking the feature; enter a city or ZIP code instead.
 
 ## Credential handling
 
@@ -142,43 +146,41 @@ For visual iteration, open `app/src/debug/java/com/example/recipe_app_compose/pr
 <table>
   <tr>
     <td align="center">
-      <img src="docs/screenshots/browse-cuisines.png" width="320" alt="Browse Cuisines screen in dark mode" />
+      <img src="docs/screenshots/onboarding.png" width="280" alt="Recipe Compose first-run onboarding screen" />
       <br />
-      <sub><strong>Browse cuisines</strong></sub>
+      <sub><strong>First-run onboarding</strong></sub>
     </td>
     <td align="center">
-      <img src="docs/screenshots/featured-dish.png" width="320" alt="Featured Dish recipe details screen in dark mode" />
+      <img src="docs/screenshots/explore.png" width="280" alt="Explore home screen with primary feature shortcuts and a featured meal" />
       <br />
-      <sub><strong>Featured dish</strong></sub>
+      <sub><strong>Explore and discover</strong></sub>
     </td>
   </tr>
   <tr>
     <td align="center">
-      <img src="docs/screenshots/shops-results.png" width="320" alt="Nearby Chicago restaurant search results in dark mode" />
+      <img src="docs/screenshots/search-dishes.png" width="280" alt="Compact image-first dish search results" />
       <br />
-      <sub><strong>Restaurant discovery</strong></sub>
+      <sub><strong>Search dishes</strong></sub>
     </td>
     <td align="center">
-      <img src="docs/screenshots/restaurant-map.png" width="320" alt="Interactive restaurant map with a Directions action" />
+      <img src="docs/screenshots/recipe-details.png" width="280" alt="Recipe details with source, video, and save action" />
       <br />
-      <sub><strong>Map and directions</strong></sub>
+      <sub><strong>Recipe details and saving</strong></sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/nearby-restaurants.png" width="280" alt="Restaurants returned for a manual Chicago area search" />
+      <br />
+      <sub><strong>Nearby restaurant discovery</strong></sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/restaurant-map.png" width="280" alt="Interactive restaurant map with marker and Directions action" />
+      <br />
+      <sub><strong>Map and driving directions</strong></sub>
     </td>
   </tr>
 </table>
-
-## Demonstrations
-
-### Interface and navigation
-
-https://github.com/user-attachments/assets/471a4c36-3430-4303-ac4d-3d97941ac137
-
-### Restaurant maps
-
-https://github.com/user-attachments/assets/85ea40df-5807-4948-b3f7-42c5830a4a0a
-
-### Local favorites
-
-https://github.com/user-attachments/assets/5f3f7408-b13d-4225-8854-7ce993fea4a4
 
 ## Contributing
 

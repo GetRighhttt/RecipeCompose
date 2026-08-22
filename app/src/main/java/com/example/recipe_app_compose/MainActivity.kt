@@ -1,13 +1,11 @@
 package com.example.recipe_app_compose
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -17,13 +15,14 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -33,6 +32,8 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -47,11 +48,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.recipe_app_compose.core.components.MyBottomAppBar
 import com.example.recipe_app_compose.core.components.NetworkUnavailableScreen
 import com.example.recipe_app_compose.core.navigation.CategoryScreen
 import com.example.recipe_app_compose.core.navigation.NavigationItem
 import com.example.recipe_app_compose.core.navigation.RecipeApp
+import com.example.recipe_app_compose.core.navigation.navigateToPrimaryDestination
 import com.example.recipe_app_compose.core.util.connectivity.ConnectivityStatus
 import com.example.recipe_app_compose.core.util.connectivity.openNetworkSettings
 import com.example.recipe_app_compose.core.util.connectivity.rememberConnectivityMonitor
@@ -104,18 +105,26 @@ class MainActivity : ComponentActivity() {
                         CategoryScreen.InfoScreen.route,
                         CategoryScreen.AccountScreen.route,
                     )
+                    val primaryRoutes = setOf(
+                        CategoryScreen.RecipeScreen.route,
+                        CategoryScreen.IngredientScreen.route,
+                        CategoryScreen.YelpScreen.route,
+                        CategoryScreen.FavoriteScreen.route,
+                    )
                     val isDrawerDestination = currentRoute == null || currentRoute in drawerRoutes
+                    val isPrimaryDestination = currentRoute in primaryRoutes
                     val screenTitle = when (currentRoute) {
                         CategoryScreen.DetailScreen.route -> R.string.details
                         CategoryScreen.RandomMealScreen.route -> R.string.featured_dish
-                        CategoryScreen.IngredientScreen.route -> R.string.search_for_specific_meals
+                        CategoryScreen.IngredientScreen.route -> R.string.search
                         CategoryScreen.IngredientDetailScreen.route -> R.string.recipe_details
+                        CategoryScreen.FavoriteDetailScreen.route -> R.string.recipe_details
                         CategoryScreen.AccountScreen.route -> R.string.account
                         CategoryScreen.FavoriteScreen.route -> R.string.favorites
                         CategoryScreen.InfoScreen.route -> R.string.info
                         CategoryScreen.YelpScreen.route -> R.string.shops
                         CategoryScreen.MapScreen.route -> R.string.shop_location
-                        else -> R.string.browse_cuisines
+                        else -> R.string.explore
                     }
 
                     val items = listOf(
@@ -132,6 +141,28 @@ class MainActivity : ComponentActivity() {
                             selectedIcon = Icons.Filled.AccountCircle,
                             unselectedIcon = Icons.Outlined.AccountCircle,
                         )
+                    )
+                    val primaryItems = listOf(
+                        CategoryScreen.RecipeScreen.route to NavigationItem(
+                            title = stringResource(R.string.explore),
+                            selectedIcon = Icons.Filled.Home,
+                            unselectedIcon = Icons.Outlined.Home,
+                        ),
+                        CategoryScreen.IngredientScreen.route to NavigationItem(
+                            title = stringResource(R.string.search),
+                            selectedIcon = Icons.Filled.Search,
+                            unselectedIcon = Icons.Outlined.Search,
+                        ),
+                        CategoryScreen.YelpScreen.route to NavigationItem(
+                            title = stringResource(R.string.nearby),
+                            selectedIcon = Icons.Filled.Storefront,
+                            unselectedIcon = Icons.Outlined.Storefront,
+                        ),
+                        CategoryScreen.FavoriteScreen.route to NavigationItem(
+                            title = stringResource(R.string.saved),
+                            selectedIcon = Icons.Filled.Favorite,
+                            unselectedIcon = Icons.Outlined.FavoriteBorder,
+                        ),
                     )
                     ModalNavigationDrawer(
                         drawerContent = {
@@ -201,18 +232,21 @@ class MainActivity : ComponentActivity() {
                                     onQueryChange = yelpViewModel::onSearchTextChange,
                                     onSearchActiveChange = yelpViewModel::onSearchActiveChange,
                                     onNavigateBack = navController::popBackStack,
+                                    showBackNavigation = false,
                                 )
                             } else {
                                 TopAppBar(
                                     title = {
-                                        Text(
-                                            stringResource(screenTitle),
-                                            style = MaterialTheme.typography.titleLarge
-                                        )
+                                        if (currentRoute != CategoryScreen.RecipeScreen.route) {
+                                            Text(
+                                                stringResource(screenTitle),
+                                                style = MaterialTheme.typography.titleLarge,
+                                            )
+                                        }
                                     },
                                     navigationIcon = {
-                                        IconButton(onClick = {
-                                            if (isDrawerDestination) {
+                                        when {
+                                            isDrawerDestination -> IconButton(onClick = {
                                                 scope.launch {
                                                     if (drawerState.isClosed) {
                                                         drawerState.open()
@@ -220,40 +254,19 @@ class MainActivity : ComponentActivity() {
                                                         drawerState.close()
                                                     }
                                                 }
-                                            } else {
-                                                navController.popBackStack()
-                                            }
-                                        }) {
-                                            Icon(
-                                                imageVector = if (isDrawerDestination) {
-                                                    Icons.Default.Menu
-                                                } else {
-                                                    Icons.AutoMirrored.Filled.ArrowBack
-                                                },
-                                                contentDescription = stringResource(
-                                                    if (isDrawerDestination) {
-                                                        R.string.menu
-                                                    } else {
-                                                        R.string.back
-                                                    }
-                                                )
-                                            )
-                                        }
-                                    },
-                                    actions = {
-                                        if (currentRoute == CategoryScreen.RecipeScreen.route) {
-                                            IconButton(onClick = {
-                                                navController.navigate(
-                                                    CategoryScreen.IngredientScreen.route
-                                                ) {
-                                                    launchSingleTop = true
-                                                }
                                             }) {
                                                 Icon(
-                                                    imageVector = Icons.Default.Search,
-                                                    contentDescription = stringResource(
-                                                        R.string.search
-                                                    )
+                                                    imageVector = Icons.Default.Menu,
+                                                    contentDescription = stringResource(R.string.menu),
+                                                )
+                                            }
+
+                                            !isPrimaryDestination -> IconButton(onClick = {
+                                                navController.popBackStack()
+                                            }) {
+                                                Icon(
+                                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                    contentDescription = stringResource(R.string.back),
                                                 )
                                             }
                                         }
@@ -261,69 +274,31 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                         }, bottomBar = {
-                            if (isDrawerDestination) {
-                                MyBottomAppBar(
-                                    modifier = Modifier.fillMaxWidth(),
+                            if (isPrimaryDestination) {
+                                NavigationBar(
                                     containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                                    content = {
-                                        IconButton(onClick = {
-                                            val intent = Intent(Intent.ACTION_SEND).apply {
-                                                type = "text/plain"
-                                                putExtra(
-                                                    Intent.EXTRA_EMAIL, arrayOf(
-                                                        getString(R.string.stefanbayne_gmail_com)
-                                                    )
+                                ) {
+                                    primaryItems.forEach { (route, item) ->
+                                        val selected = currentRoute == route
+                                        NavigationBarItem(
+                                            selected = selected,
+                                            onClick = {
+                                                navController.navigateToPrimaryDestination(route)
+                                            },
+                                            icon = {
+                                                Icon(
+                                                    imageVector = if (selected) {
+                                                        item.selectedIcon
+                                                    } else {
+                                                        item.unselectedIcon
+                                                    },
+                                                    contentDescription = item.title,
                                                 )
-                                                putExtra(
-                                                    Intent.EXTRA_SUBJECT,
-                                                    getString(R.string.sharing_application)
-                                                )
-                                                putExtra(
-                                                    Intent.EXTRA_TEXT,
-                                                    getString(R.string.https_github_com_getrighhttt_recipecompose)
-                                                )
-                                            }
-                                            if (intent.resolveActivity(packageManager) != null) {
-                                                startActivity(intent)
-                                            }
-                                        }) {
-                                            Icon(
-                                                imageVector = Icons.Default.Share,
-                                                contentDescription = stringResource(R.string.share)
-                                            )
-                                        }
-                                        IconButton(onClick = {
-                                            navController.navigate(CategoryScreen.YelpScreen.route) {
-                                                launchSingleTop = true
-                                            }
-                                        }) {
-                                            Icon(
-                                                imageVector = Icons.Default.ShoppingCart,
-                                                contentDescription = stringResource(R.string.shops)
-                                            )
-                                        }
-                                        IconButton(onClick = {
-                                            navController.navigate(CategoryScreen.FavoriteScreen.route) {
-                                                launchSingleTop = true
-                                            }
-                                        }) {
-                                            Icon(
-                                                imageVector = Icons.Default.Favorite,
-                                                contentDescription = stringResource(R.string.favorites)
-                                            )
-                                        }
-                                        IconButton(onClick = {
-                                            navController.navigate(CategoryScreen.RandomMealScreen.route) {
-                                                launchSingleTop = true
-                                            }
-                                        }) {
-                                            Icon(
-                                                imageVector = Icons.Default.PlayArrow,
-                                                contentDescription = stringResource(R.string.play)
-                                            )
-                                        }
-                                    },
-                                )
+                                            },
+                                            label = { Text(item.title) },
+                                        )
+                                    }
+                                }
                             }
                         }) { innerPadding ->
                             RecipeApp(

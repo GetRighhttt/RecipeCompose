@@ -15,20 +15,23 @@ import androidx.compose.ui.unit.dp
 import com.example.recipe_app_compose.LoginContent
 import com.example.recipe_app_compose.core.components.NetworkUnavailableScreen
 import com.example.recipe_app_compose.features.categories.domain.states.UiState
+import com.example.recipe_app_compose.features.categories.domain.states.RandomMealUiState
 import com.example.recipe_app_compose.features.categories.presentation.view.AccountContent
 import com.example.recipe_app_compose.features.categories.presentation.view.DetailScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.InfoScreen
-import com.example.recipe_app_compose.features.categories.presentation.view.IngredientDetailScreen
+import com.example.recipe_app_compose.features.categories.presentation.view.IngredientDetailContent
 import com.example.recipe_app_compose.features.categories.presentation.view.IngredientSearchContent
 import com.example.recipe_app_compose.features.categories.presentation.view.MealDBScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.RandomCategoryScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.RecipeScreen
+import com.example.recipe_app_compose.features.categories.presentation.view.SavedMealDetailContent
 import com.example.recipe_app_compose.features.location.domain.model.location.LocationData
 import com.example.recipe_app_compose.features.location.domain.states.YelpSearchArea
 import com.example.recipe_app_compose.features.location.domain.states.YelpUiState
 import com.example.recipe_app_compose.features.location.presentation.view.DirectionsButton
 import com.example.recipe_app_compose.features.location.presentation.view.GoogleLocationSelectionScreen
 import com.example.recipe_app_compose.features.location.presentation.view.YelpContent
+import com.example.recipe_app_compose.features.onboarding.presentation.OnboardingScreen
 import com.example.recipe_app_compose.ui.theme.AppTheme
 
 @Preview(
@@ -67,10 +70,24 @@ private fun LoginScreenPreview() = PreviewSurface {
 
 @AppScreenPreview
 @Composable
+private fun OnboardingPreview() = PreviewSurface {
+    OnboardingScreen(onFinished = {})
+}
+
+@AppScreenPreview
+@Composable
 private fun BrowseCuisinesPreview() = PreviewSurface {
     RecipeScreen(
         uiState = UiState(loading = false, list = previewCategories),
+        featuredMealState = RandomMealUiState(
+            loading = false,
+            item = listOf(previewMeals.first()),
+        ),
         navigateToDetail = {},
+        onSearch = {},
+        onNearbyShops = {},
+        onFavorites = {},
+        onFeaturedDish = {},
         onRetry = {},
     )
 }
@@ -97,7 +114,11 @@ private fun DishSearchPreview() = PreviewSurface {
 @AppScreenPreview
 @Composable
 private fun RecipeDetailsPreview() = PreviewSurface {
-    IngredientDetailScreen(ingredient = previewIngredients.first())
+    IngredientDetailContent(
+        ingredient = previewIngredients.first(),
+        isFavorite = false,
+        onFavorite = {},
+    )
 }
 
 @AppScreenPreview
@@ -118,6 +139,16 @@ private fun FavoritesPreview() = PreviewSurface {
         meals = previewMeals,
         onDeleteAll = {},
         onDeleteMeal = {},
+        onMealSelected = {},
+    )
+}
+
+@AppScreenPreview
+@Composable
+private fun SavedRecipeDetailsPreview() = PreviewSurface {
+    SavedMealDetailContent(
+        meal = previewMeals.first(),
+        onRemove = {},
     )
 }
 
@@ -143,7 +174,7 @@ private fun ShopsPreview() = PreviewSurface {
 @Composable
 private fun LocationPermissionPreview() = PreviewSurface {
     YelpContent(
-        uiState = YelpUiState(searchArea = YelpSearchArea.PermissionRequired),
+        uiState = YelpUiState(searchArea = YelpSearchArea.LocationChoiceRequired),
         manualLocationText = "",
         onManualLocationChange = {},
         onSearchManualLocation = {},

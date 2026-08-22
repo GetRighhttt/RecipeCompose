@@ -16,6 +16,7 @@ import com.example.recipe_app_compose.features.categories.domain.model.category.
 import com.example.recipe_app_compose.features.categories.domain.model.category.CategoryName
 import com.example.recipe_app_compose.features.categories.domain.model.category.CategoryThumb
 import com.example.recipe_app_compose.features.categories.domain.model.ingredient.Ingredient
+import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
 import com.example.recipe_app_compose.features.categories.presentation.view.DetailScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.FavoritesScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.InfoScreen
@@ -23,6 +24,7 @@ import com.example.recipe_app_compose.features.categories.presentation.view.Ingr
 import com.example.recipe_app_compose.features.categories.presentation.view.IngredientScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.RandomMealPage
 import com.example.recipe_app_compose.features.categories.presentation.view.RecipeScreen
+import com.example.recipe_app_compose.features.categories.presentation.view.SavedMealDetailScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.AccountScreen
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 import com.example.recipe_app_compose.features.location.domain.model.location.LocationData
@@ -36,6 +38,7 @@ File for Navigation.
 fun RecipeApp(navController: NavHostController, modifier: Modifier) {
     val recipeViewModel: RecipeViewModel = viewModel()
     val navState by recipeViewModel.uiState.collectAsState()
+    val featuredMealState by recipeViewModel.randUiState.collectAsState()
 
     NavHost(
         navController = navController,
@@ -47,6 +50,7 @@ fun RecipeApp(navController: NavHostController, modifier: Modifier) {
         ) {
             RecipeScreen(
                 uiState = navState,
+                featuredMealState = featuredMealState,
                 navigateToDetail = {
                     navController.currentBackStackEntry?.savedStateHandle?.set("nav", it)
                     navController.navigate(
@@ -55,7 +59,25 @@ fun RecipeApp(navController: NavHostController, modifier: Modifier) {
                         launchSingleTop = true
                     }
                 },
-                onRetry = recipeViewModel::fetchCategories
+                onSearch = {
+                    navController.navigateToPrimaryDestination(
+                        CategoryScreen.IngredientScreen.route
+                    )
+                },
+                onNearbyShops = {
+                    navController.navigateToPrimaryDestination(CategoryScreen.YelpScreen.route)
+                },
+                onFavorites = {
+                    navController.navigateToPrimaryDestination(
+                        CategoryScreen.FavoriteScreen.route
+                    )
+                },
+                onFeaturedDish = {
+                    navController.navigate(CategoryScreen.RandomMealScreen.route) {
+                        launchSingleTop = true
+                    }
+                },
+                onRetry = recipeViewModel::fetchCategories,
             )
         }
         composable(
@@ -114,7 +136,32 @@ fun RecipeApp(navController: NavHostController, modifier: Modifier) {
         composable(
             route = CategoryScreen.FavoriteScreen.route
         ) {
-            FavoritesScreen(modifier = Modifier)
+            FavoritesScreen(
+                onMealSelected = { meal ->
+                    navController.currentBackStackEntry
+                        ?.savedStateHandle
+                        ?.set(SAVED_MEAL_KEY, meal)
+                    navController.navigate(CategoryScreen.FavoriteDetailScreen.route) {
+                        launchSingleTop = true
+                    }
+                },
+                modifier = Modifier,
+            )
+        }
+        composable(
+            route = CategoryScreen.FavoriteDetailScreen.route
+        ) {
+            val meal = navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.get<RandomMeal>(SAVED_MEAL_KEY)
+
+            if (meal != null) {
+                SavedMealDetailScreen(
+                    meal = meal,
+                    onDeleted = navController::popBackStack,
+                    modifier = Modifier,
+                )
+            }
         }
         composable(
             route = CategoryScreen.InfoScreen.route
@@ -166,3 +213,4 @@ fun RecipeApp(navController: NavHostController, modifier: Modifier) {
 }
 
 private const val INGREDIENT_KEY = "ingredient"
+private const val SAVED_MEAL_KEY = "saved_meal"
