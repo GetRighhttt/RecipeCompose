@@ -168,6 +168,7 @@ private fun ShopsPreview() = PreviewSurface {
         onSearchManualLocation = {},
         onRequestLocation = {},
         onOpenAppSettings = {},
+        onChooseAnotherLocation = {},
         onRetry = {},
         onShopSelected = {},
     )
@@ -183,6 +184,7 @@ private fun LocationPermissionPreview() = PreviewSurface {
         onSearchManualLocation = {},
         onRequestLocation = {},
         onOpenAppSettings = {},
+        onChooseAnotherLocation = {},
         onRetry = {},
         onShopSelected = {},
     )

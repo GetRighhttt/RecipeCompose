@@ -11,7 +11,7 @@ The project has since grown into a practical demonstration of modern Compose dev
 - Browse recipe categories or use a compact, image-first search to find dishes by name.
 - Open a complete recipe details page, follow its original source or video, and save the dish locally.
 - Open saved dishes as full recipe details, remove an individual dish with confirmation, or use swipe-to-delete for quick list management.
-- Discover Yelp restaurants after explicitly choosing the device's current location, or enter a city or ZIP code instead.
+- Discover Yelp restaurants after explicitly choosing the device's current location, remember that choice for later visits, or enter a city or ZIP code instead.
 - Search the loaded area by restaurant name or cuisine.
 - View a selected restaurant on an interactive Google Map.
 - Reposition the destination marker and launch driving directions to the active pin.
@@ -33,7 +33,7 @@ The project has since grown into a practical demonstration of modern Compose dev
 - Purpose-built editorial feeds, adaptive galleries, and compact management lists for different content types.
 - A semantic Material 3 design system with coordinated light/dark palettes, typography, spacing, and shapes.
 - Local-first favorites with Room and swipe-to-delete interactions.
-- Preferences DataStore for non-blocking onboarding completion state.
+- Preferences DataStore for non-blocking onboarding state and retained location intent.
 - External navigation handoff that follows the currently selected map marker.
 - Foreground-only location access with support for approximate and precise permission.
 - User-initiated permission requests, cache-first location resolution, a bounded fresh-location attempt, and manual search fallbacks.
@@ -60,7 +60,7 @@ Optional marker adjustment
 Google Maps driving directions
 ```
 
-Location access is requested only after the user chooses **Use my location**. The app first accepts a recent coordinate and otherwise performs a bounded fresh-location request, so it cannot remain on a location spinner indefinitely. If access is declined or coordinates are unavailable, the Nearby screen remains usable through a city or ZIP code search. The app does not request background location.
+Location access is requested only after the user chooses **Use my location**. After a successful resolution, Preferences DataStore remembers that choice so later Nearby visits can resolve the current area automatically. Android remains the source of truth for the actual permission grant: if access is revoked, the app returns to its permission/manual fallback instead of treating the stored preference as authorization. The app first accepts a recent coordinate and otherwise performs a bounded fresh-location request, so it cannot remain on a location spinner indefinitely. If access is declined or coordinates are unavailable, the Nearby screen remains usable through a city or ZIP code search. Exact coordinates and location history are never persisted, and the app does not request background location.
 
 The directions action uses either the restaurant marker or the user-adjusted marker as its destination. Google Maps manages the route origin and its own navigation permissions after the handoff.
 
@@ -112,6 +112,7 @@ flowchart LR
     DatabaseVM --> DatabaseRepository --> Room
     YelpVM --> YelpRepository --> Yelp
     YelpVM --> Location
+    YelpVM --> Preferences
     Screens --> Maps --> Directions
     Activities --> Firebase
     Activities --> Preferences
@@ -175,7 +176,7 @@ Contributor rule of thumb: place UI and route behavior in the relevant `features
 
 4. Run the `app` configuration on an Android device or emulator with Google APIs.
 
-When opening Nearby, choose **Use my location** and grant approximate or precise foreground access to load local restaurants. The permission prompt is user initiated and can be declined without blocking the feature; enter a city or ZIP code instead.
+On the first Nearby visit, choose **Use my location** and grant approximate or precise foreground access to load local restaurants. The permission prompt is user initiated and can be declined without blocking the feature; enter a city or ZIP code instead. A successful device-location choice is remembered for later visits, and **Choose another location** resets that behavior.
 
 ## Credential handling
 
@@ -196,7 +197,7 @@ Run the primary local checks with:
 ./gradlew :app:testDebugUnitTest :app:lintDebug
 ```
 
-Additional engineering notes are tracked in [`docs/`](docs), including the [cleanup audit](docs/CODE_CLEANUP_AUDIT.md), [retained location preference plan](docs/LOCATION_PREFERENCE_PLAN.md), [theme and UI redesign](docs/THEME_AND_UI_REDESIGN.md), [Gradle Kotlin DSL migration notes](docs/GRADLE_KOTLIN_DSL_MIGRATION.md), [KMP migration assessment](docs/KMP_MIGRATION_ASSESSMENT.md), and [Compose Multiplatform migration plan](docs/COMPOSE_MULTIPLATFORM_MIGRATION_PLAN.md).
+Additional engineering notes are tracked in [`docs/`](docs), including the [cleanup audit](docs/CODE_CLEANUP_AUDIT.md), [retained location preference implementation](docs/LOCATION_PREFERENCE_PLAN.md), [theme and UI redesign](docs/THEME_AND_UI_REDESIGN.md), [Gradle Kotlin DSL migration notes](docs/GRADLE_KOTLIN_DSL_MIGRATION.md), [KMP migration assessment](docs/KMP_MIGRATION_ASSESSMENT.md), and [Compose Multiplatform migration plan](docs/COMPOSE_MULTIPLATFORM_MIGRATION_PLAN.md).
 
 For visual iteration, open `app/src/debug/java/com/example/recipe_app_compose/preview/ScreenPreviews.kt` with the Debug build variant selected. Android Studio can render the main screens in light and dark mode without launching the app. Shared fixtures live beside it in `PreviewData.kt` and are excluded from release builds.
 

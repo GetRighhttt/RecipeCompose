@@ -6,10 +6,11 @@ data class YelpUiState(
     val loading: Boolean = false,
     val list: List<YelpShop> = emptyList(),
     val error: String? = null,
-    val searchArea: YelpSearchArea = YelpSearchArea.LocationChoiceRequired,
+    val searchArea: YelpSearchArea = YelpSearchArea.RestoringPreference,
 )
 
 sealed interface YelpSearchArea {
+    data object RestoringPreference : YelpSearchArea
     data object LocationChoiceRequired : YelpSearchArea
     data object PermissionRequired : YelpSearchArea
     data object ResolvingCurrentLocation : YelpSearchArea

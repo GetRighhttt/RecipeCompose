@@ -8,6 +8,8 @@ import com.example.recipe_app_compose.di.DependencyInjector
 import com.example.recipe_app_compose.features.location.domain.location.CurrentLocationProvider
 import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpSearchOrigin
 import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpSearchRequest
+import com.example.recipe_app_compose.features.location.domain.preferences.LocationPreference
+import com.example.recipe_app_compose.features.location.domain.preferences.LocationPreferenceStore
 import com.example.recipe_app_compose.features.location.domain.repo.YelpRepository
 import com.example.recipe_app_compose.features.location.domain.states.YelpSearchArea
 import com.example.recipe_app_compose.features.location.domain.states.YelpUiState
@@ -16,6 +18,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
@@ -25,6 +28,8 @@ class YelpViewModel(
     private val repository: YelpRepository = DependencyInjector.yelpRepository,
     private val currentLocationProvider: CurrentLocationProvider =
         DependencyInjector.currentLocationProvider,
+    private val locationPreferenceStore: LocationPreferenceStore =
+        DependencyInjector.locationPreferenceStore,
 ) : ViewModel() {
 
     val searchQuery: StateFlow<String> field = MutableStateFlow("")
@@ -35,6 +40,35 @@ class YelpViewModel(
     private var searchOrigin: YelpSearchOrigin? = null
     private var locationJob: Job? = null
     private var shopSearchJob: Job? = null
+    private var preferenceJob: Job? = null
+    private var preferenceRestored = false
+
+    internal fun restoreLocationPreference(hasLocationPermission: Boolean) {
+        if (preferenceRestored || preferenceJob?.isActive == true) return
+
+        preferenceJob = viewModelScope.launch {
+            val preference = try {
+                locationPreferenceStore.preference.first()
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (_: Exception) {
+                LocationPreference.AskEveryTime
+            }
+            preferenceRestored = true
+
+            when {
+                preference == LocationPreference.CurrentLocation && hasLocationPermission ->
+                    loadNearbyShops(forceRefresh = true)
+
+                preference == LocationPreference.CurrentLocation ->
+                    onLocationPermissionDenied()
+
+                else -> uiState.update {
+                    it.copy(searchArea = YelpSearchArea.LocationChoiceRequired)
+                }
+            }
+        }
+    }
 
     internal fun loadNearbyShops(forceRefresh: Boolean = false) {
         if (!forceRefresh && searchOrigin != null) return
@@ -73,6 +107,7 @@ class YelpViewModel(
 
             val origin = YelpSearchOrigin.Coordinates(location)
             searchOrigin = origin
+            persistLocationPreference(LocationPreference.CurrentLocation)
             uiState.update {
                 it.copy(searchArea = YelpSearchArea.CurrentLocation)
             }
@@ -96,6 +131,19 @@ class YelpViewModel(
         }
     }
 
+    internal fun onLocationPermissionStatusChanged(hasLocationPermission: Boolean) {
+        if (!preferenceRestored) return
+
+        when {
+            !hasLocationPermission && searchOrigin is YelpSearchOrigin.Coordinates ->
+                onLocationPermissionDenied()
+
+            hasLocationPermission &&
+                uiState.value.searchArea == YelpSearchArea.PermissionRequired ->
+                loadNearbyShops(forceRefresh = true)
+        }
+    }
+
     internal fun onSearchTextChange(text: String) {
         searchQuery.value = text
         queueSearchForCurrentOrigin()
@@ -114,6 +162,7 @@ class YelpViewModel(
         if (location.isBlank()) return
 
         locationJob?.cancel()
+        persistLocationPreference(LocationPreference.AskEveryTime)
         val origin = YelpSearchOrigin.NamedLocation(location)
         searchOrigin = origin
         uiState.update {
@@ -123,6 +172,22 @@ class YelpViewModel(
             )
         }
         launchShopSearch(origin)
+    }
+
+    internal fun chooseAnotherLocation() {
+        locationJob?.cancel()
+        shopSearchJob?.cancel()
+        searchOrigin = null
+        searchQuery.value = ""
+        persistLocationPreference(LocationPreference.AskEveryTime)
+        uiState.update {
+            it.copy(
+                loading = false,
+                list = emptyList(),
+                error = null,
+                searchArea = YelpSearchArea.LocationChoiceRequired,
+            )
+        }
     }
 
     internal fun retry() {
@@ -182,6 +247,18 @@ class YelpViewModel(
 
     private fun currentSearchTerm(): String =
         searchQuery.value.trim().ifBlank { Constants.YELP_DEFAULT_SEARCH_TERM }
+
+    private fun persistLocationPreference(preference: LocationPreference) {
+        viewModelScope.launch {
+            try {
+                locationPreferenceStore.setPreference(preference)
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (_: Exception) {
+                // Preference persistence must not block restaurant search.
+            }
+        }
+    }
 
     private companion object {
         val SEARCH_DEBOUNCE = 500L.milliseconds

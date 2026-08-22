@@ -58,10 +58,7 @@ fun RandomMealPage(modifier: Modifier = Modifier) {
     val databaseUiState by databaseViewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val currentMeal = uiState.item.firstOrNull()
-    val currentMealId = currentMeal?.idMeal
-    val isFavorite = currentMealId != null && databaseUiState.list.any { savedMeal ->
-        savedMeal.idMeal == currentMealId
-    }
+    val isFavorite = databaseUiState.list.containsSavedMeal(currentMeal?.idMeal)
     val dishSavedMessage = stringResource(
         R.string.dish_saved_message,
         currentMeal?.strMeal ?: stringResource(R.string.unknown),

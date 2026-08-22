@@ -27,7 +27,6 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -44,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -308,10 +308,7 @@ fun IngredientDetailScreen(
 ) {
     val databaseViewModel: DatabaseViewModel = viewModel()
     val databaseUiState by databaseViewModel.uiState.collectAsStateWithLifecycle()
-    val mealId = ingredient.idMeal
-    val isFavorite = mealId != null && databaseUiState.list.any { savedMeal ->
-        savedMeal.idMeal == mealId
-    }
+    val isFavorite = databaseUiState.list.containsSavedMeal(ingredient.idMeal)
     val context = LocalContext.current
     val dishSavedMessage = stringResource(
         R.string.dish_saved_message,
@@ -345,12 +342,20 @@ internal fun IngredientDetailContent(
         meal = ingredient.toMealDetailsUiModel(),
         modifier = modifier.background(MaterialTheme.colorScheme.background),
         headerAction = {
-            FilledTonalIconButton(
+            IconButton(
                 onClick = onFavorite,
                 enabled = !isFavorite,
-                colors = IconButtonDefaults.filledTonalIconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = if (isFavorite) {
+                        MaterialTheme.colorScheme.primaryContainer
+                    } else {
+                        Color.Transparent
+                    },
+                    contentColor = if (isFavorite) {
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.primary
+                    },
                     disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
                     disabledContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 ),

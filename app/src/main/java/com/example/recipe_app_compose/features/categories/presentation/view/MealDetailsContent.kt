@@ -248,6 +248,11 @@ internal fun RandomMeal.toMealDetailsUiModel() = MealDetailsUiModel(
     ),
 )
 
+internal fun List<RandomMeal>.containsSavedMeal(mealId: String?): Boolean {
+    val normalizedMealId = mealId?.trim().takeUnless { it.isNullOrEmpty() } ?: return false
+    return any { savedMeal -> savedMeal.idMeal?.trim() == normalizedMealId }
+}
+
 internal fun Ingredient.toMealDetailsUiModel() = MealDetailsUiModel(
     name = strMeal.orEmpty().trim(),
     imageUrl = strMealThumb.orEmpty().trim(),

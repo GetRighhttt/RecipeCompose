@@ -113,6 +113,7 @@
     <string name="choose_shop_location_message">Use your current location or search by city or ZIP code. Location access is requested only when you choose it.</string>
     <string name="location_permission_explanation">Allow location access to load shops near your current area. Approximate location works too.</string>
     <string name="use_my_location">Use my location</string>
+    <string name="choose_another_location">Choose another location</string>
     <string name="open_app_settings">App settings</string>
     <string name="or_enter_location_manually">Or enter a location manually</string>
     <string name="city_or_zip_code">City or ZIP code</string>
