@@ -314,17 +314,29 @@ fun IngredientDetailScreen(
         R.string.dish_saved_message,
         ingredient.strMeal ?: stringResource(R.string.unknown),
     )
+    val dishAlreadySavedMessage = stringResource(
+        R.string.dish_already_saved_message,
+        ingredient.strMeal ?: stringResource(R.string.unknown),
+    )
 
     IngredientDetailContent(
         ingredient = ingredient,
         isFavorite = isFavorite,
         onFavorite = {
-            databaseViewModel.saveMeal(ingredient.toRandomMeal()) {
+            if (isFavorite) {
                 android.widget.Toast.makeText(
                     context,
-                    dishSavedMessage,
+                    dishAlreadySavedMessage,
                     android.widget.Toast.LENGTH_SHORT,
                 ).show()
+            } else {
+                databaseViewModel.saveMeal(ingredient.toRandomMeal()) {
+                    android.widget.Toast.makeText(
+                        context,
+                        dishSavedMessage,
+                        android.widget.Toast.LENGTH_SHORT,
+                    ).show()
+                }
             }
         },
         modifier = modifier,
@@ -344,7 +356,6 @@ internal fun IngredientDetailContent(
         headerAction = {
             IconButton(
                 onClick = onFavorite,
-                enabled = !isFavorite,
                 colors = IconButtonDefaults.iconButtonColors(
                     containerColor = if (isFavorite) {
                         MaterialTheme.colorScheme.primaryContainer
@@ -356,8 +367,6 @@ internal fun IngredientDetailContent(
                     } else {
                         MaterialTheme.colorScheme.primary
                     },
-                    disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                    disabledContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 ),
             ) {
                 Icon(

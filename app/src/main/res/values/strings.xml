@@ -78,6 +78,7 @@
     <string name="you_clicked_here">You Clicked Here:</string>
     <string name="shop_location">Location</string>
     <string name="dish_saved_message">%1$s saved</string>
+    <string name="dish_already_saved_message">%1$s is already saved</string>
     <string name="dish_removed">Dish removed</string>
     <string name="the_mealdb">The MealDB</string>
     <string name="https_www_themealdb_com_api_php">https://www.themealdb.com/api.php</string>
@@ -121,7 +122,7 @@
     <string name="finding_nearby_shops">Finding shops near you…</string>
     <string name="location_unavailable">Location unavailable</string>
     <string name="location_unavailable_message">We couldn’t determine your current location. Try again or search using a city or ZIP code.</string>
-    <string name="near_your_current_location">Near your current location</string>
+    <string name="near_your_current_location">Near your location</string>
     <string name="searching_near_location">Near %1$s</string>
     <string name="unable_to_load_shops">Unable to load shops</string>
 </resources>
