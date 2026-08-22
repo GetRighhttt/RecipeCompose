@@ -110,7 +110,7 @@ class MainActivity : ComponentActivity() {
                         CategoryScreen.FavoriteDetailScreen.route -> R.string.recipe_details
                         CategoryScreen.FavoriteScreen.route -> R.string.saved
                         CategoryScreen.InfoScreen.route -> R.string.info
-                        CategoryScreen.NearbyScreen.route -> R.string.shops
+                        CategoryScreen.NearbyScreen.route -> R.string.nearby
                         CategoryScreen.MapScreen.route -> R.string.shop_location
                         else -> R.string.explore
                     }

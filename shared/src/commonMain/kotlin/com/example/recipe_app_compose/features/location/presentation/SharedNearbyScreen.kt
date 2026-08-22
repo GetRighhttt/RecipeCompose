@@ -58,11 +58,11 @@ import com.example.recipe_app_compose.shared.generated.resources.location_permis
 import com.example.recipe_app_compose.shared.generated.resources.location_unavailable
 import com.example.recipe_app_compose.shared.generated.resources.location_unavailable_message
 import com.example.recipe_app_compose.shared.generated.resources.nav_storefront
-import com.example.recipe_app_compose.shared.generated.resources.near_your_current_location
+import com.example.recipe_app_compose.shared.generated.resources.near_your_location
 import com.example.recipe_app_compose.shared.generated.resources.no_results_found
 import com.example.recipe_app_compose.shared.generated.resources.open_app_settings
 import com.example.recipe_app_compose.shared.generated.resources.or_enter_location_manually
-import com.example.recipe_app_compose.shared.generated.resources.search_nearby_restaurants
+import com.example.recipe_app_compose.shared.generated.resources.search_nearby_shops
 import com.example.recipe_app_compose.shared.generated.resources.search_this_area
 import com.example.recipe_app_compose.shared.generated.resources.searching_near_location
 import com.example.recipe_app_compose.shared.generated.resources.try_again
@@ -226,7 +226,7 @@ private fun SearchAreaHeader(
     onChooseAnotherLocation: () -> Unit,
 ) {
     val label = when (searchArea) {
-        YelpSearchArea.CurrentLocation -> stringResource(Res.string.near_your_current_location)
+        YelpSearchArea.CurrentLocation -> stringResource(Res.string.near_your_location)
         is YelpSearchArea.NamedLocation ->
             stringResource(Res.string.searching_near_location, searchArea.value)
         else -> return
@@ -256,7 +256,7 @@ private fun NearbySearchField(
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChange,
-        placeholder = { Text(stringResource(Res.string.search_nearby_restaurants)) },
+        placeholder = { Text(stringResource(Res.string.search_nearby_shops)) },
         singleLine = true,
         shape = RoundedCornerShape(AppSpacing.Large),
         modifier = Modifier.fillMaxWidth(),

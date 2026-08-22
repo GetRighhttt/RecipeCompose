@@ -30,14 +30,14 @@ import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
-/** A brief branded transition while the iOS host creates the shared Compose app. */
+/** A branded transition while the iOS host creates the shared Compose app. */
 @Composable
 fun RecipeComposeSplashScreen(onFinished: () -> Unit) {
     val entrance = remember { Animatable(0f) }
 
     LaunchedEffect(Unit) {
-        entrance.animateTo(1f, animationSpec = tween(durationMillis = 350))
-        delay(500)
+        entrance.animateTo(1f, animationSpec = tween(durationMillis = 650))
+        delay(1_250)
         onFinished()
     }
 
