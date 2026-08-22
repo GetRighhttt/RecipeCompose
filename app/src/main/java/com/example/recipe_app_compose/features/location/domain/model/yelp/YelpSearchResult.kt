@@ -4,13 +4,8 @@ import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 
-/*
-Returns Yelp response
- */
 @Parcelize
 data class YelpSearchResult(
     @SerializedName("total") val total: UInt,
-    @SerializedName("businesses") val shops: List<YelpShop>
-) : Parcelable {
-
-}
+    @SerializedName("businesses") val shops: List<YelpShop>,
+) : Parcelable

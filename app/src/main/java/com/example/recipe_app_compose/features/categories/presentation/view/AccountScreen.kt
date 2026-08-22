@@ -37,7 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.recipe_app_compose.LoginActivity
 import com.example.recipe_app_compose.R
-import com.example.recipe_app_compose.core.components.AlertDialogExample
+import com.example.recipe_app_compose.core.components.ConfirmationDialog
 import com.example.recipe_app_compose.ui.theme.AppCardShape
 import com.example.recipe_app_compose.ui.theme.AppSizes
 import com.example.recipe_app_compose.ui.theme.AppSpacing
@@ -72,11 +72,11 @@ fun AccountScreen(modifier: Modifier = Modifier) {
     )
 
     if (showSignOutConfirmation) {
-        AlertDialogExample(
-            dialogTitle = stringResource(R.string.sign_out),
-            dialogText = stringResource(R.string.are_you_sure_you_want_to_sign_out_of_your_account),
-            onDismissRequest = { showSignOutConfirmation = false },
-            onConfirmation = {
+        ConfirmationDialog(
+            title = stringResource(R.string.sign_out),
+            message = stringResource(R.string.are_you_sure_you_want_to_sign_out_of_your_account),
+            onDismiss = { showSignOutConfirmation = false },
+            onConfirm = {
                 showSignOutConfirmation = false
                 auth.signOut()
                 Toast.makeText(context, signOutSuccessfulMessage, Toast.LENGTH_SHORT).show()
@@ -86,11 +86,11 @@ fun AccountScreen(modifier: Modifier = Modifier) {
     }
 
     if (showDeleteConfirmation) {
-        AlertDialogExample(
-            dialogTitle = stringResource(R.string.delete_account),
-            dialogText = stringResource(R.string.are_you_sure_you_want_to_delete_your_account),
-            onDismissRequest = { showDeleteConfirmation = false },
-            onConfirmation = {
+        ConfirmationDialog(
+            title = stringResource(R.string.delete_account),
+            message = stringResource(R.string.are_you_sure_you_want_to_delete_your_account),
+            onDismiss = { showDeleteConfirmation = false },
+            onConfirm = {
                 showDeleteConfirmation = false
                 val user = auth.currentUser
                 if (user == null) {

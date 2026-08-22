@@ -18,8 +18,9 @@ The repository was already using `.gradle.kts` files when this pass started, so 
 ## What changed
 
 - Moved remaining hardcoded plugin versions into the Gradle version catalog.
-- Added catalog aliases for Room, KSP, Google Services, and Firebase Performance plugins.
+- Added catalog aliases for the plugins applied by the Android build, including KSP, Google Services, and the Secrets Gradle Plugin.
 - Replaced raw plugin declarations in `build.gradle.kts` and `app/build.gradle.kts` with `alias(libs.plugins...)` declarations.
+- Upgraded the Gradle wrapper from 9.5.0 to 9.7.0 and regenerated the wrapper JAR and launch scripts with Gradle's wrapper task.
 - Removed stale comments that described older Gradle setup patterns rather than the current build.
 - Preserved the existing Android application module layout and dependency graph.
 
@@ -45,26 +46,26 @@ That structure is closer to how this project would be maintained in a larger pro
 | KSP | `libs.versions.toml` | `:app` |
 | Google Services | `libs.versions.toml` | `:app` |
 | Secrets Gradle Plugin | `libs.versions.toml` | `:app` |
-| Room Gradle Plugin | `libs.versions.toml` | available at root, not currently applied in `:app` |
-| Firebase Performance Plugin | `libs.versions.toml` | available at root, not currently applied in `:app` |
 | Foojay toolchain resolver | inline in `settings.gradle.kts` | settings plugin block |
 
 The Foojay resolver version remains inline because settings plugins cannot use the project version catalog in the same straightforward way as project plugins.
 
 ## Verification
 
-The Kotlin compilation check passes:
+The complete Gradle 9.7 verification suite passes:
 
 ```bash
-./gradlew :app:compileDebugKotlin
+./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
 ```
 
-The build still reports existing Android Gradle Plugin warnings for deprecated `gradle.properties` flags and a Room warning for `fallbackToDestructiveMigration()`. Those warnings are not caused by the Kotlin DSL cleanup, but they should be addressed before a larger KMP or Compose Multiplatform migration so build output stays trustworthy.
+The follow-up cleanup removed deprecated Android Gradle Plugin flags, the redundant explicit-backing-fields compiler flag, and the deprecated Room migration overload. Unused plugin aliases and dependencies were also removed so the catalog reflects the build that is actually applied.
+
+The project now runs Gradle 9.7.0 with Android Gradle Plugin 9.3.1, Kotlin 2.4.10, and the configured Java 21 build runtime. No explicit-backing-fields compiler argument remains; Kotlin 2.4 language support handles the feature directly.
+
+The resulting debug APK was also installed and cold-launched on the physical Samsung test device. The Explore screen rendered successfully, and the isolated crash buffer remained empty.
 
 ## Follow-up cleanup
 
-- Remove or replace deprecated Android Gradle Plugin flags in `gradle.properties`.
-- Replace the deprecated Room destructive migration call with the newer overload or explicit migrations.
-- Remove the redundant `-Xexplicit-backing-fields` compiler flag once the project no longer needs to document that compiler behavior manually.
-- Decide whether unused root plugin aliases, such as Firebase Performance or Room, should stay because they represent planned build support or be removed until they are actively applied.
-- Remove unused dependencies such as Glide if source search continues to confirm they are not used.
+- Replace destructive Room fallback with explicit migrations before changing a production schema.
+- Add shared-module plugin aliases only when the Compose Multiplatform scaffold is introduced.
+- Keep the Kotlin, Compose compiler, KSP, Room, AGP, and Gradle versions aligned as the toolchain evolves.

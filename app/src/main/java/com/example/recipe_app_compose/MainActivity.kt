@@ -63,8 +63,6 @@ import com.example.recipe_app_compose.ui.theme.AppTheme
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-
-
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,7 +85,6 @@ class MainActivity : ComponentActivity() {
                 }
             } else {
                 AppTheme {
-                    /* Navigation Drawer Code */
                     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                     val scope = rememberCoroutineScope()
                     val currentBackStackEntry by navController.currentBackStackEntryAsState()
@@ -120,7 +117,7 @@ class MainActivity : ComponentActivity() {
                         CategoryScreen.IngredientDetailScreen.route -> R.string.recipe_details
                         CategoryScreen.FavoriteDetailScreen.route -> R.string.recipe_details
                         CategoryScreen.AccountScreen.route -> R.string.account
-                        CategoryScreen.FavoriteScreen.route -> R.string.favorites
+                        CategoryScreen.FavoriteScreen.route -> R.string.saved
                         CategoryScreen.InfoScreen.route -> R.string.info
                         CategoryScreen.YelpScreen.route -> R.string.shops
                         CategoryScreen.MapScreen.route -> R.string.shop_location

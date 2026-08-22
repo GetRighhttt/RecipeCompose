@@ -1,9 +1,9 @@
 package com.example.recipe_app_compose.core.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -37,8 +37,8 @@ File for Navigation.
 @Composable
 fun RecipeApp(navController: NavHostController, modifier: Modifier) {
     val recipeViewModel: RecipeViewModel = viewModel()
-    val navState by recipeViewModel.uiState.collectAsState()
-    val featuredMealState by recipeViewModel.randUiState.collectAsState()
+    val navState by recipeViewModel.uiState.collectAsStateWithLifecycle()
+    val featuredMealState by recipeViewModel.randUiState.collectAsStateWithLifecycle()
 
     NavHost(
         navController = navController,

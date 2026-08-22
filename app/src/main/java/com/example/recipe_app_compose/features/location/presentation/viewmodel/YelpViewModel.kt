@@ -22,7 +22,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.time.Duration.Companion.milliseconds
 
 class YelpViewModel(
-    private val repository: YelpRepository = DependencyInjector.yelpRepo,
+    private val repository: YelpRepository = DependencyInjector.yelpRepository,
     private val currentLocationProvider: CurrentLocationProvider =
         DependencyInjector.currentLocationProvider,
 ) : ViewModel() {
@@ -76,12 +76,13 @@ class YelpViewModel(
             uiState.update {
                 it.copy(searchArea = YelpSearchArea.CurrentLocation)
             }
-            loadShops(currentSearchTerm(), origin)
+            launchShopSearch(origin)
         }
     }
 
     internal fun onLocationPermissionDenied() {
         locationJob?.cancel()
+        shopSearchJob?.cancel()
         if (searchOrigin !is YelpSearchOrigin.NamedLocation) {
             searchOrigin = null
             uiState.update {
@@ -121,10 +122,7 @@ class YelpViewModel(
                 searchArea = YelpSearchArea.NamedLocation(location),
             )
         }
-        shopSearchJob?.cancel()
-        shopSearchJob = viewModelScope.launch {
-            loadShops(currentSearchTerm(), origin)
-        }
+        launchShopSearch(origin)
     }
 
     internal fun retry() {
@@ -132,18 +130,22 @@ class YelpViewModel(
         if (origin == null) {
             loadNearbyShops(forceRefresh = true)
         } else {
-            shopSearchJob?.cancel()
-            shopSearchJob = viewModelScope.launch {
-                loadShops(currentSearchTerm(), origin)
-            }
+            launchShopSearch(origin)
         }
     }
 
     private fun queueSearchForCurrentOrigin() {
         val origin = searchOrigin ?: return
+        launchShopSearch(origin, debounce = true)
+    }
+
+    private fun launchShopSearch(
+        origin: YelpSearchOrigin,
+        debounce: Boolean = false,
+    ) {
         shopSearchJob?.cancel()
         shopSearchJob = viewModelScope.launch {
-            delay(SEARCH_DEBOUNCE)
+            if (debounce) delay(SEARCH_DEBOUNCE)
             loadShops(currentSearchTerm(), origin)
         }
     }

@@ -6,18 +6,18 @@ import com.example.recipe_app_compose.features.categories.domain.model.randommea
 
 data class UiState(
     val loading: Boolean = true,
-    val list: List<Category>? = emptyList(),
-    val error: String? = null
+    val list: List<Category> = emptyList(),
+    val error: String? = null,
 )
 
 data class RandomMealUiState(
     val loading: Boolean = true,
-    val item: List<RandomMeal>? = null,
-    val error: String? = null
+    val item: List<RandomMeal> = emptyList(),
+    val error: String? = null,
 )
 
 data class IngredientUiState(
     val loading: Boolean = true,
-    val list: List<Ingredient>? = null,
-    val error: String? = null
+    val list: List<Ingredient> = emptyList(),
+    val error: String? = null,
 )

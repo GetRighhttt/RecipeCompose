@@ -64,6 +64,65 @@ Location access is requested only after the user chooses **Use my location**. Th
 
 The directions action uses either the restaurant marker or the user-adjusted marker as its destination. Google Maps manages the route origin and its own navigation permissions after the handoff.
 
+## Architecture
+
+The Android application is currently one Gradle module organized into feature-first packages. UI state moves down from route-scoped ViewModels, while user actions move back through repository contracts to the appropriate data source or platform service.
+
+```mermaid
+flowchart LR
+    subgraph UI[Compose UI and navigation]
+        Activities[Startup, authentication, and main activities]
+        Nav[Navigation Compose routes]
+        Screens[Recipe, saved, nearby, map, and account screens]
+        Activities --> Nav
+        Nav --> Screens
+    end
+
+    subgraph State[State holders]
+        RecipeVM[RecipeViewModel]
+        DatabaseVM[DatabaseViewModel]
+        YelpVM[YelpViewModel]
+    end
+
+    subgraph Contracts[Repository contracts]
+        RecipeRepository[RecipeRepository]
+        DatabaseRepository[DatabaseRepository]
+        YelpRepository[YelpRepository]
+    end
+
+    subgraph Data[Data sources]
+        MealDb[TheMealDB via Retrofit]
+        Room[Room database and DAO]
+        Yelp[Yelp Fusion API via Retrofit]
+        Location[Fused Location Provider]
+    end
+
+    subgraph Platform[Platform services]
+        Maps[Google Maps Compose]
+        Directions[Google Maps directions handoff]
+        Firebase[Firebase Authentication]
+        Preferences[Preferences DataStore]
+        Connectivity[Connectivity monitor]
+    end
+
+    Screens --> RecipeVM
+    Screens --> DatabaseVM
+    Screens --> YelpVM
+    RecipeVM --> RecipeRepository --> MealDb
+    DatabaseVM --> DatabaseRepository --> Room
+    YelpVM --> YelpRepository --> Yelp
+    YelpVM --> Location
+    Screens --> Maps --> Directions
+    Activities --> Firebase
+    Activities --> Preferences
+    Connectivity --> Activities
+    AppContainer[DependencyInjector app container] -. provides implementations .-> RecipeVM
+    AppContainer -. provides implementations .-> DatabaseVM
+    AppContainer -. provides implementations .-> YelpVM
+```
+
+Contributor rule of thumb: place UI and route behavior in the relevant `features/*/presentation` package, keep platform-independent contracts and state models under `domain`, put Room/Retrofit implementations under `data`, and wire implementations only from the application container. The planned Compose Multiplatform work will turn these package boundaries into shared and platform-specific source sets incrementally.
+
 ## Technology
 
 | Area | Implementation |
@@ -137,7 +196,7 @@ Run the primary local checks with:
 ./gradlew :app:testDebugUnitTest :app:lintDebug
 ```
 
-Additional engineering notes are tracked in [`docs/`](docs), including the [theme and UI redesign](docs/THEME_AND_UI_REDESIGN.md), [Gradle Kotlin DSL migration notes](docs/GRADLE_KOTLIN_DSL_MIGRATION.md), [KMP migration assessment](docs/KMP_MIGRATION_ASSESSMENT.md), and [Compose Multiplatform migration plan](docs/COMPOSE_MULTIPLATFORM_MIGRATION_PLAN.md).
+Additional engineering notes are tracked in [`docs/`](docs), including the [cleanup audit](docs/CODE_CLEANUP_AUDIT.md), [retained location preference plan](docs/LOCATION_PREFERENCE_PLAN.md), [theme and UI redesign](docs/THEME_AND_UI_REDESIGN.md), [Gradle Kotlin DSL migration notes](docs/GRADLE_KOTLIN_DSL_MIGRATION.md), [KMP migration assessment](docs/KMP_MIGRATION_ASSESSMENT.md), and [Compose Multiplatform migration plan](docs/COMPOSE_MULTIPLATFORM_MIGRATION_PLAN.md).
 
 For visual iteration, open `app/src/debug/java/com/example/recipe_app_compose/preview/ScreenPreviews.kt` with the Debug build variant selected. Android Studio can render the main screens in light and dark mode without launching the app. Shared fixtures live beside it in `PreviewData.kt` and are excluded from release builds.
 
@@ -178,6 +237,18 @@ For visual iteration, open `app/src/debug/java/com/example/recipe_app_compose/pr
       <img src="docs/screenshots/restaurant-map.png" width="280" alt="Interactive restaurant map with marker and Directions action" />
       <br />
       <sub><strong>Map and driving directions</strong></sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/featured-dish.png" width="280" alt="Featured dish page with save and refresh actions" />
+      <br />
+      <sub><strong>Featured dish discovery</strong></sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/saved-details.png" width="280" alt="Saved recipe details with a prominent remove action" />
+      <br />
+      <sub><strong>Saved-dish management</strong></sub>
     </td>
   </tr>
 </table>

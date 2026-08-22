@@ -55,7 +55,6 @@ android {
 kotlin {
     compilerOptions {
         languageVersion = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_4
-        freeCompilerArgs.add("-Xexplicit-backing-fields")
     }
 }
 
@@ -69,11 +68,8 @@ dependencies {
     // viewmodel
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(libs.androidx.lifecycle.viewmodel.compose.v286)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.datastore.preferences)
-
-    // LiveData
-    implementation(libs.androidx.lifecycle.livedata.ktx)
 
     // Jetpack Compose navigation
     implementation(libs.androidx.navigation.compose)
@@ -86,8 +82,6 @@ dependencies {
     // Google - Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics) // analytics
-    implementation(libs.firebase.perf) // performance
-    implementation(libs.firebase.firestore) // firestore
     implementation(libs.firebase.auth) // authentication
 
     // Google play - Maps
@@ -106,13 +100,6 @@ dependencies {
 
     // image loading with coil
     implementation(libs.coil.compose)
-
-    // glide just in case
-    implementation(libs.glide)
-    annotationProcessor(libs.compiler)
-
-    // splash screen
-    implementation(libs.androidx.core.splashscreen)
 
     // material 3
     implementation(libs.androidx.material3)

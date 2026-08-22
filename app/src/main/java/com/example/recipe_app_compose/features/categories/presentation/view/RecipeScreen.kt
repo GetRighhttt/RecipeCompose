@@ -37,7 +37,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
-import com.example.recipe_app_compose.core.components.AlertDialogExample
+import com.example.recipe_app_compose.core.components.ConfirmationDialog
 import com.example.recipe_app_compose.core.components.AppMediaCard
 import com.example.recipe_app_compose.features.categories.domain.model.category.Category
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
@@ -65,16 +65,17 @@ fun RecipeScreen(
                 modifier = Modifier.align(Alignment.Center),
             )
 
-            uiState.error != null -> AlertDialogExample(
-                dialogTitle = stringResource(R.string.error),
-                dialogText = stringResource(R.string.error_occurred, uiState.error),
-                onDismissRequest = onRetry,
-                onConfirmation = onRetry,
+            uiState.error != null -> ConfirmationDialog(
+                title = stringResource(R.string.error),
+                message = stringResource(R.string.error_occurred, uiState.error),
+                onDismiss = onRetry,
+                onConfirm = onRetry,
+                confirmLabel = stringResource(R.string.try_again),
             )
 
             else -> ExploreContent(
-                categories = uiState.list.orEmpty(),
-                featuredMeal = featuredMealState.item?.firstOrNull(),
+                categories = uiState.list,
+                featuredMeal = featuredMealState.item.firstOrNull(),
                 navigateToDetail = navigateToDetail,
                 onSearch = onSearch,
                 onNearbyShops = onNearbyShops,

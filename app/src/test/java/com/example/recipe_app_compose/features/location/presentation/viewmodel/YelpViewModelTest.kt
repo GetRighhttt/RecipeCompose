@@ -203,6 +203,43 @@ class YelpViewModelTest {
         }
 
     @Test
+    fun `manual search cancels a stale shop response for the current location`() =
+        runTest(mainDispatcherRule.dispatcher) {
+            val repository = FakeYelpRepository { request ->
+                if (request.origin is YelpSearchOrigin.Coordinates) {
+                    delay(Long.MAX_VALUE.milliseconds)
+                    Resource.Error("stale location response")
+                } else {
+                    Resource.Success(YelpSearchResult(total = 0U, shops = emptyList()))
+                }
+            }
+            val viewModel = YelpViewModel(
+                repository = repository,
+                currentLocationProvider = {
+                    LocationData(latitude = 28.18, longitude = -82.35)
+                },
+            )
+
+            viewModel.loadNearbyShops()
+            runCurrent()
+            viewModel.onManualLocationChange("Chicago")
+            viewModel.searchManualLocation()
+            advanceUntilIdle()
+
+            assertEquals(
+                YelpSearchArea.NamedLocation("Chicago"),
+                viewModel.uiState.value.searchArea,
+            )
+            assertEquals(null, viewModel.uiState.value.error)
+            assertEquals(2, repository.requests.size)
+            assertTrue(repository.requests.first().origin is YelpSearchOrigin.Coordinates)
+            assertEquals(
+                YelpSearchOrigin.NamedLocation("Chicago"),
+                repository.requests.last().origin,
+            )
+        }
+
+    @Test
     fun `resuming with an existing origin does not duplicate the initial request`() =
         runTest(mainDispatcherRule.dispatcher) {
             val repository = FakeYelpRepository()
@@ -221,14 +258,18 @@ class YelpViewModelTest {
             assertEquals(1, repository.requests.size)
         }
 
-    private class FakeYelpRepository : YelpRepository {
+    private class FakeYelpRepository(
+        private val response: suspend (YelpSearchRequest) -> Resource<YelpSearchResult> = {
+            Resource.Success(YelpSearchResult(total = 0U, shops = emptyList()))
+        },
+    ) : YelpRepository {
         val requests = mutableListOf<YelpSearchRequest>()
 
         override suspend fun searchShops(
             request: YelpSearchRequest,
         ): Resource<YelpSearchResult> {
             requests += request
-            return Resource.Success(YelpSearchResult(total = 0U, shops = emptyList()))
+            return response(request)
         }
     }
 }

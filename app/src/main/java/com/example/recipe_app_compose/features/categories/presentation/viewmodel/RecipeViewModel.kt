@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
 class RecipeViewModel(
-    private val repository: RecipeRepository = DependencyInjector.repository
+    private val repository: RecipeRepository = DependencyInjector.recipeRepository,
 ) : ViewModel() {
 
     val searchQuery: StateFlow<String> field = MutableStateFlow("")
@@ -34,7 +34,7 @@ class RecipeViewModel(
 
     internal val ingredientsList = combine(
         searchQuery,
-        ingUiState.map { it.list.orEmpty() }
+        ingUiState.map { it.list }
     ) { text, ingredients ->
         if (text.isBlank()) {
             ingredients

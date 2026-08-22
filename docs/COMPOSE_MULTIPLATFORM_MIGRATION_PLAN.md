@@ -35,7 +35,7 @@ Recommended direction:
 This revision reflects the application after the 2026 Android cleanup and redesign rather than the older two-year-old baseline. Since the original plan was written, the project has:
 
 - migrated and centralized its Gradle Kotlin DSL configuration;
-- upgraded to Kotlin 2.4.10, AGP 9.3.1, Gradle 9.5.0, and Java 21 for the build runtime;
+- upgraded to Kotlin 2.4.10, AGP 9.3.1, Gradle 9.7.0, and Java 21 for the build runtime;
 - adopted an action-first Explore screen and persistent top-level navigation;
 - added versioned onboarding persistence with DataStore 1.2.1;
 - centralized startup routing between onboarding, authentication, and the main application;
@@ -50,7 +50,7 @@ The direction is now decided: this project will pursue shared Compose UI for And
 | --- | --- | --- |
 | Kotlin | 2.4.10 | Keep the Compose compiler plugin on the same Kotlin version. |
 | Android Gradle Plugin | 9.3.1 | Use `com.android.kotlin.multiplatform.library` for the Android target in `:shared`; do not combine the KMP target with `com.android.application`. |
-| Gradle | 9.5.0 | Already suitable for the current Android build; pin the wrapper during the migration. |
+| Gradle | 9.7.0 | Already suitable for the current Android build; pin the wrapper during the migration. |
 | Build JVM | Java 21.0.11 | Keep Java 21 as the reproducible build baseline. |
 | Compose Android | BOM 2026.06.01 | The Android app can retain the BOM during extraction; common UI must use Compose Multiplatform dependencies. |
 | Compose Multiplatform candidate | 1.11.1 | Verify the complete version matrix in the proof-of-life phase before moving production screens. |
@@ -347,7 +347,7 @@ interface AuthRepository {
 
 Use Firebase Android in `androidMain` and the Firebase Apple SDK in the iOS application or `iosMain` adapter. Initialize each platform with its native configuration file. Account deletion must model recent-login and reauthentication failures instead of assuming deletion always succeeds.
 
-Firestore, Analytics, and Performance should be audited before migration. Do not port dependencies that are not providing intentional product behavior.
+Firebase Analytics should be audited before migration and ported only if it provides intentional product behavior. Unused Firestore and Firebase Performance dependencies have already been removed from the Android build.
 
 ## Ordered migration plan
 
@@ -457,7 +457,7 @@ Exit criteria:
 - Implement Firebase Android and Apple adapters using the official platform SDKs initially.
 - Move the startup policy to common state while keeping Android activities and the iOS entry point native.
 - Add platform implementations for sharing, email, external URLs, messages, and application settings.
-- Audit Firestore, Analytics, and Performance; remove integrations without intentional product behavior.
+- Decide whether Firebase Analytics belongs on both platforms and define its consent/event policy before porting it.
 
 Exit criteria:
 

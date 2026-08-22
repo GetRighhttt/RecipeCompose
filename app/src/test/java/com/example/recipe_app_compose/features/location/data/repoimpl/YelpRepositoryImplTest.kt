@@ -11,11 +11,11 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 import retrofit2.Response
 
-class YelpRepoImplTest {
+class YelpRepositoryImplTest {
     @Test
     fun `coordinate origin omits named location`() = runTest {
         val api = RecordingYelpApi()
-        val repository = YelpRepImpl(api)
+        val repository = YelpRepositoryImpl(api)
 
         repository.searchShops(
             YelpSearchRequest(
@@ -36,7 +36,7 @@ class YelpRepoImplTest {
     @Test
     fun `named origin omits coordinates`() = runTest {
         val api = RecordingYelpApi()
-        val repository = YelpRepImpl(api)
+        val repository = YelpRepositoryImpl(api)
 
         repository.searchShops(
             YelpSearchRequest(

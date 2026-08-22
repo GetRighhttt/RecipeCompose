@@ -4,6 +4,6 @@ import com.example.recipe_app_compose.features.categories.domain.model.randommea
 
 data class DatabaseUiState(
     val loading: Boolean = true,
-    val list: List<RandomMeal>? = emptyList(),
-    val error: String? = null
+    val list: List<RandomMeal> = emptyList(),
+    val error: String? = null,
 )

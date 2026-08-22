@@ -65,7 +65,10 @@ private fun PreviewSurface(content: @Composable () -> Unit) {
 @AppScreenPreview
 @Composable
 private fun LoginScreenPreview() = PreviewSurface {
-    LoginContent(onSubmit = { _, _ -> })
+    LoginContent(
+        onSignIn = { _, _ -> },
+        onCreateAccount = { _, _ -> },
+    )
 }
 
 @AppScreenPreview

@@ -157,14 +157,14 @@ Recommended shared replacement:
 - Replace the two Retrofit singletons with one configurable shared `ApiClient` or two typed API clients that share a configured HTTP client.
 - Configure JSON with unknown-key tolerance because third-party API payloads can add fields. Add explicit tests for all response shapes.
 - Move retry, timeout, cancellation, and error mapping into a common policy. Preserve cancellation rather than converting it to a user-facing error.
-- Redact `Authorization` and disable body logging in release builds. The current BODY logging in both Retrofit clients can expose the Yelp bearer token in logs.
+- Preserve the current release policy that disables HTTP logging and the Yelp client&apos;s authorization-header redaction. Review whether debug body logging is appropriate before distributing debug builds.
 - Decide how Yelp authentication works on iOS. A client-embedded Yelp key is extractable from any mobile binary; the safer design is a server-side proxy or a tightly restricted service credential.
 
 An Android-only interim path is also valid: leave Retrofit in `app` and first move only models and repository interfaces to shared. That is useful if the team wants to validate the KMP module before replacing network code.
 
 ### 4. Favorites persistence and Room
 
-Files: `RandomMeal.kt`, `RandomMealDAO.kt`, `RandomMealDatabase.kt`, `DatabaseRepoImpl.kt`, and `DependencyInjector.kt`
+Files: `RandomMeal.kt`, `RandomMealDAO.kt`, `RandomMealDatabase.kt`, `DatabaseRepositoryImpl.kt`, and `DependencyInjector.kt`
 
 Room is no longer automatically an Android-only decision: the official Room KMP documentation says Room supports KMP from version 2.7.0, and this project currently declares 2.8.4. That makes shared favorites persistence plausible. See [Set up Room Database for KMP](https://developer.android.com/kotlin/multiplatform/room).
 
@@ -175,7 +175,7 @@ Changes still required:
 - Replace the Android-only `Room.databaseBuilder(context, ...)` call with a platform-specific database factory. Android uses `Context`; iOS needs a file path and native storage setup.
 - Keep the database factory out of common code using an injected `DatabaseFactory` or `expect`/`actual`.
 - Review the current destructive migration policy. `fallbackToDestructiveMigration()` can delete a user's favorites during schema changes; define real migrations before shipping cross-platform persistence.
-- Revisit DAO signatures. `DatabaseRepository.executeGetMeals()` is declared `suspend` while returning a `Flow`, and the DAO's `getAllMeals()` is a non-suspending observable query. Use a clear `fun observeMeals(): Flow<List<...>>` contract and verify non-Android Room restrictions.
+- Preserve the repository&apos;s non-suspending `getMeals(): Flow<List<...>>` observation contract and suspend write operations when it moves to shared code.
 - Decide whether the same database schema must be compatible across Android and iOS. If yes, add migration tests and test both drivers.
 - Keep Room annotations in a data/entity package. If the same domain object is used by SwiftUI, do not make the public domain model depend on Room.
 
@@ -189,7 +189,7 @@ The state flows are strong candidates for common code, but the current classes h
 
 - `androidx.lifecycle.ViewModel`, `viewModelScope`, and `androidx.lifecycle.viewmodel.compose.viewModel()` are used directly.
 - Constructor defaults read from `DependencyInjector`, which hides dependencies and requires the Android application to initialize first.
-- `DependencyInjector` is an Android singleton that uses `Context`, Room, an internal coroutine synchronization API, and lazy global repositories.
+- `DependencyInjector` is an Android singleton that uses `Context`, Room, and lazy global repositories.
 - `RandomMealApp` is an Android `Application` startup hook.
 - Several composables instantiate ViewModels manually rather than obtaining them from a lifecycle owner. This can create duplicate state holders and scopes.
 
@@ -201,18 +201,14 @@ Recommended changes:
   - use the KMP-capable AndroidX ViewModel artifact for shared ViewModels; current lifecycle versions are in the range where KMP ViewModel support is available, or
   - use platform-neutral state holders with an injected `CoroutineScope`, then let Android and iOS own lifecycle cancellation.
 - If SwiftUI consumes the shared flows, plan how flows are bridged to Swift observation/Combine. If Compose Multiplatform is used, common Compose can collect them directly.
-- Replace `InternalCoroutinesApi` and `kotlinx.coroutines.internal.synchronized` with a public synchronization primitive or initialize the graph once from the platform app.
 - Create an explicit `AppDependencies`/`AppContainer` factory per platform. Android can construct it from `Application`; iOS can construct it from the app delegate or Swift entry point.
 - Keep navigation and screen-specific state in the UI layer. Shared state should not know about `NavHostController`, `Activity`, `Context`, or `SavedStateHandle` unless the chosen KMP ViewModel design specifically requires it.
 
-Current behavior worth fixing while extracting:
+Current behavior worth revisiting while extracting:
 
-- `_ingredientsList` and `_businessList` are initialized from the empty initial state and are not updated when network responses arrive, so search flows can operate on stale lists.
-- The Yelp filter lambda in `YelpViewModel` contains several expressions without `||`; Kotlin returns the final expression, so the apparent multi-field search does not currently test all fields.
-- `Ingredient.doesMatchSearchQuery()` uses fixed substring ranges (`0..3` and `4..10`) and can throw for short meal names. Make the matcher safe and test it in `commonTest`.
+- The dish-search response model and related route/state names still use `Ingredient`, even though the endpoint searches complete meals by name. Rename the model and APIs when moving them so the shared contract describes the returned data accurately.
 - The repository implementations never return `Resource.Loading`, so the loading branches in the ViewModels are currently unreachable. Either emit loading from a use case or model request state directly.
 - `fetchCategories`, `fetchRandomMeal`, and `fetchIngredients` start separate fire-and-forget jobs from `RecipeViewModel.init`. During migration, make startup concurrency, cancellation, and failure isolation explicit and testable.
-- Rename `YelpRepImpl` to `YelpRepoImpl` or `YelpRepositoryImpl` while the class is being moved.
 
 ### 6. Location, connectivity, permissions, reverse geocoding, and maps
 
@@ -261,11 +257,11 @@ Specific changes:
 - Reverse geocoding is asynchronous on some platforms. Change the current synchronous `Geocoder.getFromLocation()` contract to a suspend function and model failures.
 - Ensure location callbacks are removed when the screen/view model is disposed. The current location update registration does not show a matching removal path.
 
-### 7. Authentication, Firestore, analytics, and performance monitoring
+### 7. Authentication and analytics
 
 Files: `LoginActivity.kt`, `AccountScreen.kt`, `app/build.gradle.kts`, `app/google-services.json`, and `AndroidManifest.xml`
 
-The source currently uses Firebase Auth directly in Android UI. Firestore, Analytics, and Performance are declared as dependencies, but no direct usage of them appears in the Kotlin source search. Confirm whether they are only configured for future use or are used indirectly by Firebase/Gradle instrumentation.
+The source currently uses Firebase Auth directly in Android UI and retains Firebase Analytics configuration. Unused Firestore and Firebase Performance dependencies were removed during the Android cleanup.
 
 Options:
 
@@ -307,7 +303,7 @@ If sharing UI with Compose Multiplatform:
 - Replace `NavHostController` with a common destination model and a navigation implementation that supports the selected targets. Alternatively, keep navigation platform-specific and pass callbacks into shared screens.
 - Use `collectAsState` or a common lifecycle-aware approach where `collectAsStateWithLifecycle` is not available in the selected common source set.
 - Move `AppTheme`, typography, colors, and Material components only after confirming their Compose Multiplatform availability. Keep platform-specific system bars, splash behavior, and window configuration in the platform app.
-- Move `HyperlinkText` behind an `ExternalUriHandler` abstraction if it must be shared. `LocalUriHandler` may be available in a chosen common UI stack, but email/share actions still need platform adapters.
+- Move `ExternalLinkText` behind an `ExternalUriHandler` abstraction if it must be shared. `LocalUriHandler` may be available in a chosen common UI stack, but email/share actions still need platform adapters.
 - Replace `painterResource` and Android drawable references in the splash screen with common resources or platform-specific splash screens.
 
 If keeping native iOS UI:
@@ -328,9 +324,9 @@ Navigation-specific cleanup in `RecipeApp.kt`:
 Files: screen files using `rememberAsyncImagePainter`, `core/components/Widgets.kt`, `gradle/libs.versions.toml`
 
 - Replace Coil 2 imports with Coil 3 KMP if sharing Compose UI, or keep Coil Android in `:app` and use a native iOS image loader.
-- Remove Glide and its annotation processor if it is not used. The current Gradle file declares Glide “just in case,” but source search found no Glide usage.
+- Continue using a single image loader. Unused Glide and its annotation processor were removed, leaving Coil as the Android implementation.
 - Standardize image loading around URL strings and a shared placeholder/error policy.
-- Move the bundled `dining_two.webp`, `dinner.png`, and launcher assets into the appropriate common resource or platform asset locations.
+- Move the bundled `dining_two.webp` and launcher assets into the appropriate common resource or platform asset locations. The obsolete `dinner.png` launcher was removed.
 - The splash screen should be implemented as an Android splash/theme and an iOS launch screen rather than assuming one `SplashScreenActivity` can be shared.
 
 ### 10. Configuration, secrets, and platform files
@@ -341,7 +337,7 @@ Changes and risks:
 
 - `BuildConfig` values are generated only for the Android app. Create a shared `ApiConfig` interface and inject a platform/build-specific implementation.
 - Do not copy the Android `local.properties` loading code into common code. It depends on `java.util.Properties`, Gradle project files, and Android BuildConfig generation.
-- A Google Maps API key is committed directly in `AndroidManifest.xml`. Rotate it if it has been used outside a tightly restricted key, and restrict it by Android package/SHA-1 and by iOS bundle ID as appropriate.
+- The Google Maps key is injected from `local.properties` through a manifest placeholder. Keep it restricted by Android package/SHA-1 and add a separately restricted key for the iOS bundle ID.
 - `google-services.json` contains project/client configuration that Firebase documents as non-secret identifiers, but it still belongs to the Android app target and should not be treated as a universal shared configuration file.
 - The Yelp key is injected from `local.properties`, but any key shipped in an Android or iOS client can be extracted. Prefer a backend proxy; otherwise use the provider's restrictions and redact it from logs.
 - Add iOS configuration equivalents: `GoogleService-Info.plist`, map key setup, API base URL configuration, bundle IDs, signing settings, URL schemes, and privacy usage descriptions.
@@ -349,9 +345,9 @@ Changes and risks:
 
 ### 11. Tests and verification
 
-Files: `app/src/test/.../ExampleUnitTest.kt` and `app/src/androidTest/.../ExampleInstrumentedTest.kt`
+Files: tests under `app/src/test/...` and `app/src/androidTest/...`
 
-The test baseline is too thin to make a migration safe. Add tests before extraction so Android behavior can be compared with shared behavior.
+The generated placeholder tests have been removed. The project now has focused tests for startup routing, primary navigation, Yelp request mapping, Yelp state/cancellation behavior, phone formatting, and the offline fallback. Expand this baseline before extraction so Android behavior can be compared with shared behavior.
 
 Recommended test layers:
 
@@ -432,7 +428,7 @@ iosApp
 - Add repository, model, search, ViewModel/state, and favorites tests.
 - Fix the stale-list and Yelp-filter issues before moving code.
 - Extract pure search/formatting functions from composables and models.
-- Remove unused Glide and any unused Firebase dependencies after confirming runtime instrumentation requirements.
+- Keep the dependency graph intentional; Glide, Firestore, and Firebase Performance have already been removed because the app did not use them.
 - Clean deprecated Gradle/Kotlin flags and record the supported toolchain.
 
 ### Phase 1 — add the shared module without changing UI

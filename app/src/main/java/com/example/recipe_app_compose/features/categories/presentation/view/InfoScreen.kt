@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.example.recipe_app_compose.R
-import com.example.recipe_app_compose.core.components.HyperlinkText
+import com.example.recipe_app_compose.core.components.ExternalLinkText
 import com.example.recipe_app_compose.ui.theme.AppCardShape
 import com.example.recipe_app_compose.ui.theme.AppSizes
 import com.example.recipe_app_compose.ui.theme.AppSpacing
@@ -42,7 +42,7 @@ fun InfoScreen(modifier: Modifier) {
                 verticalArrangement = Arrangement.spacedBy(AppSpacing.Small),
             ) {
                 Text(
-                    text = stringResource(R.string.meal_android_app_v_1),
+                    text = stringResource(R.string.app_version_label),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.fillMaxWidth(),
@@ -54,25 +54,21 @@ fun InfoScreen(modifier: Modifier) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.fillMaxWidth(),
                 )
-                HyperlinkText(
-                    text = "",
-                    linkText = listOf(stringResource(R.string.the_mealdb)),
-                    hyperlinks = listOf(stringResource(R.string.https_www_themealdb_com_api_php)),
+                ExternalLinkText(
+                    text = stringResource(R.string.the_mealdb),
+                    url = stringResource(R.string.https_www_themealdb_com_api_php),
                 )
-                HyperlinkText(
-                    text = "",
-                    linkText = listOf(stringResource(R.string.yelp_fusion_api)),
-                    hyperlinks = listOf(stringResource(R.string.https_docs_developer_yelp_com_reference_v3_business_search)),
+                ExternalLinkText(
+                    text = stringResource(R.string.yelp_fusion_api),
+                    url = stringResource(R.string.https_docs_developer_yelp_com_reference_v3_business_search),
                 )
-                HyperlinkText(
-                    text = "",
-                    linkText = listOf(stringResource(R.string.google_maps_api)),
-                    hyperlinks = listOf(stringResource(R.string.https_developers_google_com_maps_documentation_android_sdk)),
+                ExternalLinkText(
+                    text = stringResource(R.string.google_maps_api),
+                    url = stringResource(R.string.https_developers_google_com_maps_documentation_android_sdk),
                 )
-                HyperlinkText(
-                    text = "",
-                    linkText = listOf(stringResource(R.string.github)),
-                    hyperlinks = listOf(stringResource(R.string.https_github_com_getrighhttt_recipecompose)),
+                ExternalLinkText(
+                    text = stringResource(R.string.github),
+                    url = stringResource(R.string.https_github_com_getrighhttt_recipecompose),
                 )
             }
         }

@@ -4,8 +4,8 @@ import com.example.recipe_app_compose.features.categories.domain.model.randommea
 import kotlinx.coroutines.flow.Flow
 
 interface DatabaseRepository {
-    suspend fun executeInsertMeal(meal: RandomMeal)
-    suspend fun executeGetMeals(): Flow<List<RandomMeal>>
-    suspend fun executeDeleteAll()
-    suspend fun executeDeleteMeal(meal: RandomMeal)
+    suspend fun saveMeal(meal: RandomMeal)
+    fun getMeals(): Flow<List<RandomMeal>>
+    suspend fun deleteAllMeals()
+    suspend fun deleteMeal(meal: RandomMeal)
 }

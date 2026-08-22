@@ -10,7 +10,7 @@ import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpSe
 import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpSearchResult
 import com.example.recipe_app_compose.features.location.domain.repo.YelpRepository
 
-class YelpRepImpl(
+class YelpRepositoryImpl(
     private val api: YelpApi = yelpApiService,
 ) : YelpRepository {
     override suspend fun searchShops(

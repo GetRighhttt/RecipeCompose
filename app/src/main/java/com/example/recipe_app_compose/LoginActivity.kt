@@ -1,6 +1,5 @@
 package com.example.recipe_app_compose
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -8,6 +7,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,12 +23,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,9 +40,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
-import com.example.recipe_app_compose.core.components.LoginField
+import com.example.recipe_app_compose.core.components.EmailField
 import com.example.recipe_app_compose.core.components.NetworkUnavailableScreen
-import com.example.recipe_app_compose.core.components.PasswordField
+import com.example.recipe_app_compose.core.components.PasswordInput
 import com.example.recipe_app_compose.core.util.connectivity.ConnectivityStatus
 import com.example.recipe_app_compose.core.util.connectivity.openNetworkSettings
 import com.example.recipe_app_compose.core.util.connectivity.rememberConnectivityMonitor
@@ -60,8 +62,6 @@ class LoginActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AppTheme {
-                val user = auth.currentUser
-
                 val context = LocalContext.current
                 val connectivityMonitor = rememberConnectivityMonitor()
                 val connectionState by connectivityMonitor.status.collectAsStateWithLifecycle()
@@ -74,89 +74,69 @@ class LoginActivity : ComponentActivity() {
                     )
                 } else {
                     LoginContent(
-                        onSubmit = { email, password ->
-                            if (user == null) {
-                                createAccount(email, password, context = this@LoginActivity)
-                            } else {
-                                signIn(email, password, context = this@LoginActivity)
-                            }
-                        },
+                        onSignIn = ::signIn,
+                        onCreateAccount = ::createAccount,
                     )
                 }
             }
         }
     }
 
-    // [START on_start_check_user]
     public override fun onStart() {
         super.onStart()
-        // Check if user is signed in (non-null) and update UI accordingly.
-        val user = auth.currentUser
-        if (user != null) {
+        if (auth.currentUser != null) {
             startActivity(Intent(this, MainActivity::class.java))
             finish()
-            Log.d("USER_FIREBASE", "User: $user - ${user.email}")
         }
     }
 
-    private fun createAccount(email: String, password: String, context: Activity) {
-        // [START create_user_with_email]
+    private fun createAccount(email: String, password: String) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Log.d("USER_FIREBASE", "createUserWithEmail:success")
-                    context.startActivity(Intent(context, MainActivity::class.java))
-                    (context).finish()
-                    Toast.makeText(
-                        this@LoginActivity,
-                        "Account Created",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    openMain(R.string.account_created)
                 } else {
-                    // If sign in fails, display a message to the user.
-                    Log.w("USER_FIREBASE", "createUserWithEmail:failure", task.exception)
-                    Toast.makeText(
-                        baseContext,
-                        "Authentication failed.",
-                        Toast.LENGTH_SHORT,
-                    ).show()
+                    showAuthenticationFailure("createUserWithEmail", task.exception)
                 }
             }
-        // [END create_user_with_email]
     }
 
-    private fun signIn(email: String, password: String, context: Activity) {
-        // [START sign_in_with_email]
+    private fun signIn(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Log.d("USER_FIREBASE", "signInWithEmail:success")
-                    context.startActivity(Intent(context, MainActivity::class.java))
-                    (context).finish()
-                    Toast.makeText(this@LoginActivity, "Account Created", Toast.LENGTH_SHORT).show()
+                    openMain(R.string.sign_in_successful)
                 } else {
-                    // If sign in fails, display a message to the user.
-                    Log.w("USER_FIREBASE", "signInWithEmail:failure", task.exception)
-                    Toast.makeText(
-                        baseContext,
-                        "Authentication failed.",
-                        Toast.LENGTH_SHORT,
-                    ).show()
+                    showAuthenticationFailure("signInWithEmail", task.exception)
                 }
             }
-        // [END sign_in_with_email]
+    }
+
+    private fun openMain(@StringRes message: Int) {
+        startActivity(Intent(this, MainActivity::class.java))
+        finish()
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showAuthenticationFailure(operation: String, error: Exception?) {
+        Log.w(AUTH_LOG_TAG, "$operation failed", error)
+        Toast.makeText(this, R.string.authentication_failed, Toast.LENGTH_SHORT).show()
+    }
+
+    private companion object {
+        const val AUTH_LOG_TAG = "FirebaseAuth"
     }
 }
 
 @Composable
 internal fun LoginContent(
-    onSubmit: (email: String, password: String) -> Unit,
+    onSignIn: (email: String, password: String) -> Unit,
+    onCreateAccount: (email: String, password: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var email by remember { mutableStateOf("") }
+    var email by rememberSaveable { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    val credentialsAreValid = email.isNotBlank() && password.isNotBlank()
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -194,28 +174,41 @@ internal fun LoginContent(
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(modifier = Modifier.height(AppSpacing.ExtraLarge))
-                LoginField(
+                EmailField(
                     value = email,
                     onChange = { email = it },
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(modifier = Modifier.height(AppSpacing.Medium))
-                PasswordField(
+                PasswordInput(
                     value = password,
                     onChange = { password = it },
-                    submit = {},
+                    submit = {
+                        if (credentialsAreValid) onSignIn(email.trim(), password)
+                    },
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(modifier = Modifier.height(AppSpacing.Large))
                 Button(
-                    onClick = { onSubmit(email, password) },
-                    enabled = password.isNotEmpty(),
+                    onClick = { onSignIn(email.trim(), password) },
+                    enabled = credentialsAreValid,
                     shape = AppControlShape,
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = AppSizes.MinimumTouchTarget),
                 ) {
-                    Text(stringResource(R.string.login))
+                    Text(stringResource(R.string.sign_in))
+                }
+                Spacer(modifier = Modifier.height(AppSpacing.Medium))
+                OutlinedButton(
+                    onClick = { onCreateAccount(email.trim(), password) },
+                    enabled = credentialsAreValid,
+                    shape = AppControlShape,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = AppSizes.MinimumTouchTarget),
+                ) {
+                    Text(stringResource(R.string.create_account))
                 }
             }
         }

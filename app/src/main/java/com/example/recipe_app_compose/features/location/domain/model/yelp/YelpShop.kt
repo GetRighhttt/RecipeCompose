@@ -6,7 +6,6 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class YelpShop(
-    val roomID: UInt? = null,
     val rating: Double,
     val phone: String?,
     val id: String,
@@ -19,7 +18,7 @@ data class YelpShop(
     val coordinates: YelpCoordinates,
     @SerializedName("image_url") val imageUrl: String?,
     val location: YelpLocations,
-    val distance: Double // meters
+    val distance: Double,
 ) : Parcelable {
 
     fun displayRating(): String = rating.toString().removeSuffix(".0")

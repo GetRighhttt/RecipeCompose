@@ -1,10 +1,7 @@
 package com.example.recipe_app_compose.features.categories.presentation.view
 
 import android.widget.Toast
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,7 +42,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -54,7 +50,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
-import com.example.recipe_app_compose.core.components.AlertDialogExample
+import com.example.recipe_app_compose.core.components.ConfirmationDialog
 import com.example.recipe_app_compose.core.components.AppHorizontalMediaCard
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.DatabaseViewModel
@@ -79,20 +75,22 @@ fun FavoritesScreen(
     ) {
         when {
             uiState.loading -> CircularProgressIndicator(modifier.align(Alignment.Center))
-            uiState.error != null && showErrorDialog -> AlertDialogExample(
-                dialogTitle = stringResource(R.string.error),
-                dialogText = stringResource(R.string.error_occurred, uiState.error ?: ""),
-                onDismissRequest = { showErrorDialog = false },
-                onConfirmation = {
+            uiState.error != null && showErrorDialog -> ConfirmationDialog(
+                title = stringResource(R.string.error),
+                message = stringResource(R.string.error_occurred, uiState.error ?: ""),
+                onDismiss = { showErrorDialog = false },
+                onConfirm = {
                     showErrorDialog = false
-                    viewModel.executeGetAllMeals()
-                })
+                    viewModel.retryLoadingMeals()
+                },
+                confirmLabel = stringResource(R.string.try_again),
+            )
 
             else -> {
                 MealDBScreen(
-                    meals = uiState.list.orEmpty(),
-                    onDeleteAll = viewModel::executeDeleteAll,
-                    onDeleteMeal = viewModel::executeDeleteMeal,
+                    meals = uiState.list,
+                    onDeleteAll = { onSuccess -> viewModel.deleteAllMeals(onSuccess) },
+                    onDeleteMeal = viewModel::deleteMeal,
                     onMealSelected = onMealSelected,
                 )
             }
@@ -105,12 +103,12 @@ fun FavoritesScreen(
 @Composable
 fun MealDBScreen(
     meals: List<RandomMeal>,
-    onDeleteAll: () -> Unit,
+    onDeleteAll: (onSuccess: () -> Unit) -> Unit,
     onDeleteMeal: (RandomMeal) -> Unit,
     onMealSelected: (RandomMeal) -> Unit,
 ) {
     val context = LocalContext.current
-    val allMealsDeletedMessage = stringResource(R.string.all_meals_deleted)
+    val allMealsDeletedMessage = stringResource(R.string.all_saved_dishes_removed)
 
     if (meals.isEmpty()) {
         Box(
@@ -167,17 +165,18 @@ fun MealDBScreen(
             ) {
                 ElevatedButton(
                     onClick = {
-                        onDeleteAll()
-                        Toast.makeText(
-                            context,
-                            allMealsDeletedMessage,
-                            Toast.LENGTH_SHORT,
-                        ).show()
+                        onDeleteAll {
+                            Toast.makeText(
+                                context,
+                                allMealsDeletedMessage,
+                                Toast.LENGTH_SHORT,
+                            ).show()
+                        }
                     },
                     elevation = ButtonDefaults.elevatedButtonElevation(),
                 ) {
                     Text(
-                        stringResource(R.string.delete_all_meals),
+                        stringResource(R.string.remove_all_saved_dishes),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }
@@ -226,7 +225,7 @@ fun SavedMealDetailScreen(
 ) {
     val viewModel: DatabaseViewModel = viewModel()
     val context = LocalContext.current
-    val mealDeletedMessage = stringResource(R.string.meal_deleted)
+    val mealDeletedMessage = stringResource(R.string.dish_removed)
     var showDeleteConfirmation by remember { mutableStateOf(false) }
 
     SavedMealDetailContent(
@@ -256,13 +255,14 @@ fun SavedMealDetailScreen(
                 TextButton(
                     onClick = {
                         showDeleteConfirmation = false
-                        viewModel.executeDeleteMeal(meal)
-                        Toast.makeText(
-                            context,
-                            mealDeletedMessage,
-                            Toast.LENGTH_SHORT,
-                        ).show()
-                        onDeleted()
+                        viewModel.deleteMeal(meal) {
+                            Toast.makeText(
+                                context,
+                                mealDeletedMessage,
+                                Toast.LENGTH_SHORT,
+                            ).show()
+                            onDeleted()
+                        }
                     },
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.colorScheme.error,
@@ -281,27 +281,15 @@ internal fun SavedMealDetailContent(
     onRemove: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val removeInteractionSource = remember { MutableInteractionSource() }
-    val isRemovePressed by removeInteractionSource.collectIsPressedAsState()
-    val removeContainerColor by animateColorAsState(
-        targetValue = if (isRemovePressed) {
-            MaterialTheme.colorScheme.errorContainer
-        } else {
-            Color.Transparent
-        },
-        label = "Remove saved meal container",
-    )
-
     MealDetailsPage(
         meal = meal.toMealDetailsUiModel(),
         modifier = modifier,
         headerAction = {
             IconButton(
                 onClick = onRemove,
-                interactionSource = removeInteractionSource,
                 colors = IconButtonDefaults.iconButtonColors(
-                    containerColor = removeContainerColor,
-                    contentColor = MaterialTheme.colorScheme.error,
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
                 ),
             ) {
                 Icon(

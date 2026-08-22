@@ -4,35 +4,17 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
-    <queries>
-        <intent>
-            <action android:name="android.intent.action.SEND" />
-            <data android:mimeType="text/plain" />
-        </intent>
-
-        <intent>
-            <action android:name="android.intent.action.MAIN" />
-            <data android:mimeType="text/plain" />
-        </intent>
-
-        <intent>
-            <action android:name="android.intent.action.VIEW" />
-            <data android:mimeType="text/plain" />
-        </intent>
-    </queries>
 
     <application
         android:name=".RandomMealApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@drawable/dinner"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/dinner"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Recipe_App_Compose"
         tools:targetApi="31">
@@ -40,14 +22,9 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${MAPS_API_KEY}" />
-        <meta-data
-            android:name="firebase_performance_logcat_enabled"
-            android:value="true" />
-
         <activity
             android:name=".SplashScreenActivity"
             android:exported="true"
-            android:label="Recipe"
             android:theme="@style/Theme.Recipe_App_Compose">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -63,12 +40,12 @@
 
         <activity
             android:name=".LoginActivity"
-            android:exported="true"
+            android:exported="false"
             android:theme="@style/Theme.Recipe_App_Compose" />
 
         <activity
             android:name=".MainActivity"
-            android:exported="true"
+            android:exported="false"
             android:theme="@style/Theme.Recipe_App_Compose" />
 
     </application>

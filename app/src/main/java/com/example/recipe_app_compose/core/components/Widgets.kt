@@ -1,20 +1,13 @@
 package com.example.recipe_app_compose.core.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -23,17 +16,14 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,55 +43,41 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.ui.theme.AppCardShape
+import com.example.recipe_app_compose.ui.theme.AppControlShape
 import com.example.recipe_app_compose.ui.theme.AppSpacing
 
 @Composable
-fun AlertDialogExample(
-    onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit,
-    dialogTitle: String,
-    dialogText: String
+fun ConfirmationDialog(
+    title: String,
+    message: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    confirmLabel: String = stringResource(R.string.confirm),
+    dismissLabel: String = stringResource(R.string.dismiss),
 ) {
     AlertDialog(
-        title = {
-            Text(text = dialogTitle)
-        },
-        text = {
-            Text(text = dialogText)
-        },
-        onDismissRequest = {
-            onDismissRequest()
-        },
+        title = { Text(text = title) },
+        text = { Text(text = message) },
+        onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(
-                onClick = {
-                    onConfirmation()
-                }
-            ) {
-                Text("Confirm")
+            TextButton(onClick = onConfirm) {
+                Text(confirmLabel)
             }
         },
         dismissButton = {
-            TextButton(
-                onClick = {
-                    onDismissRequest()
-                }
-            ) {
-                Text("Dismiss")
+            TextButton(onClick = onDismiss) {
+                Text(dismissLabel)
             }
-        }
+        },
     )
 }
 
@@ -174,118 +150,38 @@ fun AppHorizontalMediaCard(
 }
 
 @Composable
-fun HyperlinkText(
-    modifier: Modifier = Modifier,
+fun ExternalLinkText(
     text: String,
-    linkText: List<String>,
-    hyperlinks: List<String>,
+    url: String,
+    modifier: Modifier = Modifier,
     linkTextColor: Color = MaterialTheme.colorScheme.primary,
-    linkStyle: TextStyle = MaterialTheme.typography.bodyMedium,
-    fontSize: TextUnit = TextUnit.Unspecified,
-    fontFamily: FontFamily = FontFamily.Monospace
+    style: TextStyle = MaterialTheme.typography.bodyMedium,
 ) {
     val uriHandler = LocalUriHandler.current
-
     val annotatedString = buildAnnotatedString {
-        var lastIndex = 0
-        linkText.forEachIndexed { index, link ->
-            val startIndex = text.indexOf(link, lastIndex)
-            val endIndex = startIndex + link.length
-
-            if (startIndex > lastIndex) append(text.substring(lastIndex, startIndex))
-
-            val linkUrL = LinkAnnotation.Url(
-                hyperlinks[index], TextLinkStyles(
-                    SpanStyle(
-                        color = linkTextColor,
-                        fontSize = fontSize,
-                        fontFamily = fontFamily
-                    )
-                )
-            ) {
-                val url = (it as LinkAnnotation.Url).url
-                uriHandler.openUri(url)
-            }
-            withLink(linkUrL) { append(link) }
-            append(" ")
-            lastIndex = endIndex + 1
+        val link = LinkAnnotation.Url(
+            url = url,
+            styles = TextLinkStyles(SpanStyle(color = linkTextColor)),
+        ) { annotation ->
+            uriHandler.openUri((annotation as LinkAnnotation.Url).url)
         }
-        if (lastIndex < text.length) {
-            append(text.substring(lastIndex))
-        }
-        addStyle(
-            style = SpanStyle(
-                fontSize = fontSize, fontFamily = fontFamily
-            ), start = 0, end = text.length
-        )
+        withLink(link) { append(text) }
     }
-    Text(text = annotatedString, modifier = modifier, style = linkStyle)
-}
-
-
-@Composable
-fun MyBottomAppBar(
-    modifier: Modifier = Modifier,
-    containerColor: Color = BottomAppBarDefaults.containerColor,
-    contentColor: Color = contentColorFor(containerColor),
-    tonalElevation: Dp = BottomAppBarDefaults.ContainerElevation,
-    contentPadding: PaddingValues = BottomAppBarDefaults.ContentPadding,
-    windowInsets: WindowInsets = BottomAppBarDefaults.windowInsets,
-    content: @Composable RowScope.() -> Unit = {}
-) {
-    Surface(
-        color = containerColor,
-        contentColor = contentColor,
-        tonalElevation = tonalElevation,
-        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-        modifier = modifier
-    ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .windowInsetsPadding(windowInsets)
-                .height(64.dp)
-                .padding(contentPadding),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically,
-            content = content
-        )
-    }
+    Text(text = annotatedString, modifier = modifier, style = style)
 }
 
 @Composable
-fun MessageCard(msg: String) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(8.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
-    ) {
-        Text(
-            text = msg,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(
-                horizontal = AppSpacing.Medium,
-                vertical = AppSpacing.Small,
-            ),
-        )
-    }
-}
-
-@Composable
-fun LoginField(
+fun EmailField(
     value: String,
     onChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    label: String = "Login",
-    placeholder: String = "Enter your Login"
 ) {
-
     val focusManager = LocalFocusManager.current
     val leadingIcon = @Composable {
         Icon(
             Icons.Default.Person,
-            contentDescription = "",
-            tint = MaterialTheme.colorScheme.primary
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
         )
     }
 
@@ -294,35 +190,35 @@ fun LoginField(
         onValueChange = onChange,
         modifier = modifier,
         leadingIcon = leadingIcon,
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Next,
+            keyboardType = KeyboardType.Email,
+        ),
         keyboardActions = KeyboardActions(
             onNext = { focusManager.moveFocus(FocusDirection.Down) }
         ),
-        placeholder = { Text(placeholder) },
-        label = { Text(label) },
+        placeholder = { Text(stringResource(R.string.email_placeholder)) },
+        label = { Text(stringResource(R.string.email)) },
         singleLine = true,
         visualTransformation = VisualTransformation.None,
-        shape = RoundedCornerShape(20.dp)
+        shape = AppControlShape,
     )
 }
 
 @Composable
-fun PasswordField(
+fun PasswordInput(
     value: String,
     onChange: (String) -> Unit,
     submit: () -> Unit,
     modifier: Modifier = Modifier,
-    label: String = "Password",
-    placeholder: String = "Enter your Password"
 ) {
-
     var isPasswordVisible by remember { mutableStateOf(false) }
 
     val leadingIcon = @Composable {
         Icon(
             Icons.Default.Lock,
-            contentDescription = "",
-            tint = MaterialTheme.colorScheme.primary
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
         )
     }
     OutlinedTextField(
@@ -334,7 +230,9 @@ fun PasswordField(
             IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
                 Icon(
                     imageVector = if (isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                    contentDescription = if (isPasswordVisible) "Hide password" else "Show password"
+                    contentDescription = stringResource(
+                        if (isPasswordVisible) R.string.hide_password else R.string.show_password
+                    ),
                 )
             }
         },
@@ -345,10 +243,10 @@ fun PasswordField(
         keyboardActions = KeyboardActions(
             onDone = { submit() }
         ),
-        placeholder = { Text(placeholder) },
-        label = { Text(label) },
+        placeholder = { Text(stringResource(R.string.password_placeholder)) },
+        label = { Text(stringResource(R.string.password)) },
         singleLine = true,
         visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-        shape = RoundedCornerShape(20.dp)
+        shape = AppControlShape,
     )
 }
