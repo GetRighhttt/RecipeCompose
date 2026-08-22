@@ -5,8 +5,7 @@ Scope: correctness, naming, state ownership, build configuration, resources, and
 
 ## Correctness changes
 
-- Corrected authentication routing so **Sign in** signs in an existing user and **Create account** is an explicit separate action.
-- Added accurate authentication success/failure copy and keyboard submit behavior.
+- Removed the experimental Firebase authentication gate after confirming that no product feature required an account; completed onboarding now opens the application directly.
 - Made recipe and database UI collections non-null, eliminating defensive nullable-list handling throughout Compose screens.
 - Switched root navigation state collection to lifecycle-aware collection.
 - Prevented duplicate saved dishes with a transactional remote-meal-ID check in the Room DAO.
@@ -21,7 +20,7 @@ Scope: correctness, naming, state ownership, build configuration, resources, and
 
 - Renamed `YelpRepImpl` to `YelpRepositoryImpl` and `DatabaseRepoImpl` to `DatabaseRepositoryImpl`.
 - Replaced execution-oriented database method names with `saveMeal`, `getMeals`, `deleteMeal`, and `deleteAllMeals`.
-- Replaced ambiguous shared component names with `ConfirmationDialog`, `EmailField`, `PasswordInput`, and `ExternalLinkText`.
+- Replaced ambiguous shared component names with `ConfirmationDialog` and `ExternalLinkText`; later removed the authentication-only form components with the Firebase experiment.
 - Renamed private dish-search grid/item functions and variables that incorrectly described full meals as categories.
 - Removed dead shared composables, unused geocoding DTOs, and generated placeholder tests.
 
@@ -29,7 +28,8 @@ The larger `Ingredient` model/route rename remains intentionally deferred. The e
 
 ## Build and resource cleanup
 
-- Removed unused LiveData, Glide, Firestore, Firebase Performance, and AndroidX splash-screen dependencies and unused plugin aliases.
+- Removed unused LiveData, Glide, AndroidX splash-screen, and all experimental Firebase dependencies and plugin aliases.
+- Removed `LoginActivity`, the Account route/screen, `google-services.json`, authentication strings, and authentication-only previews and screenshot assets.
 - Removed the redundant explicit-backing-fields compiler flag under Kotlin 2.4.10.
 - Upgraded the Gradle wrapper from 9.5.0 to 9.7.0 and refreshed the generated wrapper JAR and platform launch scripts.
 - Replaced deprecated AGP properties and the deprecated Room destructive-migration overload.
@@ -41,16 +41,16 @@ The larger `Ingredient` model/route rename remains intentionally deferred. The e
 ## Verification completed
 
 - `:app:testDebugUnitTest` passed.
-- `:app:lintDebug` passed with no code/resource warnings after the Gradle 9.7 upgrade.
+- `:app:lintDebug` passed; the report contains only version-availability notices for Gradle 9.7.1 and Maps Compose 8.5.0.
 - `:app:assembleDebug` passed.
 - The debug APK installed over the existing app on a physical Samsung device while preserving app data.
+- Authentication-removal smoke tests passed for returning-user startup, first-run onboarding Skip-to-Explore navigation, and the Home/Info-only drawer. The original onboarding DataStore preference was restored after the isolated first-run test.
 - Physical smoke tests passed for cold startup, adaptive launcher-icon rendering, Explore, Search and debounced results, Search-to-Explore navigation, Saved list/details, scrollable details, saved/unsaved action styling, persistent remove styling, manual Chicago restaurant search, retained current-location intent, approximate-only permission, revoked-permission fallback, location-choice reset across a cold launch, map loading, draggable marker, zoom-control separation, Directions handoff to Google Maps, and Map-to-Nearby back navigation.
-- Sign-out, account deletion, destructive saved-dish actions, and UI automation tests were intentionally not run.
+- Destructive saved-dish actions and UI automation tests were intentionally not run.
 
 ## Follow-up risks and features
 
 1. Replace Room destructive fallback with explicit migrations before changing a production database schema.
-2. Move direct Firebase calls behind an auth/session contract and model loading, reauthentication, and field-level validation before a store release.
-3. Replace Parcelable objects stored in navigation-entry state with stable IDs or serialized route arguments for stronger process-death restoration.
-4. Rename the dish-search `Ingredient` DTO/state/route family when extracting shared models for Compose Multiplatform.
-5. Add focused Room repository tests and continue expanding state-holder tests before migration.
+2. Replace Parcelable objects stored in navigation-entry state with stable IDs or serialized route arguments for stronger process-death restoration.
+3. Rename the dish-search `Ingredient` DTO/state/route family when extracting shared models for Compose Multiplatform.
+4. Add focused Room repository tests and continue expanding state-holder tests before migration.

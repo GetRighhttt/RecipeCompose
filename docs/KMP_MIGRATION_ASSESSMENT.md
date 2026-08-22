@@ -1,14 +1,14 @@
 # Kotlin Multiplatform migration assessment
 
 Status: discovery complete; UI-strategy decision superseded by the Compose Multiplatform plan<br>
-Date: 2026-08-15; decision updated 2026-08-21<br>
+Date: 2026-08-15; decision updated 2026-08-22<br>
 Scope: current Android app in `:app`, with Android and iOS as the likely future targets
 
-> Decision update: the project will use Compose Multiplatform for shared Android/iOS UI, Koin for dependency injection, and Ktor with `kotlinx.serialization` for shared networking. The staged execution plan and current toolchain baseline are maintained in [Compose Multiplatform migration plan](COMPOSE_MULTIPLATFORM_MIGRATION_PLAN.md). This assessment remains the detailed inventory of Android coupling and migration risks.
+> Decision update: the project will use Compose Multiplatform for shared Android/iOS UI, Koin for dependency injection, and Ktor with `kotlinx.serialization` for shared networking. Experimental Firebase authentication and analytics were removed because the product has no account-backed feature. The staged execution plan and current toolchain baseline are maintained in [Compose Multiplatform migration plan](COMPOSE_MULTIPLATFORM_MIGRATION_PLAN.md). This assessment remains the detailed inventory of Android coupling and migration risks.
 
 ## Executive recommendation
 
-KMP is a reasonable fit for this app, but a full rewrite is not the best first move. The app already has a useful separation between domain models, repositories, state holders, and Compose screens. The separation is incomplete, though: several domain/data classes contain Android serialization or Room annotations, repositories are implemented directly with Retrofit/Gson, and the UI owns Firebase, permissions, location, maps, navigation, resources, intents, and Android lifecycle objects.
+KMP is a reasonable fit for this app, but a full rewrite is not the best first move. The app already has a useful separation between domain models, repositories, state holders, and Compose screens. The separation is incomplete, though: several domain/data classes contain Android serialization or Room annotations, repositories are implemented directly with Retrofit/Gson, and the UI owns permissions, location, maps, navigation, resources, intents, and Android lifecycle objects.
 
 Recommended direction:
 
@@ -43,7 +43,7 @@ The runtime behavior is:
 SplashScreenActivity
         |
         v
-LoginActivity -- Firebase Auth / network monitor
+OnboardingActivity -- first run only / Preferences DataStore
         |
         v
 MainActivity -- drawer, bottom bar, dialogs, Android navigation
@@ -53,21 +53,20 @@ MainActivity -- drawer, bottom bar, dialogs, Android navigation
         +--> favorites ----------------> Room database
         +--> location/map -------------> Google Play Services + Google Maps Compose
         +--> images --------------------> Coil 2 / Android context
-        +--> account/settings ----------> Firebase Auth + Android intents/toasts
 ```
 
-The current Android unit test task passes (`:app:testDebugUnitTest`), but the test suite only contains generated arithmetic and package-name smoke tests. There is not yet behavior coverage for the repository, database, state holders, permissions, search, authentication, or UI.
+The current Android unit test task passes (`:app:testDebugUnitTest`) with focused coverage for startup routing, Yelp mapping/state/cancellation, location preferences, and recipe saved-state matching. Repository and persistence coverage should continue expanding before extraction.
 
 ## Migration options
 
 | Option | What is shared | What remains platform-specific | Assessment for this app |
 | --- | --- | --- | --- |
 | KMP shared logic | Models, repositories, networking, database, state holders | Android Compose UI; SwiftUI on iOS | Recommended first phase. Lowest risk and good architectural value. |
-| KMP + Compose Multiplatform | Most state, screens, theme, navigation, and logic | Maps, permissions, auth setup, external actions, app entry points | Viable later. Requires replacing Android resources/context/navigation APIs. |
+| KMP + Compose Multiplatform | Most state, screens, theme, navigation, and logic | Maps, permissions, external actions, app entry points | Viable later. Requires replacing Android resources/context/navigation APIs. |
 | KMP logic + native UIs | Shared logic only; Android Compose and iOS SwiftUI | All UI and platform UX | Best if native iOS UX is important or the team is stronger in SwiftUI. Requires a clean Swift-facing shared API. |
 | Keep Android-only | No second target | Everything | Sensible if there is no iOS/product requirement. KMP adds build and library complexity without a second consumer. |
 
-The current codebase does not require KMP to improve the Android app. KMP becomes compelling when the same recipe, search, favorites, authentication, and API behavior must serve iOS or another Kotlin target.
+The current codebase does not require KMP to improve the Android app. KMP becomes compelling when the same recipe, search, favorites, location, and API behavior must serve iOS or another Kotlin target.
 
 ## File-by-file impact assessment
 
@@ -195,7 +194,7 @@ The state flows are strong candidates for common code, but the current classes h
 
 Recommended changes:
 
-- Inject repositories, database stores, auth services, location services, connectivity monitors, and external actions explicitly. Remove production constructor defaults that reach into a global singleton.
+- Inject repositories, database stores, location services, connectivity monitors, and external actions explicitly. Remove production constructor defaults that reach into a global singleton.
 - Move the shared state machines/use cases to common code. They can expose `StateFlow` and suspend commands without knowing whether the consumer is Compose or SwiftUI.
 - Choose one lifecycle strategy:
   - use the KMP-capable AndroidX ViewModel artifact for shared ViewModels; current lifecycle versions are in the range where KMP ViewModel support is available, or
@@ -257,30 +256,15 @@ Specific changes:
 - Reverse geocoding is asynchronous on some platforms. Change the current synchronous `Geocoder.getFromLocation()` contract to a suspend function and model failures.
 - Ensure location callbacks are removed when the screen/view model is disposed. The current location update registration does not show a matching removal path.
 
-### 7. Authentication and analytics
+### 7. Authentication scope
 
-Files: `LoginActivity.kt`, `AccountScreen.kt`, `app/build.gradle.kts`, `app/google-services.json`, and `AndroidManifest.xml`
+Authentication and analytics are intentionally absent from the current application. Firebase was an Android learning experiment rather than support for an account-backed product capability, so its activities, screen, configuration files, Gradle plugin, and dependencies were removed before migration.
 
-The source currently uses Firebase Auth directly in Android UI and retains Firebase Analytics configuration. Unused Firestore and Firebase Performance dependencies were removed during the Android cleanup.
-
-Options:
-
-- Keep Firebase entirely platform-specific. Define a shared `AuthRepository`/`Session` contract, implement it with Firebase Android in `androidMain` or `:app`, and implement it with the native Firebase iOS SDK in `iosApp`/`iosMain`.
-- Use a third-party KMP Firebase wrapper such as [GitLive's Firebase Kotlin SDK](https://github.com/GitLiveApp/firebase-kotlin-sdk) if its Auth/Firestore/Analytics coverage and release cadence meet the product needs. Treat it as a deliberate dependency, not an automatic drop-in replacement for the Android Firebase SDK.
-- Move only the auth state and use-case contract to common code first. Keep sign-in UI, error presentation, credential storage, and platform initialization in each app.
-
-Required UI changes:
-
-- Remove direct `Firebase.auth` calls from `LoginActivity` and `AccountScreen`.
-- Replace `Intent(context, MainActivity::class.java)` and `Intent(context, LoginActivity::class.java)` with a shared auth/session event consumed by platform navigation.
-- Replace Toasts with a shared one-shot UI message or platform message host.
-- Model asynchronous sign-in, sign-up, sign-out, and account deletion as state/events rather than callback chains embedded in a composable/activity.
-- Add reauthentication handling for account deletion; Firebase often requires a recent sign-in for sensitive operations.
-- Keep Android `google-services.json` in the Android app and add iOS `GoogleService-Info.plist` to the iOS app. Firebase initialization is platform-specific.
+Do not add an auth abstraction to `commonMain` preemptively. If a future requirement such as cross-device favorite synchronization establishes a real account need, evaluate providers and platform policy at that time and add authentication as its own vertical slice.
 
 ### 8. Compose UI, navigation, resources, and platform actions
 
-Files: `MainActivity.kt`, `LoginActivity.kt`, `SplashScreenActivity.kt`, `core/components/Widgets.kt`, `core/navigation/*`, all files under `presentation/view`, `ui/theme/*`, `app/src/main/res/*`
+Files: `MainActivity.kt`, `SplashScreenActivity.kt`, `core/components/Widgets.kt`, `core/navigation/*`, all files under `presentation/view`, `ui/theme/*`, `app/src/main/res/*`
 
 The layout and Material styling are the most reusable part of the UI, but the current screens are not common-ready.
 
@@ -331,16 +315,15 @@ Files: screen files using `rememberAsyncImagePainter`, `core/components/Widgets.
 
 ### 10. Configuration, secrets, and platform files
 
-Files: `app/build.gradle.kts`, `core/util/Constants.kt`, `app/src/main/AndroidManifest.xml`, `app/google-services.json`, and local `local.properties`
+Files: `app/build.gradle.kts`, `core/util/Constants.kt`, `app/src/main/AndroidManifest.xml`, and local `local.properties`
 
 Changes and risks:
 
 - `BuildConfig` values are generated only for the Android app. Create a shared `ApiConfig` interface and inject a platform/build-specific implementation.
 - Do not copy the Android `local.properties` loading code into common code. It depends on `java.util.Properties`, Gradle project files, and Android BuildConfig generation.
 - The Google Maps key is injected from `local.properties` through a manifest placeholder. Keep it restricted by Android package/SHA-1 and add a separately restricted key for the iOS bundle ID.
-- `google-services.json` contains project/client configuration that Firebase documents as non-secret identifiers, but it still belongs to the Android app target and should not be treated as a universal shared configuration file.
 - The Yelp key is injected from `local.properties`, but any key shipped in an Android or iOS client can be extracted. Prefer a backend proxy; otherwise use the provider's restrictions and redact it from logs.
-- Add iOS configuration equivalents: `GoogleService-Info.plist`, map key setup, API base URL configuration, bundle IDs, signing settings, URL schemes, and privacy usage descriptions.
+- Add iOS configuration equivalents: map key setup, API base URL configuration, bundle IDs, signing settings, URL schemes, and privacy usage descriptions.
 - Review release configuration before adding an iOS target: minification, debug logging, symbolication, crash reporting, analytics consent, and per-platform environment values.
 
 ### 11. Tests and verification
@@ -354,9 +337,9 @@ Recommended test layers:
 - `shared/src/commonTest`: model normalization, `Resource` behavior, search matching, validation, error mapping, request/use-case state transitions, and repository tests with fake data sources.
 - Ktor `MockEngine` tests: TheMealDB and Yelp success, HTTP errors, malformed payloads, cancellation, auth headers, and query parameters.
 - Room KMP tests: insert, replace, observe, delete-one, delete-all, schema migration, and destructive-migration policy. Run against the Android and iOS-supported drivers where practical.
-- Android tests: Firebase adapter, permission launcher, connectivity monitor, Google Maps/location adapter, Android navigation, and intent/share behavior.
-- iOS tests: Firebase/native auth adapter, CoreLocation permission states, reverse geocoder, connectivity monitor, and map presentation adapter.
-- Compose tests per UI target for loading, empty, error, search, favorite, sign-out, and navigation flows.
+- Android tests: permission launcher, connectivity monitor, Google Maps/location adapter, Android navigation, and intent/share behavior.
+- iOS tests: CoreLocation permission states, reverse geocoder, connectivity monitor, and map presentation adapter.
+- Compose tests per UI target for loading, empty, error, search, favorite, and navigation flows.
 - Add contract tests so Android and iOS implementations produce the same common error/state semantics.
 - Add tests for lifecycle cancellation and duplicate requests; several current flows launch nested jobs and delay network calls.
 
@@ -365,7 +348,7 @@ Minimum migration gate for each extracted slice:
 1. Existing Android unit/instrumented behavior remains green.
 2. The shared module compiles for Android and iOS simulator.
 3. The shared test suite runs without network access.
-4. No common source imports Android, Java-only, Compose UI, Firebase Android, Google Play Services, or Android resources.
+4. No common source imports Android, Java-only, Compose UI, Google Play Services, or Android resources.
 5. The Android app consumes the shared implementation through interfaces, not global service locators.
 6. A small iOS spike can call the shared repository/state API before the next slice is extracted.
 
@@ -388,36 +371,28 @@ shared/commonMain
 │   ├── model
 │   ├── repository/contracts
 │   └── usecase
-├── features/auth
-│   ├── AuthRepository
-│   ├── Session
-│   └── auth state/use cases
 └── presentation
     └── state holders or KMP ViewModels
 
 shared/androidMain
 ├── Room database builder
 ├── Ktor Android engine
-├── Firebase Android adapters (if chosen)
 └── Android logger/configuration
 
 shared/iosMain
 ├── Room/SQLite or SQLDelight iOS database factory
 ├── Ktor Darwin engine
-├── Firebase iOS adapters (if chosen)
 └── iOS logger/configuration
 
 app
 ├── Android activities/manifest/resources
 ├── Android Compose screens, or Compose Multiplatform UI entry point
-├── permission/location/map adapters
-└── Android-specific Firebase setup
+└── permission/location/map adapters
 
 iosApp
 ├── SwiftUI or Compose Multiplatform root
 ├── Info.plist and launch assets
-├── iOS permission/location/map adapters
-└── iOS Firebase setup
+└── iOS permission/location/map adapters
 ```
 
 ## Ordered migration plan
@@ -428,7 +403,7 @@ iosApp
 - Add repository, model, search, ViewModel/state, and favorites tests.
 - Fix the stale-list and Yelp-filter issues before moving code.
 - Extract pure search/formatting functions from composables and models.
-- Keep the dependency graph intentional; Glide, Firestore, and Firebase Performance have already been removed because the app did not use them.
+- Keep the dependency graph intentional; Glide and the complete experimental Firebase stack have already been removed because the app did not use them.
 - Clean deprecated Gradle/Kotlin flags and record the supported toolchain.
 
 ### Phase 1 — add the shared module without changing UI
@@ -453,12 +428,11 @@ iosApp
 - Add platform database factories and real schema migrations.
 - Move the favorites repository and test it against both target drivers.
 
-### Phase 4 — share auth/session and state
+### Phase 4 — share state holders and onboarding persistence
 
-- Define `AuthRepository` and session state.
-- Keep Firebase initialization platform-specific, or adopt a vetted KMP wrapper.
 - Move state holders/use cases to common code and expose a Swift-friendly API if using SwiftUI.
-- Remove direct Firebase calls from screens.
+- Move the onboarding completion contract while keeping platform DataStore construction explicit.
+- Preserve the direct onboarding-to-main startup policy on both platforms.
 
 ### Phase 5 — choose the UI strategy
 
@@ -468,8 +442,8 @@ iosApp
 ### Phase 6 — platform services and release hardening
 
 - Implement Android/iOS location, connectivity, reverse geocoding, maps, external URL/share, logging, and configuration adapters.
-- Add iOS privacy strings, Firebase/map setup, signing, analytics consent, and release configuration.
-- Run Android and iOS functional parity checks for login, recipe browsing, ingredient search, Yelp search, map selection, favorites, sign-out, and account deletion.
+- Add iOS privacy strings, map setup, signing, and release configuration.
+- Run Android and iOS functional parity checks for onboarding, recipe browsing, ingredient search, Yelp search, map selection, favorites, and directions.
 
 ## Final recommendation
 
@@ -483,7 +457,7 @@ plain models
   -> Android app first, iOS simulator second
 ```
 
-Room KMP is now a credible option for favorites, but it should follow the networking/model extraction rather than lead the migration. Maps, permissions, reverse geocoding, Firebase setup, external actions, and app startup should remain behind platform adapters. Compose Multiplatform should be a separate product/UX decision, because it changes resource, navigation, lifecycle, and platform-integration strategy beyond simply adding KMP.
+Room KMP is now a credible option for favorites, but it should follow the networking/model extraction rather than lead the migration. Maps, permissions, reverse geocoding, external actions, and app startup should remain behind platform adapters. Compose Multiplatform should be a separate product/UX decision, because it changes resource, navigation, lifecycle, and platform-integration strategy beyond simply adding KMP.
 
 ## Reference documentation
 
@@ -497,5 +471,3 @@ Room KMP is now a credible option for favorites, but it should follow the networ
 - [Ktor multiplatform client engines](https://ktor.io/docs/client-engines.html)
 - [Compose Multiplatform overview](https://kotlinlang.org/docs/multiplatform/compose-multiplatform.html)
 - [Coil Compose Multiplatform setup](https://github.com/coil-kt/coil/blob/main/docs/getting_started.md)
-- [Firebase Android setup/configuration](https://firebase.google.com/docs/android/setup)
-- [GitLive Firebase Kotlin SDK](https://github.com/GitLiveApp/firebase-kotlin-sdk) (third-party option)

@@ -12,11 +12,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.recipe_app_compose.LoginContent
 import com.example.recipe_app_compose.core.components.NetworkUnavailableScreen
 import com.example.recipe_app_compose.features.categories.domain.states.UiState
 import com.example.recipe_app_compose.features.categories.domain.states.RandomMealUiState
-import com.example.recipe_app_compose.features.categories.presentation.view.AccountContent
 import com.example.recipe_app_compose.features.categories.presentation.view.DetailScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.InfoScreen
 import com.example.recipe_app_compose.features.categories.presentation.view.IngredientDetailContent
@@ -60,15 +58,6 @@ private fun PreviewSurface(content: @Composable () -> Unit) {
             content = content,
         )
     }
-}
-
-@AppScreenPreview
-@Composable
-private fun LoginScreenPreview() = PreviewSurface {
-    LoginContent(
-        onSignIn = { _, _ -> },
-        onCreateAccount = { _, _ -> },
-    )
 }
 
 @AppScreenPreview
@@ -187,16 +176,6 @@ private fun LocationPermissionPreview() = PreviewSurface {
         onChooseAnotherLocation = {},
         onRetry = {},
         onShopSelected = {},
-    )
-}
-
-@AppScreenPreview
-@Composable
-private fun AccountPreview() = PreviewSurface {
-    AccountContent(
-        signedInEmail = "developer@example.com",
-        onSignOut = {},
-        onDeleteAccount = {},
     )
 }
 

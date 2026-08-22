@@ -49,4 +49,4 @@ The interface and model remain outside Android-specific code so they can move to
 
 - Unit coverage verifies the initial restoration state, `AskEveryTime`, restored current-location behavior, revoked permission, current-location persistence, manual override, cancellation, and timeout paths.
 - Physical-device verification covers first choice, retained choice after a cold launch, approximate-only permission, permission revocation fallback, and **Choose another location**.
-- No coordinate is written to DataStore, Room, Firebase, saved instance state, or analytics.
+- No coordinate is written to DataStore, Room, saved instance state, logs, or analytics.

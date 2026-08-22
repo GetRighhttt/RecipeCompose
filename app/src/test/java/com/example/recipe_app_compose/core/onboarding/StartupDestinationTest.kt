@@ -11,31 +11,17 @@ class StartupDestinationTest {
             resolveStartupDestination(
                 completedOnboardingVersion = 0,
                 currentOnboardingVersion = 1,
-                isSignedIn = true,
             ),
         )
     }
 
     @Test
-    fun `completed onboarding opens main for signed in user`() {
+    fun `completed onboarding opens main`() {
         assertEquals(
             StartupDestination.Main,
             resolveStartupDestination(
                 completedOnboardingVersion = 1,
                 currentOnboardingVersion = 1,
-                isSignedIn = true,
-            ),
-        )
-    }
-
-    @Test
-    fun `completed onboarding opens login for signed out user`() {
-        assertEquals(
-            StartupDestination.Login,
-            resolveStartupDestination(
-                completedOnboardingVersion = 1,
-                currentOnboardingVersion = 1,
-                isSignedIn = false,
             ),
         )
     }

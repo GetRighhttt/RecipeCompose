@@ -10,14 +10,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Storefront
-import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
@@ -94,13 +92,11 @@ class MainActivity : ComponentActivity() {
                     }
                     val selectedItemIndex = when (currentRoute) {
                         CategoryScreen.InfoScreen.route -> 1
-                        CategoryScreen.AccountScreen.route -> 2
                         else -> 0
                     }
                     val drawerRoutes = setOf(
                         CategoryScreen.RecipeScreen.route,
                         CategoryScreen.InfoScreen.route,
-                        CategoryScreen.AccountScreen.route,
                     )
                     val primaryRoutes = setOf(
                         CategoryScreen.RecipeScreen.route,
@@ -116,7 +112,6 @@ class MainActivity : ComponentActivity() {
                         CategoryScreen.IngredientScreen.route -> R.string.search
                         CategoryScreen.IngredientDetailScreen.route -> R.string.recipe_details
                         CategoryScreen.FavoriteDetailScreen.route -> R.string.recipe_details
-                        CategoryScreen.AccountScreen.route -> R.string.account
                         CategoryScreen.FavoriteScreen.route -> R.string.saved
                         CategoryScreen.InfoScreen.route -> R.string.info
                         CategoryScreen.YelpScreen.route -> R.string.shops
@@ -133,10 +128,6 @@ class MainActivity : ComponentActivity() {
                             title = stringResource(R.string.info),
                             selectedIcon = Icons.Filled.Info,
                             unselectedIcon = Icons.Outlined.Info
-                        ), NavigationItem(
-                            title = stringResource(R.string.account),
-                            selectedIcon = Icons.Filled.AccountCircle,
-                            unselectedIcon = Icons.Outlined.AccountCircle,
                         )
                     )
                     val primaryItems = listOf(
@@ -180,7 +171,6 @@ class MainActivity : ComponentActivity() {
                                             }
                                             val route = when (index) {
                                                 1 -> CategoryScreen.InfoScreen.route
-                                                2 -> CategoryScreen.AccountScreen.route
                                                 else -> CategoryScreen.RecipeScreen.route
                                             }
                                             navController.navigate(route) {

@@ -1,7 +1,7 @@
 # Compose Multiplatform migration plan
 
 Status: approved direction; implementation has not started<br>
-Last revised: 2026-08-21<br>
+Last revised: 2026-08-22<br>
 Targets: Android and iOS<br>
 Related discovery: [Kotlin Multiplatform migration assessment](KMP_MIGRATION_ASSESSMENT.md)
 
@@ -27,7 +27,7 @@ Recommended direction:
 3. Add a small `iosApp` Xcode project that embeds the shared Compose UI.
 4. Migrate one complete vertical slice at a time while keeping Android functional.
 5. Share screens, navigation, ViewModels, repositories, networking, persistence, and resources.
-6. Keep maps, Firebase initialization, connectivity, geocoding, sharing, and external navigation behind platform implementations.
+6. Keep maps, connectivity, geocoding, sharing, and external navigation behind platform implementations.
 7. Defer desktop and web targets until Android and iOS reach feature parity.
 
 ## Revision context
@@ -38,9 +38,10 @@ This revision reflects the application after the 2026 Android cleanup and redesi
 - upgraded to Kotlin 2.4.10, AGP 9.3.1, Gradle 9.7.0, and Java 21 for the build runtime;
 - adopted an action-first Explore screen and persistent top-level navigation;
 - added versioned onboarding persistence with DataStore 1.2.1;
-- centralized startup routing between onboarding, authentication, and the main application;
+- centralized startup routing between onboarding and the main application;
 - improved lifecycle-aware state collection, location permission handling, restaurant discovery, Google Maps, directions, offline UI, previews, and unit coverage;
-- retained Android-specific Firebase, Google Maps, location, activity startup, and external-intent integrations.
+- removed the experimental Firebase authentication and analytics stack because no product capability required an account;
+- retained Android-specific Google Maps, location, activity startup, and external-intent integrations.
 
 The direction is now decided: this project will pursue shared Compose UI for Android and iOS, not a SwiftUI frontend over shared logic. The earlier KMP assessment remains useful as a dependency and platform-boundary inventory, but its UI-strategy decision point has been resolved by this document.
 
@@ -95,7 +96,6 @@ RecipeCompose
 │   ├── SplashScreenActivity.kt
 │   ├── OnboardingActivity.kt
 │   ├── Android application resources
-│   ├── google-services.json
 │   └── Android-only startup and configuration
 │
 ├── shared
@@ -122,12 +122,10 @@ RecipeCompose
 │   │   │   ├── data
 │   │   │   ├── domain
 │   │   │   └── presentation
-│   │   ├── features/favorites
-│   │   └── features/auth
+│   │   └── features/favorites
 │   │
 │   ├── src/androidMain
 │   │   ├── Google Maps Compose implementation
-│   │   ├── Android Firebase implementation
 │   │   ├── ConnectivityManager implementation
 │   │   ├── Android Geocoder implementation
 │   │   ├── Android external-action launchers
@@ -136,7 +134,6 @@ RecipeCompose
 │   │
 │   ├── src/iosMain
 │   │   ├── MapKit or Google Maps iOS implementation
-│   │   ├── Firebase Apple implementation
 │   │   ├── NWPathMonitor implementation
 │   │   ├── CLGeocoder implementation
 │   │   ├── iOS external-action launchers
@@ -154,7 +151,6 @@ RecipeCompose
     ├── ComposeView.swift
     ├── Info.plist
     ├── Assets.xcassets
-    ├── GoogleService-Info.plist
     └── RecipeCompose.xcodeproj
 ```
 
@@ -187,10 +183,9 @@ fun RecipeComposeApp()
 | Google Maps screen | Platform implementations | Keep shared destination state; render Google Maps on Android and a native map on iOS. |
 | Reverse geocoding | Platform implementations | Use Android `Geocoder` and iOS `CLGeocoder`. |
 | Connectivity | Platform implementations | Use `ConnectivityManager` and `NWPathMonitor`. |
-| Firebase authentication | Shared contract, native implementations | Wrap the official Android and Apple SDKs behind `AuthRepository`. |
 | Sharing and directions | Platform implementations | Emit shared UI events and let each platform open the appropriate application. |
 | Secrets and URLs | Injected configuration | Keep `BuildConfig` Android-specific and supply iOS values through build configuration. |
-| Application startup | Platform hosts plus common startup policy | Keep Android activities and the iOS `@main` entry point outside `commonMain`; share only destination policy and session/onboarding state. |
+| Application startup | Platform hosts plus common startup policy | Keep Android activities and the iOS `@main` entry point outside `commonMain`; share only onboarding destination policy. |
 
 ## Key technical decisions
 
@@ -209,7 +204,7 @@ org.jetbrains.kotlin.plugin.compose
 com.android.kotlin.multiplatform.library
 ```
 
-The existing `:app` keeps `com.android.application`, Google Services, Secrets, and Android packaging responsibilities. It depends on `:shared` and hosts the shared root when that root is ready.
+The existing `:app` keeps `com.android.application`, Secrets, and Android packaging responsibilities. It depends on `:shared` and hosts the shared root when that root is ready.
 
 ### UI and resources
 
@@ -259,14 +254,12 @@ androidMain
 └── androidPlatformModule
     ├── Android location provider
     ├── Room Android builder
-    ├── Firebase Android adapter
     └── Android platform actions
 
 iosMain
 └── iosPlatformModule
     ├── iOS location provider
     ├── Room iOS builder
-    ├── Firebase Apple adapter
     └── iOS platform actions
 ```
 
@@ -331,23 +324,9 @@ MapKit is the recommended initial iOS implementation because it is native and av
 
 Android can continue launching Google Maps directions. iOS can open Apple Maps or Google Maps when available. Recipe Compose does not require device-location permission merely to display a Yelp destination or hand it to a navigation application.
 
-### Firebase
+### Authentication scope
 
-Define a shared contract for session state and account actions:
-
-```kotlin
-interface AuthRepository {
-    val session: StateFlow<AuthSession>
-    suspend fun signIn(email: String, password: String): AuthResult
-    suspend fun createAccount(email: String, password: String): AuthResult
-    suspend fun signOut()
-    suspend fun deleteAccount(): AuthResult
-}
-```
-
-Use Firebase Android in `androidMain` and the Firebase Apple SDK in the iOS application or `iosMain` adapter. Initialize each platform with its native configuration file. Account deletion must model recent-login and reauthentication failures instead of assuming deletion always succeeds.
-
-Firebase Analytics should be audited before migration and ported only if it provides intentional product behavior. Unused Firestore and Firebase Performance dependencies have already been removed from the Android build.
+Authentication is intentionally outside the current product and migration scope. The former Firebase implementation existed only as an API experiment; recipes, local favorites, restaurant discovery, maps, and directions do not require an account. Do not introduce a shared auth contract or platform SDKs during migration unless a concrete account-backed feature—such as cross-device synchronization—first establishes the requirement.
 
 ## Ordered migration plan
 
@@ -356,7 +335,7 @@ Firebase Analytics should be audited before migration and ported only if it prov
 - Finish and verify the Explore, primary-navigation, and onboarding changes before moving files.
 - Resolve the compact Search-grid presentation before freezing that screen: use an adaptive image-first grid with approximately 120–136 dp minimum tiles, two-line labels, and automatic two-column fallback for constrained width or larger fonts.
 - Keep `:app:compileDebugKotlin` and `:app:testDebugUnitTest` green.
-- Record a manual parity checklist for onboarding, startup, Explore, category details, search, favorites, nearby shops, maps, directions, account actions, offline recovery, and activity recreation.
+- Record a manual parity checklist for onboarding, startup, Explore, category details, search, favorites, nearby shops, maps, directions, offline recovery, and activity recreation.
 - Record the known non-blocking warnings separately: redundant explicit-backing-fields flag, deprecated Room destructive-migration overload, and deprecated AGP properties.
 - Remove confirmed unused dependencies only when that cleanup is isolated from the KMP scaffolding change.
 - Select full Xcode and complete its first-launch setup.
@@ -376,14 +355,14 @@ Exit criteria:
 - Keep `:app` as the only Android application module and make it depend on `:shared`.
 - Add a small Xcode `iosApp` using direct local framework integration.
 - Move the theme primitives and onboarding page UI/resources as the first shared Compose proof.
-- Keep `SplashScreenActivity`, `OnboardingActivity`, Firebase session lookup, and Android DataStore construction in `:app` for this phase.
+- Keep `SplashScreenActivity`, `OnboardingActivity`, and Android DataStore construction in `:app` for this phase.
 
 Exit criteria:
 
 - Android launches the shared onboarding composable through the existing host.
 - The iOS simulator launches the same themed onboarding composable.
 - Shared tests run from Gradle.
-- No recipe, Yelp, map, database, or Firebase implementation has moved yet.
+- No recipe, Yelp, map, or database implementation has moved yet.
 
 This is the first hard stop. If the version matrix, Android-KMP plugin, Xcode framework integration, or resource generation is unstable, fix the toolchain before extracting production features.
 
@@ -398,8 +377,8 @@ This is the first hard stop. If the version matrix, Android-KMP plugin, Xcode fr
 
 Exit criteria:
 
-- `commonMain` contains no `android.*`, Java-only, Firebase Android, Play Services, or Android resource imports.
-- Android still runs against the same Retrofit, Room, Firebase, and map implementations.
+- `commonMain` contains no `android.*`, Java-only, Play Services, or Android resource imports.
+- Android still runs against the same Retrofit, Room, and map implementations.
 - Shared contract tests pass for Android and iOS simulator targets.
 
 ### Phase 3 — migrate the first recipe and Explore vertical slice
@@ -450,40 +429,35 @@ Exit criteria:
 - Loading, empty, error, permission-denied, and cancellation states have parity.
 - Authorization headers remain redacted.
 
-### Phase 6 — migrate authentication and remaining platform actions
+### Phase 6 — migrate remaining platform actions
 
-- Replace direct Firebase calls with the shared `AuthRepository` contract and explicit session state.
-- Move login and account UI to shared Compose.
-- Implement Firebase Android and Apple adapters using the official platform SDKs initially.
-- Move the startup policy to common state while keeping Android activities and the iOS entry point native.
+- Move the onboarding startup policy to common state while keeping Android activities and the iOS entry point native.
 - Add platform implementations for sharing, email, external URLs, messages, and application settings.
-- Decide whether Firebase Analytics belongs on both platforms and define its consent/event policy before porting it.
 
 Exit criteria:
 
-- Sign-up, sign-in, sign-out, account deletion, and reauthentication failures work on Android and iOS.
-- Startup does not flash an intermediate authentication screen.
+- Startup moves directly from native launch/onboarding state into the shared application without an intermediate screen.
 - External actions behave appropriately on each platform.
 
 ### Phase 7 — parity, UX, CI, and release hardening
 
-- Review large titles, bottom navigation, drawer/account access, dialogs, and gestures specifically on iOS.
+- Review large titles, bottom navigation, drawer behavior, dialogs, and gestures specifically on iOS.
 - Verify safe areas, keyboard behavior, dark mode, dynamic type, accessibility, restoration, and reduced motion.
-- Add iOS privacy descriptions, signing, Firebase configuration, and key restrictions.
+- Add iOS privacy descriptions, signing, map configuration, and key restrictions.
 - Add CI jobs for Android, common tests, and an iOS simulator build.
 - Refresh the repository README with the final architecture, migration summary, and a curated screenshot set for Onboarding, Explore, Search, Nearby, and Maps. Capture only settled, representative states and prefer matching Android/iOS views once parity exists.
 - Run the complete parity checklist before declaring the migration complete.
 
 ## Practical stopping point for the first migration session
 
-A successful first session should finish Phase 0 and Phase 1, then stop with both platform hosts rendering the shared onboarding UI. If time remains, begin Phase 2 by moving only pure contracts and tests. Do not start networking, Room, Firebase, or maps until the shared module and iOS framework remain reproducibly green.
+A successful first session should finish Phase 0 and Phase 1, then stop with both platform hosts rendering the shared onboarding UI. If time remains, begin Phase 2 by moving only pure contracts and tests. Do not start networking, Room, or maps until the shared module and iOS framework remain reproducibly green.
 
 That stopping point is intentionally useful rather than cosmetic: it proves shared Compose rendering, resources, paging, theming, Android consumption, Xcode integration, and iOS safe-area behavior without risking the working Android feature set.
 
 ## Migration working rules
 
 - Keep every phase buildable on Android; add the iOS verification as soon as the touched code reaches a shared source set.
-- Move code before redesigning its behavior. Koin DSL and Ktor are required migration infrastructure; do not add Navigation 3, Koin annotations/compiler plugins, a database replacement, or a Firebase-wrapper experiment at the same time.
+- Move code before redesigning its behavior. Koin DSL and Ktor are required migration infrastructure; do not add Navigation 3, Koin annotations/compiler plugins, a database replacement, or an unrelated account system at the same time.
 - Prefer one complete vertical slice over moving every model, every screen, or every repository by layer.
 - Keep temporary Android adapters explicit and delete them when their shared replacement is proven.
 - Do not duplicate a mutable source of truth between `:app` and `:shared`; Android should consume the shared owner once a state holder moves.
@@ -498,18 +472,17 @@ That stopping point is intentionally useful rather than cosmetic: it proves shar
 - TheMealDB and Yelp request/response contracts.
 - HTTP errors, malformed responses, and cancellation.
 - Search debounce and stale-request prevention.
-- Startup routing for every onboarding-version and authentication combination.
+- Startup routing for incomplete and completed onboarding versions.
 - Onboarding completion-version semantics.
 - Primary navigation behavior, including Search → Explore restoration.
 - ViewModel loading, success, empty, and error transitions.
 - Favorites repository behavior.
-- Authentication state transitions with fake repositories.
 
 ### Android verification
 
-- Android application startup and Firebase initialization.
+- Android application startup.
 - Activity recreation during onboarding and top-level navigation.
-- DataStore persistence across process restart without resetting on sign-out.
+- DataStore persistence across process restart.
 - Google Maps rendering and directions intents.
 - Android connectivity and geocoding adapters.
 - Manifest placeholder and configuration generation.
@@ -520,9 +493,8 @@ That stopping point is intentionally useful rather than cosmetic: it proves shar
 - Framework linkage and simulator/device startup.
 - Onboarding paging, completion persistence, and safe-area behavior.
 - MapKit marker interaction and geocoding.
-- Firebase Apple initialization and authentication.
 - URL schemes and directions fallback behavior.
-- Keychain/session persistence, safe areas, back gestures, and accessibility.
+- Safe areas, back gestures, and accessibility.
 
 ## Decision checkpoints
 
@@ -534,7 +506,6 @@ Resolve these choices before their corresponding phase begins:
 | iOS map provider | MapKit | Google Maps branding or feature parity becomes a requirement. |
 | Dependency injection | Koin 4.2.2 with regular DSL modules | Compile-time annotations become valuable after the runtime graph and Kotlin 2.4 toolchain are stable. |
 | Navigation | Current multiplatform Navigation Compose | Android/iOS parity is complete and Navigation 3 offers a concrete benefit. |
-| Firebase integration | Platform adapters over official SDKs | Adapter maintenance becomes more expensive than a vetted KMP wrapper. |
 | Desktop/web targets | Exclude | Mobile parity is complete. |
 | iOS top-level navigation | Shared Compose shell initially | User testing shows the Android-style shell feels inappropriate on iOS. |
 | Onboarding persistence | Common version semantics with platform DataStore construction | A different Apple-native persistence requirement appears. |
@@ -548,7 +519,6 @@ Resolve these choices before their corresponding phase begins:
 | Toolchain incompatibility across Kotlin, Compose, AGP, KSP, and Room | Build setup can block feature work. | Complete the proof-of-life phase before moving production code and pin a verified version matrix. |
 | Android BOM and Compose Multiplatform dependencies coexist during extraction | Dependency resolution can produce subtle Android-only or binary-compatibility failures. | Keep the BOM in `:app`, use Compose Multiplatform coordinates only in `:shared`, and verify dependency resolution before moving screens. |
 | Koin graph errors move from the custom service locator into runtime module definitions | Missing or duplicated bindings could fail only when a screen is opened. | Keep modules small, constructor-inject every definition, and run Koin module verification tests in `commonTest`. |
-| Firebase has separate official Android and Apple SDKs | Auth cannot move unchanged into `commonMain`. | Share the contract and state; implement and test native adapters. |
 | Google Maps Compose is Android-specific | The current map composable cannot be copied into common code. | Share map state and use MapKit or Google Maps iOS behind a platform composable. |
 | Android APIs are spread through UI files | Screens may appear portable while still depending on `LocalContext`, `R`, Toasts, or Intents. | Move screens individually and require zero `android.*` imports in `commonMain`. |
 | Android-oriented navigation shell feels foreign on iOS | Functional parity may not produce good iOS UX. | Treat the root navigation shell as an explicit UX checkpoint. |
@@ -559,11 +529,11 @@ Resolve these choices before their corresponding phase begins:
 
 The migration is complete when:
 
-1. Android and iOS launch the same shared Compose application root after their native startup host resolves onboarding and session state.
-2. Onboarding, Explore, recipe browsing, ingredient search, random meals, favorites, Yelp discovery, maps, marker selection, directions, offline recovery, and authentication work on both platforms.
+1. Android and iOS launch the same shared Compose application root after their native startup host resolves onboarding state.
+2. Onboarding, Explore, recipe browsing, ingredient search, random meals, favorites, Yelp discovery, maps, marker selection, directions, and offline recovery work on both platforms.
 3. Shared UI and business logic live in `commonMain` unless a documented platform reason prevents it.
 4. Platform implementations are behind explicit interfaces or platform composables.
-5. `commonMain` has no Android, Java-only, Firebase Android, Google Play Services, or Android resource imports.
+5. `commonMain` has no Android, Java-only, Google Play Services, or Android resource imports.
 6. Common tests run without external network access.
 7. Android compilation, Android tests, shared tests, and the iOS simulator build run in CI.
 8. Real credentials remain outside version control and authorization headers remain redacted.
@@ -582,10 +552,10 @@ These are directional estimates for one developer familiar with the Android code
 | Pure contracts and first recipe/Explore vertical slice | 1–2 focused days |
 | Remaining recipes, shared navigation, DataStore, and favorites | 2–4 focused days |
 | Yelp, location, maps, and directions parity | 3–6 focused days |
-| Firebase auth and remaining platform services | 2–5 focused days |
+| Remaining platform actions | 1–3 focused days |
 | iOS polish, CI, and release hardening | 2–5 focused days |
 
-A functional prototype is much smaller than a release-quality migration. Maps, Firebase, iOS configuration, signing, accessibility, and cross-platform verification are expected to consume more time than moving most Compose layouts.
+A functional prototype is much smaller than a release-quality migration. Maps, iOS configuration, signing, accessibility, and cross-platform verification are expected to consume more time than moving most Compose layouts.
 
 ## Reference documentation
 
@@ -606,4 +576,3 @@ A functional prototype is much smaller than a release-quality migration. Maps, F
 - [Koin Kotlin Multiplatform setup](https://insert-koin.io/docs/reference/koin-core/kmp-setup/)
 - [Koin for Compose Multiplatform](https://insert-koin.io/docs/reference/koin-compose/compose/)
 - [Koin releases](https://insert-koin.io/docs/support/releases/)
-- [Firebase supported platforms and SDKs](https://firebase.google.com/docs/libraries)

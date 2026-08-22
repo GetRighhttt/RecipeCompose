@@ -26,8 +26,6 @@ import com.example.recipe_app_compose.core.onboarding.OnboardingPreferences
 import com.example.recipe_app_compose.core.onboarding.StartupDestination
 import com.example.recipe_app_compose.core.onboarding.resolveStartupDestination
 import com.example.recipe_app_compose.ui.theme.AppTheme
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
 import kotlinx.coroutines.launch
 
 @SuppressLint("CustomSplashScreen")
@@ -39,7 +37,6 @@ class SplashScreenActivity : ComponentActivity() {
             val destination = resolveStartupDestination(
                 completedOnboardingVersion = OnboardingPreferences(this@SplashScreenActivity)
                     .completedVersion(),
-                isSignedIn = Firebase.auth.currentUser != null,
             )
             setContent {
                 AppTheme {
@@ -52,7 +49,6 @@ class SplashScreenActivity : ComponentActivity() {
     private fun openDestination(destination: StartupDestination) {
         val destinationActivity = when (destination) {
             StartupDestination.Onboarding -> OnboardingActivity::class.java
-            StartupDestination.Login -> LoginActivity::class.java
             StartupDestination.Main -> MainActivity::class.java
         }
         startActivity(Intent(this, destinationActivity))

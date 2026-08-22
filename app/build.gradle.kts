@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.google.services)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.ksp)
     alias(libs.plugins.secrets.gradle)
@@ -78,11 +77,6 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
-
-    // Google - Firebase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics) // analytics
-    implementation(libs.firebase.auth) // authentication
 
     // Google play - Maps
     implementation(libs.maps.compose)

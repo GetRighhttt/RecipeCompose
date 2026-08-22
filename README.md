@@ -2,7 +2,7 @@
 
 Recipe Compose is a portfolio Android application originally built to learn Jetpack Compose and later redesigned into a fuller mobile product sample. It connects recipe discovery with restaurant search and real-world navigation: users can explore meals from TheMealDB, find restaurants through Yelp, inspect a destination on an interactive Google Map, and continue directly into driving directions.
 
-The project has since grown into a practical demonstration of modern Compose development across state-driven UI, remote APIs, local persistence, authentication, mapping, navigation, responsive layouts, and lifecycle-aware state management. It remains a personal project, presented as a focused example of how an Android feature can move from content discovery to a useful real-world action.
+The project has since grown into a practical demonstration of modern Compose development across state-driven UI, remote APIs, local persistence, mapping, navigation, responsive layouts, and lifecycle-aware state management. It remains a personal project, presented as a focused example of how an Android feature can move from content discovery to a useful real-world action.
 
 ## Product capabilities
 
@@ -15,7 +15,6 @@ The project has since grown into a practical demonstration of modern Compose dev
 - Search the loaded area by restaurant name or cuisine.
 - View a selected restaurant on an interactive Google Map.
 - Reposition the destination marker and launch driving directions to the active pin.
-- Authenticate users with Firebase.
 - Respond to loading, error, and network-connectivity states.
 
 ## Engineering highlights
@@ -27,7 +26,7 @@ The project has since grown into a practical demonstration of modern Compose dev
 - Debounced remote search with cancellation to prevent outdated requests from controlling the UI.
 - Repository boundaries for Retrofit services and Room persistence.
 - Navigation Compose routes with state passed between destinations.
-- Reusable Compose components for dialogs, form fields, lists, and application chrome.
+- Reusable Compose components for dialogs, media cards, links, lists, and application chrome.
 - A shared recipe-details page reused by Featured Dish, search results, and saved-dish destinations.
 - A debug-only screen preview catalog with representative data and paired light/dark renders.
 - Purpose-built editorial feeds, adaptive galleries, and compact management lists for different content types.
@@ -71,9 +70,9 @@ The Android application is currently one Gradle module organized into feature-fi
 ```mermaid
 flowchart LR
     subgraph UI[Compose UI and navigation]
-        Activities[Startup, authentication, and main activities]
+        Activities[Startup, onboarding, and main activities]
         Nav[Navigation Compose routes]
-        Screens[Recipe, saved, nearby, map, and account screens]
+        Screens[Recipe, saved, nearby, map, and info screens]
         Activities --> Nav
         Nav --> Screens
     end
@@ -100,7 +99,6 @@ flowchart LR
     subgraph Platform[Platform services]
         Maps[Google Maps Compose]
         Directions[Google Maps directions handoff]
-        Firebase[Firebase Authentication]
         Preferences[Preferences DataStore]
         Connectivity[Connectivity monitor]
     end
@@ -114,7 +112,6 @@ flowchart LR
     YelpVM --> Location
     YelpVM --> Preferences
     Screens --> Maps --> Directions
-    Activities --> Firebase
     Activities --> Preferences
     Connectivity --> Activities
     AppContainer[DependencyInjector app container] -. provides implementations .-> RecipeVM
@@ -136,7 +133,6 @@ Contributor rule of thumb: place UI and route behavior in the relevant `features
 | Recipe data | TheMealDB API |
 | Restaurant discovery | Yelp Fusion API |
 | Location and mapping | Fused Location Provider, Google Maps Compose, Google Maps directions handoff |
-| Authentication | Firebase Authentication |
 | Build tooling | Kotlin DSL, version catalogs, KSP, Secrets Gradle Plugin |
 
 ## Project setup
@@ -146,7 +142,6 @@ Contributor rule of thumb: place UI and route behavior in the relevant `features
 - Android Studio and a compatible Android SDK.
 - A Google Maps Platform API key with Maps SDK for Android enabled.
 - A Yelp Fusion API key.
-- A Firebase project and `google-services.json` for a separate Firebase environment.
 
 ### Installation
 
@@ -211,9 +206,9 @@ For visual iteration, open `app/src/debug/java/com/example/recipe_app_compose/pr
       <sub><strong>First-run onboarding</strong></sub>
     </td>
     <td align="center">
-      <img src="docs/screenshots/account-access.png" width="260" alt="Recipe Compose email and password form for signing in or creating an account" />
+      <img src="docs/screenshots/browse-cuisines.png" width="260" alt="Recipe Compose cuisine categories displayed in an adaptive image grid" />
       <br />
-      <sub><strong>Account access</strong></sub>
+      <sub><strong>Browse cuisines</strong></sub>
     </td>
     <td align="center">
       <img src="docs/screenshots/explore.png" width="260" alt="Explore home screen with primary feature shortcuts and a featured meal" />

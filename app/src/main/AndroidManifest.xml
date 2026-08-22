@@ -39,11 +39,6 @@
             android:theme="@style/Theme.Recipe_App_Compose" />
 
         <activity
-            android:name=".LoginActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Recipe_App_Compose" />
-
-        <activity
             android:name=".MainActivity"
             android:exported="false"
             android:theme="@style/Theme.Recipe_App_Compose" />
