@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -30,6 +29,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.core.components.AppMediaCard
+import com.example.recipe_app_compose.core.components.AppLoadingIndicator
 import com.example.recipe_app_compose.core.components.ConfirmationDialog
 import com.example.recipe_app_compose.features.categories.domain.model.category.Category
 import com.example.recipe_app_compose.features.categories.domain.model.randommeal.RandomMeal
@@ -75,7 +75,7 @@ fun RecipeScreen(
 ) {
     Box(modifier.fillMaxSize()) {
         when {
-            uiState.loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
+            uiState.loading -> AppLoadingIndicator(Modifier.align(Alignment.Center))
             uiState.error != null -> ConfirmationDialog(
                 title = stringResource(Res.string.error),
                 message = stringResource(Res.string.recipe_error_occurred, uiState.error.orEmpty()),

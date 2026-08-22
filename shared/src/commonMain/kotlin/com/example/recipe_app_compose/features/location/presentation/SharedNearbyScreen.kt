@@ -18,7 +18,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -42,6 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import coil3.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.core.components.AppHorizontalMediaCard
+import com.example.recipe_app_compose.core.components.AppLoadingIndicator
 import com.example.recipe_app_compose.features.location.domain.location.rememberLocationAccess
 import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpShop
 import com.example.recipe_app_compose.features.location.domain.preferences.LocationPreferenceStore
@@ -157,7 +157,7 @@ private fun NearbyContent(
         ) {
             when {
                 uiState.searchArea == YelpSearchArea.RestoringPreference ->
-                    CircularProgressIndicator(Modifier.align(Alignment.Center))
+                    AppLoadingIndicator(Modifier.align(Alignment.Center))
 
                 uiState.searchArea == YelpSearchArea.LocationChoiceRequired ->
                     LocationFallbackContent(
@@ -198,7 +198,7 @@ private fun NearbyContent(
                         modifier = Modifier.align(Alignment.Center),
                     )
 
-                uiState.loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
+                uiState.loading -> AppLoadingIndicator(Modifier.align(Alignment.Center))
 
                 uiState.error != null -> SearchErrorContent(
                     message = uiState.error.orEmpty(),
@@ -266,7 +266,7 @@ private fun NearbySearchField(
 @Composable
 private fun LocationLoadingContent(modifier: Modifier = Modifier) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        CircularProgressIndicator()
+        AppLoadingIndicator()
         Spacer(Modifier.height(AppSpacing.Medium))
         Text(
             text = stringResource(Res.string.finding_nearby_shops),

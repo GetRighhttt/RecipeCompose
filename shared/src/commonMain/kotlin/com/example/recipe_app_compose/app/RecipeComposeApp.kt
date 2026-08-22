@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalDrawerSheet
@@ -32,6 +31,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.example.recipe_app_compose.core.components.AppLoadingIndicator
 import com.example.recipe_app_compose.di.sharedAppModule
 import com.example.recipe_app_compose.core.onboarding.CURRENT_ONBOARDING_VERSION
 import com.example.recipe_app_compose.core.onboarding.OnboardingCompletionStore
@@ -103,7 +103,7 @@ private fun RecipeComposeContent() {
     val completedVersion = completedOnboardingVersion
     if (completedVersion == null) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+            AppLoadingIndicator()
         }
         return
     }

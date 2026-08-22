@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -22,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
+import com.example.recipe_app_compose.core.components.AppLoadingIndicator
 import com.example.recipe_app_compose.shared.generated.resources.Res
 import com.example.recipe_app_compose.shared.generated.resources.app_name
 import com.example.recipe_app_compose.shared.generated.resources.onboarding_discover
@@ -70,7 +70,7 @@ fun RecipeComposeSplashScreen(onFinished: () -> Unit) {
                 style = MaterialTheme.typography.headlineMedium,
             )
             Spacer(Modifier.height(AppSpacing.Large))
-            CircularProgressIndicator(
+            AppLoadingIndicator(
                 modifier = Modifier.size(AppSpacing.ExtraLarge),
                 strokeWidth = AppSpacing.ExtraSmall,
             )

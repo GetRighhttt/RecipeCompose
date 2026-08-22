@@ -1,5 +1,9 @@
 package com.example.recipe_app_compose.core.components
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -15,12 +19,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
@@ -34,7 +46,46 @@ import com.example.recipe_app_compose.shared.generated.resources.confirm
 import com.example.recipe_app_compose.shared.generated.resources.dismiss
 import com.example.recipe_app_compose.ui.theme.AppCardShape
 import com.example.recipe_app_compose.ui.theme.AppSpacing
+import kotlinx.coroutines.isActive
 import org.jetbrains.compose.resources.stringResource
+
+/**
+ * App-owned indeterminate indicator with an explicit rotation animation.
+ * This avoids platform differences in the stock Material indicator animation.
+ */
+@Composable
+fun AppLoadingIndicator(
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.primary,
+    strokeWidth: Dp = 4.dp,
+) {
+    val rotation = remember { Animatable(0f) }
+
+    LaunchedEffect(Unit) {
+        while (isActive) {
+            rotation.snapTo(0f)
+            rotation.animateTo(
+                targetValue = 360f,
+                animationSpec = tween(durationMillis = 850, easing = LinearEasing),
+            )
+        }
+    }
+
+    Canvas(
+        modifier = modifier
+            .size(40.dp)
+            .semantics { progressBarRangeInfo = ProgressBarRangeInfo.Indeterminate }
+            .rotate(rotation.value),
+    ) {
+        drawArc(
+            color = color,
+            startAngle = -90f,
+            sweepAngle = 270f,
+            useCenter = false,
+            style = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round),
+        )
+    }
+}
 
 @Composable
 fun ConfirmationDialog(
