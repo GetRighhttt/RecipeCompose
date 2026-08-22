@@ -3,7 +3,7 @@ package com.example.recipe_app_compose.features.location.presentation.map
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -94,19 +94,17 @@ fun SharedLocationSelectionScreen(
             if (!isMapLoaded) {
                 AppLoadingIndicator(Modifier.align(Alignment.Center))
             }
-            ExtendedFloatingActionButton(
+            FloatingActionButton(
                 onClick = { directionsLauncher.openDrivingDirections(selectedLocation) },
-                icon = {
-                    Icon(
-                        painter = painterResource(Res.drawable.action_directions),
-                        contentDescription = null,
-                    )
-                },
-                text = { Text(stringResource(Res.string.open_driving_directions)) },
                 modifier = Modifier
-                    .align(Alignment.BottomStart)
+                    .align(Alignment.BottomCenter)
                     .padding(AppSpacing.Medium),
-            )
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.action_directions),
+                    contentDescription = stringResource(Res.string.open_driving_directions),
+                )
+            }
         }
     }
 }

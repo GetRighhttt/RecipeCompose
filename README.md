@@ -243,7 +243,7 @@ contracts.
 1. Fork the repository and create a focused branch.
 2. Implement and test the change.
 3. Run the verification commands above.
-4. Open a pull request describing the user-facing behavior and implementation details.
+4. Open a pull request and complete the automatically provided summary, platform-impact, verification, and screenshot sections.
 
 ## Contact
 
