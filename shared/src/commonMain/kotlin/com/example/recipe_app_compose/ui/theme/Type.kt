@@ -8,6 +8,7 @@ import androidx.compose.ui.unit.sp
 
 private val AppFontFamily = FontFamily.Default
 
+// A shared type scale keeps hierarchy and line spacing consistent on Android and iOS.
 val AppTypography = Typography(
     headlineMedium = TextStyle(
         fontFamily = AppFontFamily,

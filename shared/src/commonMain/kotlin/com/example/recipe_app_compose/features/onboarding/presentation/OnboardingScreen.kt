@@ -1,7 +1,5 @@
 package com.example.recipe_app_compose.features.onboarding.presentation
 
-import androidx.activity.compose.BackHandler
-import androidx.annotation.StringRes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
@@ -24,10 +22,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.RestaurantMenu
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -42,23 +36,42 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.recipe_app_compose.R
+import com.example.recipe_app_compose.shared.generated.resources.Res
+import com.example.recipe_app_compose.shared.generated.resources.get_started
+import com.example.recipe_app_compose.shared.generated.resources.next
+import com.example.recipe_app_compose.shared.generated.resources.onboarding_discover
+import com.example.recipe_app_compose.shared.generated.resources.onboarding_discover_description
+import com.example.recipe_app_compose.shared.generated.resources.onboarding_discover_label
+import com.example.recipe_app_compose.shared.generated.resources.onboarding_discover_title
+import com.example.recipe_app_compose.shared.generated.resources.onboarding_nearby
+import com.example.recipe_app_compose.shared.generated.resources.onboarding_nearby_description
+import com.example.recipe_app_compose.shared.generated.resources.onboarding_nearby_label
+import com.example.recipe_app_compose.shared.generated.resources.onboarding_nearby_title
+import com.example.recipe_app_compose.shared.generated.resources.onboarding_page_description
+import com.example.recipe_app_compose.shared.generated.resources.onboarding_save
+import com.example.recipe_app_compose.shared.generated.resources.onboarding_save_description
+import com.example.recipe_app_compose.shared.generated.resources.onboarding_save_label
+import com.example.recipe_app_compose.shared.generated.resources.onboarding_save_title
+import com.example.recipe_app_compose.shared.generated.resources.skip
 import com.example.recipe_app_compose.ui.theme.AppControlShape
 import com.example.recipe_app_compose.ui.theme.AppSizes
 import com.example.recipe_app_compose.ui.theme.AppSpacing
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 private data class OnboardingPage(
-    @param:StringRes val eyebrow: Int,
-    @param:StringRes val title: Int,
-    @param:StringRes val description: Int,
-    val icon: ImageVector,
+    val eyebrow: StringResource,
+    val title: StringResource,
+    val description: StringResource,
+    val icon: DrawableResource,
     val colorRole: OnboardingColorRole,
 )
 
@@ -68,6 +81,10 @@ private enum class OnboardingColorRole {
     Tertiary,
 }
 
+/**
+ * Shared onboarding UI. Platform hosts decide what happens after completion,
+ * while page state, accessibility semantics, visuals, and resources stay common.
+ */
 @Composable
 fun OnboardingScreen(
     onFinished: () -> Unit,
@@ -75,24 +92,24 @@ fun OnboardingScreen(
 ) {
     val pages = listOf(
         OnboardingPage(
-            eyebrow = R.string.onboarding_discover_label,
-            title = R.string.onboarding_discover_title,
-            description = R.string.onboarding_discover_description,
-            icon = Icons.Default.RestaurantMenu,
+            eyebrow = Res.string.onboarding_discover_label,
+            title = Res.string.onboarding_discover_title,
+            description = Res.string.onboarding_discover_description,
+            icon = Res.drawable.onboarding_discover,
             colorRole = OnboardingColorRole.Primary,
         ),
         OnboardingPage(
-            eyebrow = R.string.onboarding_save_label,
-            title = R.string.onboarding_save_title,
-            description = R.string.onboarding_save_description,
-            icon = Icons.Default.Favorite,
+            eyebrow = Res.string.onboarding_save_label,
+            title = Res.string.onboarding_save_title,
+            description = Res.string.onboarding_save_description,
+            icon = Res.drawable.onboarding_save,
             colorRole = OnboardingColorRole.Secondary,
         ),
         OnboardingPage(
-            eyebrow = R.string.onboarding_nearby_label,
-            title = R.string.onboarding_nearby_title,
-            description = R.string.onboarding_nearby_description,
-            icon = Icons.Default.LocationOn,
+            eyebrow = Res.string.onboarding_nearby_label,
+            title = Res.string.onboarding_nearby_title,
+            description = Res.string.onboarding_nearby_description,
+            icon = Res.drawable.onboarding_nearby,
             colorRole = OnboardingColorRole.Tertiary,
         ),
     )
@@ -100,7 +117,7 @@ fun OnboardingScreen(
     val scope = rememberCoroutineScope()
     val isLastPage = pagerState.currentPage == pages.lastIndex
 
-    BackHandler(enabled = pagerState.currentPage > 0) {
+    OnboardingBackHandler(enabled = pagerState.currentPage > 0) {
         scope.launch { pagerState.animateScrollToPage(pagerState.currentPage - 1) }
     }
 
@@ -123,7 +140,7 @@ fun OnboardingScreen(
             ) {
                 if (!isLastPage) {
                     TextButton(onClick = onFinished) {
-                        Text(stringResource(R.string.skip))
+                        Text(stringResource(Res.string.skip))
                     }
                 }
             }
@@ -177,7 +194,7 @@ fun OnboardingScreen(
                 ) {
                     Text(
                         stringResource(
-                            if (isLastPage) R.string.get_started else R.string.next
+                            if (isLastPage) Res.string.get_started else Res.string.next
                         )
                     )
                 }
@@ -194,7 +211,7 @@ private fun OnboardingPageContent(
 ) {
     val listState = rememberLazyListState()
     val pageDescription = stringResource(
-        R.string.onboarding_page_description,
+        Res.string.onboarding_page_description,
         pageNumber,
         pageCount,
     )
@@ -210,7 +227,7 @@ private fun OnboardingPageContent(
     ) {
         item {
             OnboardingArtwork(
-                icon = page.icon,
+                icon = painterResource(page.icon),
                 colorRole = page.colorRole,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -248,7 +265,7 @@ private fun OnboardingPageContent(
 
 @Composable
 private fun OnboardingArtwork(
-    icon: ImageVector,
+    icon: Painter,
     colorRole: OnboardingColorRole,
     modifier: Modifier = Modifier,
 ) {
@@ -299,7 +316,7 @@ private fun OnboardingArtwork(
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
-                    imageVector = icon,
+                    painter = icon,
                     contentDescription = null,
                     modifier = Modifier.size(68.dp),
                 )

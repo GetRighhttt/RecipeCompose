@@ -2,7 +2,8 @@ package com.example.recipe_app_compose.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Warm, food-inspired brand colors. Semantic usage is assigned in Theme.kt.
+// Warm, food-inspired brand colors shared by every Compose host.
+// Semantic usage is assigned in Theme.kt so screens do not depend on raw colors.
 val primaryLight = Color(0xFF9B2F23)
 val onPrimaryLight = Color(0xFFFFFFFF)
 val primaryContainerLight = Color(0xFFFFDAD2)

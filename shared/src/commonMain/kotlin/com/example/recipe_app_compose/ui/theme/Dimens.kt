@@ -3,6 +3,7 @@ package com.example.recipe_app_compose.ui.theme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp
 
+// Shared design tokens remove one-off sizing decisions from individual screens.
 object AppSpacing {
     val ExtraSmall = 4.dp
     val Small = 8.dp

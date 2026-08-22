@@ -24,4 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Recipe_App_Compose"
 include(":app")
- 
+include(":shared")

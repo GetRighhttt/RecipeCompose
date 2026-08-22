@@ -1,9 +1,56 @@
 # Compose Multiplatform migration plan
 
-Status: approved direction; implementation has not started<br>
+Status: implementation in progress; checkpoints 1 and 2 complete, awaiting approval before the iOS host<br>
 Last revised: 2026-08-22<br>
 Targets: Android and iOS<br>
 Related discovery: [Kotlin Multiplatform migration assessment](KMP_MIGRATION_ASSESSMENT.md)
+
+## Implementation progress
+
+### Checkpoint 1 — shared module boundary
+
+The first migration checkpoint adds a deliberately small `:shared` module without moving production behavior:
+
+- `commonMain` owns a temporary shared-module identity and a minimal Compose compiler boundary.
+- `androidMain` and `iosMain` provide compile-time `actual` platform values for the common `expect` declaration.
+- `commonTest` verifies the common artifact identity.
+- `:app` depends on `:shared`, and an Android unit test verifies that the application resolves the Android target rather than common metadata alone.
+- The Android application remains the only installable Android module; no activity, screen, repository, database, location, or map implementation has moved.
+
+Verification completed for this checkpoint:
+
+- Shared common/iOS metadata compilation passed.
+- Shared Android host tests passed.
+- The Android shared AAR assembled.
+- Android unit tests, lint, and debug APK assembly passed while consuming `:shared`.
+- The final `iosSimulatorArm64` debug framework linked successfully with full Xcode supplied through command-scoped `DEVELOPER_DIR`.
+- `iosSimulatorArm64Test` passed on Xcode 26.6 with the installed iOS 26.5 simulator runtime.
+
+Toolchain note: Kotlin 2.4.10 officially documents compatibility through Gradle 9.5, AGP 9.1, and Xcode 26.4. This repository currently uses Gradle 9.7, AGP 9.3.1, and Xcode 26.6. The checkpoint has compiled successfully with that newer combination, but it remains a locally validated, outside-the-published-matrix configuration. The global developer directory now points to the full Xcode installation, so Apple builds no longer require a command-scoped `DEVELOPER_DIR` override. No toolchain version will be changed implicitly during migration.
+
+Compose Multiplatform 1.11.1 uses the canonical multiplatform `androidx.compose.runtime:runtime:1.11.2` artifact in `commonMain`. The older `org.jetbrains.compose.runtime` alias was avoided after it produced duplicate KLIB identity warnings alongside the Android runtime.
+
+### Checkpoint 2 — first shared Compose screen
+
+The second checkpoint moves a real production UI slice without changing Android startup behavior:
+
+- `OnboardingScreen`, its pager model, accessibility semantics, artwork, and page indicators now live in `commonMain`.
+- The complete color system, typography, spacing, sizes, shapes, and `AppTheme` now live in `commonMain` under their original package names. Existing Android screens continue consuming the same API through `:shared` without call-site rewrites.
+- Onboarding text and vector artwork moved from Android resources and AndroidX Material icon objects to Compose Multiplatform resources.
+- Android `R`, `@StringRes`, `androidx.compose.ui.res.stringResource`, and Material icon imports were removed from the shared screen.
+- System-back subscription is isolated behind `OnboardingBackHandler`: Android delegates to `BackHandler`, while iOS intentionally has no system-back action because onboarding will be its root screen. Pager state and previous-page behavior remain shared.
+- `OnboardingActivity`, `SplashScreenActivity`, startup routing, and versioned DataStore persistence remain in the Android application module for this checkpoint.
+
+Verification completed for this checkpoint:
+
+- `commonMain` and `commonTest` contain no `android.*`, Java-only, Google Android, or Android resource imports.
+- Shared Android host tests and Android AAR assembly passed.
+- Android application unit tests, lint, and debug APK assembly passed while resolving the moved screen and theme from `:shared`.
+- A fresh install on the connected Samsung SM-G990U exposed a runtime `OutlinedTextField` measurement crash in the Nearby location fallback. The feature code was not the cause: Android BOM `2026.08.00` had resolved UI and Foundation 1.12 alongside Compose Multiplatform 1.11.1 Material 3. The Android BOM was aligned to `2026.06.01`, resolving UI and Foundation 1.11.4; the rebuilt fresh-install flow and **Use my location** action were then verified successfully on the device with no new runtime crash.
+- The `iosSimulatorArm64` framework linked with the shared onboarding resources and UI.
+- The iOS simulator shared test executable compiled, linked, and passed using the globally selected Xcode 26.6 installation.
+
+This checkpoint stops before adding an iOS application. The next approved checkpoint will create only the minimal Xcode host and render this already-verified shared onboarding screen.
 
 ## Decision summary
 
@@ -59,7 +106,7 @@ The direction is now decided: this project will pursue shared Compose UI for And
 | Ktor candidate | 3.5.1 | Use shared client configuration with OkHttp on Android and Darwin on iOS. |
 | Room | 2.8.4 | KMP-capable, but database construction and migration tests remain platform-specific. |
 | DataStore | 1.2.1 | The onboarding version can move behind a common persistence contract after the first shared UI proof. |
-| Xcode | 26.5 installed | The active developer directory currently points to `/Library/Developer/CommandLineTools`; select full Xcode before building the iOS host. |
+| Xcode | 26.6 selected | The active developer directory is `/Applications/Xcode.app/Contents/Developer`; framework linking and iOS simulator tests pass. |
 | iOS deployment target | 14 or newer | Compose Multiplatform 1.11.1 supports iOS 14 and newer. |
 
 Before the first iOS build, select full Xcode and complete any first-launch setup:

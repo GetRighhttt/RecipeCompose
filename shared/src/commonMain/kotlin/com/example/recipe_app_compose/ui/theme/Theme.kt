@@ -80,6 +80,7 @@ private val darkScheme = darkColorScheme(
     surfaceContainerHighest = surfaceContainerHighestDark,
 )
 
+/** Applies the same semantic color and type system to every Compose platform host. */
 @Composable
 fun AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
