@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.parcelize)
-    alias(libs.plugins.ksp)
     alias(libs.plugins.secrets.gradle)
 }
 
@@ -65,6 +64,7 @@ secrets {
 
 dependencies {
     implementation(project(":shared"))
+    implementation(libs.coil3.compose)
 
     // Koin replaces the former global service locator. Android keeps the
     // platform-specific implementations while common code adopts Koin later.
@@ -81,27 +81,9 @@ dependencies {
     // Jetpack Compose navigation
     implementation(libs.androidx.navigation.compose)
 
-    // ROOM Database
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler)
-
     // Google play - Maps
     implementation(libs.maps.compose)
     implementation(libs.play.services.location)
-
-    // network
-    implementation(libs.retrofit)
-
-    // logging
-    implementation(libs.okhttp)
-    implementation(libs.logging.interceptor)
-
-    // Gson
-    implementation(libs.converter.gson)
-
-    // image loading with coil
-    implementation(libs.coil.compose)
 
     // material 3
     implementation(libs.androidx.material3)

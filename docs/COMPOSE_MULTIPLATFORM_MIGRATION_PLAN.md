@@ -1,6 +1,6 @@
 # Compose Multiplatform migration plan
 
-Status: implementation in progress; checkpoints 1–4 complete, shared recipe UI extraction next<br>
+Status: implementation in progress; checkpoints 1–7 complete, iOS location and maps remain<br>
 Last revised: 2026-08-22<br>
 Targets: Android and iOS<br>
 Related discovery: [Kotlin Multiplatform migration assessment](KMP_MIGRATION_ASSESSMENT.md)
@@ -110,6 +110,112 @@ Verification completed for this checkpoint:
 The remaining recipe work is deliberately UI-focused: migrate the Compose
 screens, resources, image loader, and navigation shell as one coherent slice.
 
+### Checkpoint 5 — shared recipe experience
+
+The iOS host now progresses beyond the onboarding proof into a shared recipe
+experience:
+
+- `RecipeComposeApp` owns the shared onboarding-to-app transition and Compose
+  Koin scope.
+- Explore, category details, dish search, and recipe details are shared Compose
+  screens using Compose resources and the existing shared design system.
+- Coil moved from Android-only Coil 2 to Coil 3's Compose Multiplatform API,
+  using the Ktor 3 network component already present in `commonMain`.
+- Yelp response models, repository contract, and UI state moved to common code.
+  Native location acquisition, permission prompts, configuration secrets, maps,
+  driving directions, and favorites persistence remain platform adapters.
+
+The first iOS simulator build and launch with this shell succeeded. The
+onboarding page remains visible on a fresh process; persistent iOS onboarding
+completion and the remaining platform adapters are the next production-parity
+tasks.
+
+### Checkpoint 6 — shared persistence and saved recipes
+
+Persistence now has one shared implementation with platform-specific file
+construction:
+
+- DataStore owns the onboarding completion version and retained location choice
+  in `commonMain`. Android continues using the existing
+  `onboarding_preferences` and `location_preferences` files and keys, while iOS
+  constructs equivalent stores in its Documents directory.
+- The iOS root resolves the stored onboarding version before selecting a screen,
+  avoiding a transient onboarding page when completion is already persisted.
+- The favorites entity, DAO, Room database, repository, generated constructor,
+  and schema moved to `commonMain` using Room 2.8.4 and the bundled SQLite 2.6.2
+  driver.
+- Android continues opening the existing `randomMeal.db`; iOS creates the same
+  schema in its Documents directory. Database construction is the only
+  platform-specific Room code.
+- Saved-recipe state and UI are now shared. The iOS Saved destination lists and
+  opens recipes, recipe details can save or remove them, duplicate saves are
+  rejected by the DAO, and the collection can be cleared from the Saved screen.
+- The version 6 Room schema is source controlled under `shared/schemas`.
+
+Verification completed for this checkpoint:
+
+- Android debug assembly, Android unit tests, shared Android host tests, and iOS
+  simulator tests passed.
+- The Xcode iOS simulator build linked DataStore, Room, and bundled SQLite and
+  launched successfully into the shared onboarding flow.
+- The Android APK installed over the existing application without clearing data,
+  launched on the connected Samsung device, and remained running without an
+  application error.
+
+Manual completion remains for the behavior checklist: finish onboarding once on
+iOS, relaunch to confirm direct entry to Explore, then save, reopen, and remove a
+recipe from Saved. This is runtime acceptance testing, not unimplemented code.
+
+### Checkpoint 7 — visual parity and shared Yelp networking
+
+The next checkpoint restores the presentation details lost during the first
+shared-shell proof and completes the provider-level Yelp networking migration:
+
+- Common vector resources now supply the menu, drawer, bottom navigation,
+  Explore actions, metadata, recipe resources, back navigation, save, delete,
+  and refresh iconography. Android and iOS can keep platform-appropriate artwork
+  while sharing the same semantics and interaction hierarchy.
+- The shared Search destination uses the compact Material 3 search field and an
+  adaptive, image-first result grid. Its app bar owns back navigation, avoiding
+  the legacy text-based Back control and excessive vertical spacing.
+- Featured, Search, and Saved routes reuse one shared recipe-details layout while
+  retaining route-specific actions. Featured exposes labeled **Save/Saved** and
+  **Another dish** controls, Search exposes save, and Saved exposes remove.
+- Featured refresh updates the displayed details from `RecipeStore` state instead
+  of opening a second details implementation. This keeps the current screen and
+  its random-meal source synchronized after each refresh.
+- Yelp business search now runs through a `commonMain` Ktor client and
+  `kotlinx.serialization`. Android injects its key and base URL from `BuildConfig`;
+  shared code owns request parameters, authorization, timeout behavior, response
+  decoding, and error mapping.
+- The temporary Android Retrofit/Gson Yelp API, DTO adapter, singleton client,
+  and safe-call wrapper were deleted. Retrofit and Gson are no longer application
+  dependencies.
+- Ktor `MockEngine` tests cover coordinate and named-location parameters, the
+  authorization header, a missing API key, the top-level `businesses` mapping,
+  and representative snake-case response fields.
+
+The temporary Gson bridge was necessary because Gson does not interpret
+`kotlinx.serialization`'s `@SerialName`. Without the bridge, the shared model's
+`shops` property defaulted to an empty list, so a successful request silently
+looked like **No Results Found**. Moving the request and decoding to Ktor removes
+that split serialization contract rather than maintaining two mappings.
+
+Verification completed for this checkpoint:
+
+- Android debug assembly, Android unit tests, all shared Android/iOS tests, and
+  the Xcode iOS simulator build passed.
+- The iOS simulator launched with restored navigation, Explore, and details
+  iconography plus the shared Search and route-specific details actions.
+- The rebuilt Android APK installed on the connected Samsung device. Its retained
+  current-location choice completed a live Yelp request and rendered nearby
+  restaurant names, ratings, and addresses through the shared Ktor repository.
+
+The remaining restaurant work is platform integration rather than response
+decoding: iOS still needs native location permission/acquisition, restaurant UI
+wiring, MapKit or Google Maps rendering, and directions handoff behind the shared
+contracts.
+
 ## Decision summary
 
 Recipe Compose is a strong candidate for sharing both application logic and UI with Compose Multiplatform. The project is already written in Kotlin, the interface is already implemented with Jetpack Compose, and there is no existing SwiftUI application that must be preserved.
@@ -162,8 +268,8 @@ The direction is now decided: this project will pursue shared Compose UI for And
 | Compose Multiplatform candidate | 1.11.1 | Verify the complete version matrix in the proof-of-life phase before moving production screens. |
 | Koin candidate | 4.2.2 | Use Koin DSL modules in shared code first; defer annotations/compiler-plugin adoption until the base KMP graph is stable. |
 | Ktor candidate | 3.5.1 | Use shared client configuration with OkHttp on Android and Darwin on iOS. |
-| Room | 2.8.4 | KMP-capable, but database construction and migration tests remain platform-specific. |
-| DataStore | 1.2.1 | The onboarding version can move behind a common persistence contract after the first shared UI proof. |
+| Room | 2.8.4 | Shared schema/DAO/repository with Android and iOS builders; bundled SQLite 2.6.2 keeps behavior consistent. |
+| DataStore | 1.2.1 | Shared onboarding/location semantics with platform file construction. |
 | Xcode | 26.6 selected | The active developer directory is `/Applications/Xcode.app/Contents/Developer`; framework linking and iOS simulator tests pass. |
 | iOS deployment target | 16.0 host baseline | The host currently targets iOS 16.0; investigate the bundled ICU 18.5 linker warning before claiming older-device support. |
 
@@ -558,7 +664,9 @@ Exit criteria:
 
 A successful first session should finish Phase 0 and Phase 1, then stop with both platform hosts rendering the shared onboarding UI. If time remains, begin Phase 2 by moving only pure contracts and tests. Do not start networking, Room, or maps until the shared module and iOS framework remain reproducibly green.
 
-The implementation reached this stopping point on 2026-08-22. Phase 2 remains approval-gated.
+The implementation passed this stopping point on 2026-08-22 and has progressed
+through the persistence work in Phase 4. Restaurant, location, and map parity
+remain the next major migration slice.
 
 That stopping point is intentionally useful rather than cosmetic: it proves shared Compose rendering, resources, paging, theming, Android consumption, Xcode integration, and iOS safe-area behavior without risking the working Android feature set.
 

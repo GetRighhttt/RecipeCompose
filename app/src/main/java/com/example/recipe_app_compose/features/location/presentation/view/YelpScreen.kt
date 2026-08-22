@@ -49,7 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
-import coil.compose.rememberAsyncImagePainter
+import coil3.compose.rememberAsyncImagePainter
 import com.example.recipe_app_compose.R
 import com.example.recipe_app_compose.core.components.AppHorizontalMediaCard
 import com.example.recipe_app_compose.core.util.permissions.foregroundLocationPermissions
@@ -204,7 +204,7 @@ internal fun YelpContent(
                 )
 
                 uiState.error != null -> SearchErrorContent(
-                    message = uiState.error,
+                    message = uiState.error.orEmpty(),
                     onRetry = onRetry,
                     modifier = Modifier.align(Alignment.Center),
                 )

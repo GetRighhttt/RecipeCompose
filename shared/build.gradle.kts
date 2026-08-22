@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.jetbrains.compose)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
 }
 
 kotlin {
@@ -39,12 +41,17 @@ kotlin {
         // Only platform-neutral dependencies belong here. Android services and
         // Apple frameworks will be declared in their platform source sets later.
         commonMain.dependencies {
+            implementation(libs.androidx.datastore.preferences)
+            api(libs.androidx.room.runtime)
+            implementation(libs.androidx.sqlite.bundled)
             implementation(libs.compose.animation)
             implementation(libs.compose.components.resources)
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
             implementation(libs.compose.runtime)
             implementation(libs.compose.ui)
+            implementation(libs.coil3.compose)
+            implementation(libs.coil3.network.ktor3)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
@@ -70,9 +77,21 @@ kotlin {
         // are explicitly enabled above because the Android-KMP plugin defaults off.
         commonTest.dependencies {
             implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
             implementation(libs.koin.test)
+            implementation(libs.ktor.client.mock)
         }
     }
+}
+
+dependencies {
+    add("kspAndroid", libs.androidx.room.compiler)
+    add("kspIosArm64", libs.androidx.room.compiler)
+    add("kspIosSimulatorArm64", libs.androidx.room.compiler)
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
 }
 
 compose.resources {

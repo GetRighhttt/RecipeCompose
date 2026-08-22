@@ -2,7 +2,7 @@ package com.example.recipe_app_compose.features.categories.domain.model.randomme
 
 import kotlinx.serialization.Serializable
 
-/** A featured recipe. Persistence is deliberately handled by a platform entity. */
+/** A recipe domain model kept separate from the shared Room entity. */
 @Serializable
 data class RandomMeal(
     val id: Int = 0,

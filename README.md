@@ -1,8 +1,8 @@
 # Recipe Compose
 
-Recipe Compose is a portfolio Android application originally built to learn Jetpack Compose and later redesigned into a fuller mobile product sample. It connects recipe discovery with restaurant search and real-world navigation: users can explore meals from TheMealDB, find restaurants through Yelp, inspect a destination on an interactive Google Map, and continue directly into driving directions.
+Recipe Compose is a portfolio mobile application originally built to learn Jetpack Compose and later redesigned into a fuller product sample. It connects recipe discovery with restaurant search and real-world navigation: users can explore meals from TheMealDB, save recipes locally, find restaurants through Yelp, inspect a destination on an interactive map, and continue into driving directions.
 
-The project has since grown into a practical demonstration of modern Compose development across state-driven UI, remote APIs, local persistence, mapping, navigation, responsive layouts, and lifecycle-aware state management. It remains a personal project, presented as a focused example of how an Android feature can move from content discovery to a useful real-world action.
+The project now demonstrates incremental Compose Multiplatform migration as well as modern Compose development across state-driven UI, Ktor networking, Room persistence, navigation, responsive layouts, and platform services. Shared onboarding, discovery, search, recipe details, saved dishes, theming, networking, and persistence run on Android and iOS. Android remains the complete product baseline while native iOS location, maps, and directions are migrated behind platform contracts.
 
 ## Product capabilities
 
@@ -24,14 +24,14 @@ The project has since grown into a practical demonstration of modern Compose dev
 - Lifecycle-aware Flow collection that avoids observing inactive screens.
 - Explicit UI events for retries, searches, refreshes, dialogs, favorites, and navigation.
 - Debounced remote search with cancellation to prevent outdated requests from controlling the UI.
-- Repository boundaries for Retrofit services and Room persistence.
+- Shared Ktor clients with `kotlinx.serialization` and Ktor `MockEngine` contract tests.
 - Navigation Compose routes with state passed between destinations.
 - Reusable Compose components for dialogs, media cards, links, lists, and application chrome.
 - A shared recipe-details page reused by Featured Dish, search results, and saved-dish destinations.
 - A debug-only screen preview catalog with representative data and paired light/dark renders.
 - Purpose-built editorial feeds, adaptive galleries, and compact management lists for different content types.
 - A semantic Material 3 design system with coordinated light/dark palettes, typography, spacing, and shapes.
-- Local-first favorites with Room and swipe-to-delete interactions.
+- Local-first favorites with Room KMP, platform-specific database construction, and swipe-to-delete interactions.
 - Preferences DataStore for non-blocking onboarding state and retained location intent.
 - External navigation handoff that follows the currently selected map marker.
 - Foreground-only location access with support for approximate and precise permission.
@@ -65,75 +65,66 @@ The directions action uses either the restaurant marker or the user-adjusted mar
 
 ## Architecture
 
-The Android application is currently one Gradle module organized into feature-first packages. UI state moves down from route-scoped ViewModels, while user actions move back through repository contracts to the appropriate data source or platform service.
+The repository keeps installable Android and iOS hosts around a Kotlin Multiplatform `:shared` library. Common code owns portable UI, state, repositories, networking, resources, and persistence contracts. Platform source sets and hosts supply lifecycle integration, storage paths, permissions, location, maps, and external navigation.
 
 ```mermaid
 flowchart LR
-    subgraph UI[Compose UI and navigation]
-        Activities[Startup, onboarding, and main activities]
-        Nav[Navigation Compose routes]
-        Screens[Recipe, saved, nearby, map, and info screens]
-        Activities --> Nav
-        Nav --> Screens
+    Android[Android app host]
+    iOS[iOS SwiftUI host]
+
+    subgraph Shared[Kotlin and Compose Multiplatform shared module]
+        UI[Compose UI and resources]
+        State[Stores, state, and domain contracts]
+        Network[Ktor and kotlinx.serialization]
+        Persistence[Room KMP and DataStore]
+        UI --> State
+        State --> Network
+        State --> Persistence
     end
 
-    subgraph State[State holders]
-        RecipeVM[RecipeViewModel]
-        DatabaseVM[DatabaseViewModel]
-        YelpVM[YelpViewModel]
+    subgraph APIs[Remote APIs]
+        MealDb[TheMealDB]
+        Yelp[Yelp Fusion API]
     end
 
-    subgraph Contracts[Repository contracts]
-        RecipeRepository[RecipeRepository]
-        DatabaseRepository[DatabaseRepository]
-        YelpRepository[YelpRepository]
+    subgraph AndroidServices[Android platform services]
+        AndroidLocation[Fused Location Provider]
+        GoogleMaps[Google Maps Compose]
+        Directions[Google Maps directions]
     end
 
-    subgraph Data[Data sources]
-        MealDb[TheMealDB via Retrofit]
-        Room[Room database and DAO]
-        Yelp[Yelp Fusion API via Retrofit]
-        Location[Fused Location Provider]
+    subgraph iOSServices[iOS platform services in progress]
+        CoreLocation[Core Location]
+        MapKit[MapKit or Google Maps iOS]
+        AppleDirections[External directions]
     end
 
-    subgraph Platform[Platform services]
-        Maps[Google Maps Compose]
-        Directions[Google Maps directions handoff]
-        Preferences[Preferences DataStore]
-        Connectivity[Connectivity monitor]
-    end
-
-    Screens --> RecipeVM
-    Screens --> DatabaseVM
-    Screens --> YelpVM
-    RecipeVM --> RecipeRepository --> MealDb
-    DatabaseVM --> DatabaseRepository --> Room
-    YelpVM --> YelpRepository --> Yelp
-    YelpVM --> Location
-    YelpVM --> Preferences
-    Screens --> Maps --> Directions
-    Activities --> Preferences
-    Connectivity --> Activities
-    AppContainer[DependencyInjector app container] -. provides implementations .-> RecipeVM
-    AppContainer -. provides implementations .-> DatabaseVM
-    AppContainer -. provides implementations .-> YelpVM
+    Android --> Shared
+    iOS --> Shared
+    Network --> MealDb
+    Network --> Yelp
+    Android --> AndroidServices
+    iOS --> iOSServices
+    State -. platform contracts .-> AndroidServices
+    State -. platform contracts .-> iOSServices
 ```
 
-Contributor rule of thumb: place UI and route behavior in the relevant `features/*/presentation` package, keep platform-independent contracts and state models under `domain`, put Room/Retrofit implementations under `data`, and wire implementations only from the application container. The planned Compose Multiplatform work will turn these package boundaries into shared and platform-specific source sets incrementally.
+Contributor rule of thumb: place portable UI and route behavior in `shared/src/commonMain/.../presentation`, keep platform-independent contracts and state models under `domain`, and put Ktor/Room implementations under `data`. Android- or iOS-specific permissions, location, maps, storage paths, and external actions belong in their platform source sets or host applications and are wired through Koin.
 
 ## Technology
 
 | Area | Implementation |
 | --- | --- |
-| User interface | Jetpack Compose, Material 3 |
-| State and lifecycle | ViewModel, StateFlow, lifecycle-aware collection |
-| Navigation | Navigation Compose |
-| Networking | Retrofit, OkHttp, Gson |
-| Local persistence | Room, Preferences DataStore |
+| User interface | Compose Multiplatform, Jetpack Compose, Material 3 |
+| State and lifecycle | Shared stores, ViewModel adapters, StateFlow, lifecycle-aware collection |
+| Navigation | Navigation Compose and a shared iOS application shell |
+| Networking | Ktor Client, OkHttp/Darwin engines, kotlinx.serialization |
+| Local persistence | Room KMP, Preferences DataStore |
 | Recipe data | TheMealDB API |
 | Restaurant discovery | Yelp Fusion API |
 | Location and mapping | Fused Location Provider, Google Maps Compose, Google Maps directions handoff |
-| Build tooling | Kotlin DSL, version catalogs, KSP, Secrets Gradle Plugin |
+| Dependency injection | Koin |
+| Build tooling | Kotlin Multiplatform, Kotlin DSL, version catalogs, KSP, Secrets Gradle Plugin, Xcode |
 
 ## Project setup
 

@@ -1,15 +1,17 @@
 package com.example.recipe_app_compose.di
 
-import androidx.room.Room
+import com.example.recipe_app_compose.BuildConfig
 import com.example.recipe_app_compose.core.navigation.RecipeNavigationSelection
+import com.example.recipe_app_compose.features.categories.data.datasources.local.db.buildRandomMealDatabase
+import com.example.recipe_app_compose.features.categories.data.datasources.local.db.getRandomMealDatabaseBuilder
 import com.example.recipe_app_compose.features.categories.data.datasources.local.db.RandomMealDatabase
-import com.example.recipe_app_compose.features.categories.data.datasources.local.repoimpl.DatabaseRepositoryImpl
-import com.example.recipe_app_compose.features.categories.domain.repository.DatabaseRepository
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.DatabaseViewModel
 import com.example.recipe_app_compose.features.categories.presentation.viewmodel.RecipeViewModel
 import com.example.recipe_app_compose.features.location.data.location.AndroidCurrentLocationProvider
 import com.example.recipe_app_compose.features.location.data.preferences.DataStoreLocationPreferenceStore
-import com.example.recipe_app_compose.features.location.data.repoimpl.YelpRepositoryImpl
+import com.example.recipe_app_compose.features.location.data.preferences.locationPreferenceDataStore
+import com.example.recipe_app_compose.features.location.data.remote.YelpApiConfiguration
+import com.example.recipe_app_compose.features.location.data.remote.YelpRepositoryImpl
 import com.example.recipe_app_compose.features.location.domain.location.CurrentLocationProvider
 import com.example.recipe_app_compose.features.location.domain.preferences.LocationPreferenceStore
 import com.example.recipe_app_compose.features.location.domain.repo.YelpRepository
@@ -26,20 +28,22 @@ import org.koin.dsl.module
 val androidAppModule = module {
     single { RecipeNavigationSelection() }
     single {
-        Room.databaseBuilder(
-            androidContext(),
-            RandomMealDatabase::class.java,
-            "randomMeal.db",
-        )
-            .fallbackToDestructiveMigration(dropAllTables = true)
-            .build()
+        buildRandomMealDatabase(getRandomMealDatabaseBuilder(androidContext()))
     }
     single { get<RandomMealDatabase>().randomMealDao() }
 
-    single<DatabaseRepository> { DatabaseRepositoryImpl(get()) }
-    single<YelpRepository> { YelpRepositoryImpl() }
+    single<YelpRepository> {
+        YelpRepositoryImpl(
+            configuration = YelpApiConfiguration(
+                apiKey = BuildConfig.YELP_API_KEY,
+                baseUrl = BuildConfig.YELP_BASE_URL,
+            ),
+        )
+    }
     single<CurrentLocationProvider> { AndroidCurrentLocationProvider(androidContext()) }
-    single<LocationPreferenceStore> { DataStoreLocationPreferenceStore(androidContext()) }
+    single<LocationPreferenceStore> {
+        DataStoreLocationPreferenceStore(locationPreferenceDataStore(androidContext()))
+    }
 
     viewModel { RecipeViewModel(get()) }
     viewModel { DatabaseViewModel(get()) }

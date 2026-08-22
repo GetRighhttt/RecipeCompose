@@ -1,15 +1,20 @@
 package com.example.recipe_app_compose.di
 
 import com.example.recipe_app_compose.features.categories.data.remote.RecipeRepositoryImpl
+import com.example.recipe_app_compose.features.categories.data.datasources.local.repoimpl.DatabaseRepositoryImpl
+import com.example.recipe_app_compose.features.categories.domain.repository.DatabaseRepository
 import com.example.recipe_app_compose.features.categories.domain.repository.RecipeRepository
 import com.example.recipe_app_compose.features.categories.presentation.RecipeStore
+import com.example.recipe_app_compose.features.categories.presentation.FavoritesStore
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 
-private val sharedAppModule = module {
+val sharedAppModule = module {
     single<RecipeRepository> { RecipeRepositoryImpl() }
+    single<DatabaseRepository> { DatabaseRepositoryImpl(get()) }
     factory { RecipeStore(get()) }
+    factory { FavoritesStore(get()) }
 }
 
 /**

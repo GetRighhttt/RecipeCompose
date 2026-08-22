@@ -20,8 +20,8 @@ private struct ComposeView: UIViewControllerRepresentable {
 struct ContentView: View {
     var body: some View {
         ComposeView()
-            // Let Compose react to the keyboard without placing content under
-            // the status bar or home indicator.
-            .ignoresSafeArea(.keyboard)
+            // Compose receives the full canvas and applies the safe area once
+            // in MainViewController, avoiding a doubled top inset in SwiftUI.
+            .ignoresSafeArea()
     }
 }
