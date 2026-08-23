@@ -105,7 +105,12 @@ fun SharedMealDetailsScreen(
         ) {
             LazyColumn(
                 modifier = Modifier.widthIn(max = AppSizes.MaximumReadableWidth).fillMaxWidth(),
-                contentPadding = PaddingValues(AppSpacing.Large),
+                contentPadding = PaddingValues(
+                    start = AppSpacing.Large,
+                    top = AppSpacing.Small,
+                    end = AppSpacing.Large,
+                    bottom = AppSpacing.Large,
+                ),
                 verticalArrangement = Arrangement.spacedBy(AppSpacing.Large),
             ) {
             item {
