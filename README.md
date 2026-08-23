@@ -82,45 +82,76 @@ The directions action uses either the restaurant marker or the user-adjusted mar
 The repository keeps installable Android and iOS hosts around a Kotlin Multiplatform `:shared` library. Common code owns portable UI, state, repositories, networking, resources, and persistence contracts. Platform source sets and hosts supply lifecycle integration, storage paths, permissions, location, maps, and external navigation.
 
 ```mermaid
-flowchart LR
-    Android[Android app host]
-    iOS[iOS SwiftUI host]
+flowchart TD
+    AndroidHost["Android host<br/>:app"]
+    IOSHost["iOS SwiftUI host<br/>iosApp"]
 
-    subgraph Shared[Kotlin and Compose Multiplatform shared module]
-        UI[Compose UI and resources]
-        State[Stores, state, and domain contracts]
-        Network[Ktor and kotlinx.serialization]
-        Persistence[Room KMP and DataStore]
-        UI --> State
-        State --> Network
-        State --> Persistence
+    subgraph Shared["Shared Kotlin and Compose Multiplatform module"]
+        Shell["Application shell and navigation"]
+        UI["Compose screens, components, theme, and resources"]
+        Stores["StateFlow stores and UI state"]
+        Contracts["Domain, repository, and platform contracts"]
+        Data["Ktor repositories, Room KMP, and DataStore"]
+
+        Shell --> UI
+        UI --> Stores
+        Stores --> Contracts
+        Contracts --> Data
     end
 
-    subgraph APIs[Remote APIs]
-        MealDb[TheMealDB]
-        Yelp[Yelp Fusion API]
+    AndroidHost --> Shell
+    IOSHost --> Shell
+
+    subgraph Remote["Remote services"]
+        MealDb["TheMealDB API"]
+        Yelp["Yelp Fusion API"]
     end
 
-    subgraph AndroidServices[Android platform services]
-        AndroidLocation[Fused Location Provider]
-        GoogleMaps[Google Maps Compose]
-        Directions[Google Maps directions]
+    Data --> MealDb
+    Data --> Yelp
+
+    subgraph AndroidAdapters["androidMain adapters"]
+        AndroidBridge["Android platform implementations"]
+        AndroidLocation["Fused Location Provider"]
+        GoogleMaps["Google Maps Compose"]
+        AndroidDirections["Google Maps directions"]
+        AndroidStorage["Android Room database path"]
+
+        AndroidBridge --> AndroidLocation
+        AndroidBridge --> GoogleMaps
+        AndroidBridge --> AndroidDirections
+        AndroidBridge --> AndroidStorage
     end
 
-    subgraph iOSServices[iOS platform services]
-        CoreLocation[Core Location]
-        MapKit[Native MapKit]
-        AppleDirections[Apple Maps directions]
+    subgraph IOSAdapters["iosMain adapters"]
+        IOSBridge["iOS platform implementations"]
+        IOSLocation["Core Location"]
+        MapKit["Native MapKit"]
+        IOSDirections["Apple Maps directions"]
+        IOSStorage["iOS Room database path"]
+
+        IOSBridge --> IOSLocation
+        IOSBridge --> MapKit
+        IOSBridge --> IOSDirections
+        IOSBridge --> IOSStorage
     end
 
-    Android --> Shared
-    iOS --> Shared
-    Network --> MealDb
-    Network --> Yelp
-    Android --> AndroidServices
-    iOS --> iOSServices
-    State -. platform contracts .-> AndroidServices
-    State -. platform contracts .-> iOSServices
+    Contracts -.->|expect/actual and interfaces| AndroidBridge
+    Contracts -.->|expect/actual and interfaces| IOSBridge
+```
+
+```text
+RecipeCompose/
+├── app/                         Installable Android host and Android configuration
+├── shared/
+│   └── src/
+│       ├── commonMain/          Shared app shell, Compose UI, state, domain, and data
+│       ├── androidMain/         Android location, maps, storage, and back handling
+│       ├── iosMain/             iOS entry point, location, MapKit, and storage
+│       └── commonTest/          Shared repository, state, persistence, and contract tests
+├── iosApp/                      Installable SwiftUI/Xcode host
+├── docs/                        Migration decisions, implementation notes, and screenshots
+└── gradle/                      Version catalog and shared build configuration
 ```
 
 Contributor rule of thumb: place portable UI and route behavior in `shared/src/commonMain/.../presentation`, keep platform-independent contracts and state models under `domain`, and put Ktor/Room implementations under `data`. Android- or iOS-specific permissions, location, maps, storage paths, and external actions belong in their platform source sets or host applications and are wired through Koin.
