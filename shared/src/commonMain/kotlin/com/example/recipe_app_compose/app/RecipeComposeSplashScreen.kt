@@ -1,7 +1,5 @@
 package com.example.recipe_app_compose.app
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,11 +14,17 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import com.example.recipe_app_compose.core.animation.animateWithFrameTime
 import com.example.recipe_app_compose.core.components.AppLoadingIndicator
 import com.example.recipe_app_compose.shared.generated.resources.Res
 import com.example.recipe_app_compose.shared.generated.resources.app_name
@@ -32,17 +36,39 @@ import org.jetbrains.compose.resources.stringResource
 
 /** Branded startup transition shared by the Android and iOS hosts. */
 @Composable
-fun RecipeComposeSplashScreen(onFinished: () -> Unit) {
-    val entrance = remember { Animatable(0f) }
+fun RecipeComposeSplashScreen(
+    destinationReady: Boolean = true,
+    onFinished: () -> Unit,
+) {
+    var entranceProgress by remember { mutableFloatStateOf(0f) }
+    var splashAlpha by remember { mutableFloatStateOf(1f) }
+    var minimumDurationElapsed by remember { mutableStateOf(false) }
+    val currentOnFinished by rememberUpdatedState(onFinished)
 
     LaunchedEffect(Unit) {
-        entrance.animateTo(1f, animationSpec = tween(durationMillis = 650))
+        animateWithFrameTime(durationMillis = 650) { entranceProgress = it }
         delay(1_250)
-        onFinished()
+        minimumDurationElapsed = true
+    }
+
+    LaunchedEffect(minimumDurationElapsed, destinationReady) {
+        if (minimumDurationElapsed && destinationReady) {
+            animateWithFrameTime(durationMillis = 650) { splashAlpha = 1f - it }
+            currentOnFinished()
+        }
     }
 
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .graphicsLayer { alpha = splashAlpha }
+            .pointerInput(Unit) {
+                awaitPointerEventScope {
+                    while (true) {
+                        awaitPointerEvent().changes.forEach { it.consume() }
+                    }
+                }
+            },
         color = MaterialTheme.colorScheme.background,
         contentColor = MaterialTheme.colorScheme.onBackground,
     ) {
@@ -53,7 +79,12 @@ fun RecipeComposeSplashScreen(onFinished: () -> Unit) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
-                modifier = Modifier.alpha(entrance.value).scale(0.92f + (entrance.value * 0.08f)),
+                modifier = Modifier.graphicsLayer {
+                    alpha = entranceProgress
+                    val scale = 0.92f + (entranceProgress * 0.08f)
+                    scaleX = scale
+                    scaleY = scale
+                },
             ) {
                 Surface(
                     shape = CircleShape,

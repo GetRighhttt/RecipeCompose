@@ -28,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,6 +53,7 @@ import com.example.recipe_app_compose.features.location.domain.model.yelp.YelpSh
 import com.example.recipe_app_compose.features.location.presentation.SharedNearbyScreen
 import com.example.recipe_app_compose.features.location.presentation.map.SharedLocationSelectionScreen
 import com.example.recipe_app_compose.features.location.presentation.map.toMapDestination
+import com.example.recipe_app_compose.features.onboarding.presentation.OnboardingCompletionOverlay
 import com.example.recipe_app_compose.features.onboarding.presentation.OnboardingScreen
 import com.example.recipe_app_compose.shared.generated.resources.Res
 import com.example.recipe_app_compose.shared.generated.resources.explore
@@ -78,21 +80,27 @@ import org.koin.dsl.koinConfiguration
 import kotlinx.coroutines.launch
 
 @Composable
-fun RecipeComposeApp(platformModule: Module) {
+fun RecipeComposeApp(
+    platformModule: Module,
+    onReady: () -> Unit = {},
+) {
     KoinApplication(
         configuration = koinConfiguration {
             modules(sharedAppModule, platformModule)
         },
     ) {
-        AppTheme { RecipeComposeContent() }
+        AppTheme { RecipeComposeContent(onReady) }
     }
 }
 
 @Composable
-private fun RecipeComposeContent() {
+private fun RecipeComposeContent(onReady: () -> Unit) {
     val onboardingStore: OnboardingCompletionStore = koinInject()
     var completedOnboardingVersion by remember { mutableStateOf<Int?>(null) }
+    var onboardingHandoffStarted by remember { mutableStateOf(false) }
+    var showOnboardingCompletion by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    val currentOnReady by rememberUpdatedState(onReady)
 
     LaunchedEffect(onboardingStore) {
         completedOnboardingVersion = runCatching {
@@ -108,13 +116,13 @@ private fun RecipeComposeContent() {
         return
     }
 
-    if (completedVersion < CURRENT_ONBOARDING_VERSION) {
+    LaunchedEffect(Unit) { currentOnReady() }
+
+    if (completedVersion < CURRENT_ONBOARDING_VERSION && !onboardingHandoffStarted) {
         OnboardingScreen(
             onFinished = {
-                scope.launch {
-                    onboardingStore.markCompleted()
-                    completedOnboardingVersion = CURRENT_ONBOARDING_VERSION
-                }
+                onboardingHandoffStarted = true
+                showOnboardingCompletion = true
             },
         )
         return
@@ -306,6 +314,22 @@ private fun RecipeComposeContent() {
             }
         }
         }
+    }
+
+    if (showOnboardingCompletion) {
+        OnboardingCompletionOverlay(
+            onFinished = {
+                scope.launch {
+                    val completionSaved = runCatching {
+                        onboardingStore.markCompleted()
+                    }.isSuccess
+                    if (completionSaved) {
+                        completedOnboardingVersion = CURRENT_ONBOARDING_VERSION
+                    }
+                    showOnboardingCompletion = false
+                }
+            },
+        )
     }
 }
 

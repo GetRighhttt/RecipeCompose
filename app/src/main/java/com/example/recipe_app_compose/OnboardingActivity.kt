@@ -5,38 +5,32 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.lifecycle.lifecycleScope
-import com.example.recipe_app_compose.core.onboarding.OnboardingPreferences
 import com.example.recipe_app_compose.features.onboarding.presentation.OnboardingScreen
 import com.example.recipe_app_compose.ui.theme.AppTheme
-import kotlinx.coroutines.launch
 
 class OnboardingActivity : ComponentActivity() {
-    private val onboardingPreferences by lazy { OnboardingPreferences(this) }
-    private var isCompleting = false
+    private var isStartingHandoff = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             AppTheme {
-                OnboardingScreen(onFinished = ::completeOnboarding)
+                OnboardingScreen(onFinished = ::startOnboardingHandoff)
             }
         }
     }
 
-    private fun completeOnboarding() {
-        if (isCompleting) return
-        isCompleting = true
+    private fun startOnboardingHandoff() {
+        if (isStartingHandoff) return
+        isStartingHandoff = true
 
-        lifecycleScope.launch {
-            onboardingPreferences.markCompleted()
-            startActivity(
-                Intent(this@OnboardingActivity, MainActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                }
+        startActivity(
+            Intent(this, MainActivity::class.java).putExtra(
+                MainActivity.EXTRA_SHOW_ONBOARDING_COMPLETION,
+                true,
             )
-            finish()
-        }
+        )
+        finish()
     }
 }
