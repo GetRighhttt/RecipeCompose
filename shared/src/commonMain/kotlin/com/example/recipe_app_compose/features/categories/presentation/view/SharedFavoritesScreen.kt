@@ -92,7 +92,7 @@ fun SharedFavoritesScreen(
                 contentPadding = PaddingValues(AppSpacing.Large),
                 verticalArrangement = Arrangement.spacedBy(AppSpacing.Medium),
             ) {
-                items(uiState.list, key = { it.idMeal ?: "local:${it.id}" }) { meal ->
+                items(uiState.list, key = RandomMeal::id) { meal ->
                     SharedFavoriteItem(
                         meal = meal,
                         onClick = { onMealSelected(meal) },

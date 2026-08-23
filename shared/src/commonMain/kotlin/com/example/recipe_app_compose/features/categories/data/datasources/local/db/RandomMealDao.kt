@@ -12,7 +12,7 @@ interface RandomMealDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMeal(meal: RandomMealEntity)
 
-    @Query("SELECT EXISTS(SELECT 1 FROM random_meal_table WHERE meal_id = :mealId)")
+    @Query("SELECT EXISTS(SELECT 1 FROM random_meal_table WHERE TRIM(meal_id) = TRIM(:mealId))")
     suspend fun containsMeal(mealId: String): Boolean
 
     @Transaction
@@ -29,6 +29,6 @@ interface RandomMealDao {
     @Query("DELETE FROM random_meal_table")
     suspend fun deleteAllMeals()
 
-    @Query("DELETE FROM random_meal_table WHERE meal_id = :mealId")
+    @Query("DELETE FROM random_meal_table WHERE TRIM(meal_id) = TRIM(:mealId)")
     suspend fun deleteMealById(mealId: String)
 }
