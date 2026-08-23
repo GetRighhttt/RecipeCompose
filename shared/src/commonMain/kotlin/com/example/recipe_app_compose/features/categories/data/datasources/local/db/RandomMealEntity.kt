@@ -30,7 +30,7 @@ data class RandomMealEntity(
 
 internal fun RandomMeal.toEntity() = RandomMealEntity(
     id = id,
-    idMeal = idMeal,
+    idMeal = idMeal?.trim()?.takeIf(String::isNotEmpty),
     strMeal = strMeal,
     strCategory = strCategory,
     strArea = strArea,
@@ -48,6 +48,9 @@ internal fun RandomMeal.toEntity() = RandomMealEntity(
     strIngredient9 = strIngredient9,
     strSource = strSource,
 )
+
+internal fun RandomMealEntity.savedMealIdentity(): String =
+    idMeal?.trim()?.takeIf(String::isNotEmpty) ?: "local:$id"
 
 internal fun RandomMealEntity.toDomain() = RandomMeal(
     id = id,

@@ -151,7 +151,7 @@ fun MealDBScreen(
     ) {
         items(
             items = meals,
-            key = { it.idMeal ?: "local:${it.id}" },
+            key = RandomMeal::id,
         ) { meal ->
             MealDBItem(
                 meal = meal,
