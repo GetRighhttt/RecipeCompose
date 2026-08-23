@@ -4,6 +4,18 @@ Recipe Compose is a portfolio mobile application originally built to learn Jetpa
 
 The project now demonstrates an incremental Compose Multiplatform migration as well as modern Compose development across state-driven UI, Ktor networking, Room persistence, navigation, responsive layouts, and platform services. Its primary experience—including onboarding, recipe discovery, search, saved dishes, nearby restaurants, location access, interactive maps, and directions—runs on Android and iOS from shared UI and state.
 
+## App demo
+
+<p align="center">
+  <a href="docs/demo/recipe-compose-demo.m4v">
+    <img src="docs/demo/recipe-compose-demo-preview.png" width="700" alt="Recipe Compose running on Android and iOS" />
+  </a>
+</p>
+
+<p align="center">
+  <strong><a href="docs/demo/recipe-compose-demo.m4v">Watch the Android and iOS walkthrough</a></strong>
+</p>
+
 ## Product capabilities
 
 - Learn the core discovery, saving, and restaurant features through a focused first-run onboarding flow.
