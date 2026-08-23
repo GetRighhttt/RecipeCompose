@@ -4,6 +4,18 @@ Recipe Compose is a portfolio mobile application originally built to learn Jetpa
 
 The project now demonstrates an incremental Compose Multiplatform migration as well as modern Compose development across state-driven UI, Ktor networking, Room persistence, navigation, responsive layouts, and platform services. Its primary experience—including onboarding, recipe discovery, search, saved dishes, nearby restaurants, location access, interactive maps, and directions—runs on Android and iOS from shared UI and state.
 
+## App demo
+
+<p align="center">
+  <a href="docs/demo/recipe-compose-demo.m4v">
+    <img src="docs/demo/recipe-compose-demo-preview.png" width="700" alt="Recipe Compose running on Android and iOS" />
+  </a>
+</p>
+
+<p align="center">
+  <strong><a href="docs/demo/recipe-compose-demo.m4v">Watch the Android and iOS walkthrough</a></strong>
+</p>
+
 ## Product capabilities
 
 - Learn the core discovery, saving, and restaurant features through a focused first-run onboarding flow.
@@ -19,8 +31,8 @@ The project now demonstrates an incremental Compose Multiplatform migration as w
 
 ## Engineering highlights
 
-- Declarative, state-driven screens built entirely with Jetpack Compose and Material 3.
-- Unidirectional UI state exposed from ViewModels through `StateFlow`.
+- Declarative, state-driven screens built with Compose Multiplatform and Material 3.
+- Unidirectional UI state exposed through `StateFlow`-backed shared stores and Android ViewModels.
 - Lifecycle-aware Flow collection that avoids observing inactive screens.
 - Explicit UI events for retries, searches, refreshes, dialogs, favorites, and navigation.
 - Debounced remote search with cancellation to prevent outdated requests from controlling the UI.
@@ -31,6 +43,8 @@ The project now demonstrates an incremental Compose Multiplatform migration as w
 - A debug-only screen preview catalog with representative data and paired light/dark renders.
 - Purpose-built editorial feeds, adaptive galleries, and compact management lists for different content types.
 - A semantic Material 3 design system with coordinated light/dark palettes, typography, spacing, and shapes.
+- A shared, theme-aware startup experience with consistent branding and loading feedback on Android and iOS.
+- Shared screen transitions and an app-owned frame-driven progress indicator for predictable motion across platforms.
 - Local-first favorites with Room KMP, platform-specific database construction, and swipe-to-delete interactions.
 - Preferences DataStore for non-blocking onboarding state and retained location intent.
 - External navigation handoff that follows the currently selected map marker.
@@ -132,6 +146,7 @@ Contributor rule of thumb: place portable UI and route behavior in `shared/src/c
 
 - Android Studio and a compatible Android SDK.
 - Xcode with the iOS simulator runtime for iOS development.
+- An Apple development team configured in Xcode when running on a physical iPhone.
 - A Google Maps Platform API key with Maps SDK for Android enabled.
 - A Yelp Fusion API key.
 
@@ -161,7 +176,7 @@ Contributor rule of thumb: place portable UI and route behavior in `shared/src/c
    ./gradlew :app:assembleDebug
    ```
 
-4. Run the `app` configuration on an Android device or emulator with Google APIs. For iOS, open `iosApp/iosApp.xcodeproj` in Xcode or use the checked-in `iosApp` Xcode Application configuration in Android Studio.
+4. Run the `app` configuration on an Android device or emulator with Google APIs. For iOS, open `iosApp/iosApp.xcodeproj` in Xcode or use the checked-in `iosApp` Xcode Application configuration in Android Studio. Select a development team under **Signing & Capabilities** before installing on a physical iPhone.
 
 On the first Nearby visit, choose **Use my location** and grant approximate or precise foreground access to load local restaurants. The permission prompt is user initiated and can be declined without blocking the feature; enter a city or ZIP code instead. A successful device-location choice is remembered for later visits, and **Choose another location** resets that behavior.
 
@@ -178,10 +193,16 @@ This protects the repository, not the compiled APK. For an appropriate deploymen
 
 ## Verification
 
-Run the primary local checks with:
+Run the Android build, Android checks, and shared test suite with:
 
 ```bash
-./gradlew :app:testDebugUnitTest :app:lintDebug
+./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug :shared:allTests
+```
+
+Compile the shared UI for the Apple simulator target with:
+
+```bash
+./gradlew :shared:compileKotlinIosSimulatorArm64
 ```
 
 Additional engineering notes are tracked in [`docs/`](docs), including the [cleanup audit](docs/CODE_CLEANUP_AUDIT.md), [retained location preference implementation](docs/LOCATION_PREFERENCE_PLAN.md), [theme and UI redesign](docs/THEME_AND_UI_REDESIGN.md), [Gradle Kotlin DSL migration notes](docs/GRADLE_KOTLIN_DSL_MIGRATION.md), [KMP migration assessment](docs/KMP_MIGRATION_ASSESSMENT.md), and [Compose Multiplatform migration plan](docs/COMPOSE_MULTIPLATFORM_MIGRATION_PLAN.md).
@@ -190,7 +211,34 @@ For visual iteration, open `app/src/debug/java/com/example/recipe_app_compose/pr
 
 ## Screenshots
 
-These iOS screens are rendered by the shared Compose Multiplatform UI. Core
+The two hosts share the same product language, responsive Compose components,
+theme system, and feature state while retaining native platform integrations.
+
+### Android
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/onboarding.png" width="260" alt="Recipe Compose onboarding running on Android" />
+      <br />
+      <sub><strong>First-run onboarding</strong></sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/explore.png" width="260" alt="Recipe Compose Explore screen running on Android" />
+      <br />
+      <sub><strong>Explore and discover</strong></sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/search-dishes.png" width="260" alt="Image-first recipe search running on Android" />
+      <br />
+      <sub><strong>Search dishes</strong></sub>
+    </td>
+  </tr>
+</table>
+
+### iOS
+
+These screens are rendered by the shared Compose Multiplatform UI. Core
 Location and MapKit remain native platform adapters behind the common feature
 contracts.
 
@@ -243,7 +291,7 @@ contracts.
 1. Fork the repository and create a focused branch.
 2. Implement and test the change.
 3. Run the verification commands above.
-4. Open a pull request describing the user-facing behavior and implementation details.
+4. Open a pull request. GitHub automatically loads the repository's [pull request template](.github/pull_request_template.md); complete its summary, platform-impact, verification, and screenshot sections.
 
 ## Contact
 

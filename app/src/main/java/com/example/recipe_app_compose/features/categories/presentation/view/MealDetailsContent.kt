@@ -59,7 +59,12 @@ internal fun MealDetailsPage(
             modifier = Modifier
                 .widthIn(max = AppSizes.MaximumReadableWidth)
                 .fillMaxWidth(),
-            contentPadding = PaddingValues(AppSpacing.Large),
+            contentPadding = PaddingValues(
+                start = AppSpacing.Large,
+                top = AppSpacing.Small,
+                end = AppSpacing.Large,
+                bottom = AppSpacing.Large,
+            ),
         ) {
             item {
                 MealDetailsContent(

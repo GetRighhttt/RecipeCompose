@@ -23,13 +23,19 @@ fun MainViewController(): UIViewController = ComposeUIViewController {
     // SwiftUI supplies a full-screen host; Compose owns the one safe-area inset
     // shared by onboarding, primary destinations, and details.
     var showSplash by remember { mutableStateOf(true) }
+    var appReady by remember { mutableStateOf(false) }
     Box(Modifier.fillMaxSize().safeDrawingPadding()) {
+        RecipeComposeApp(
+            platformModule = iosPersistenceModule,
+            onReady = { appReady = true },
+        )
         if (showSplash) {
             AppTheme {
-                RecipeComposeSplashScreen(onFinished = { showSplash = false })
+                RecipeComposeSplashScreen(
+                    destinationReady = appReady,
+                    onFinished = { showSplash = false },
+                )
             }
-        } else {
-            RecipeComposeApp(iosPersistenceModule)
         }
     }
 }

@@ -37,13 +37,17 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.recipe_app_compose.core.components.NetworkUnavailableScreen
@@ -51,13 +55,20 @@ import com.example.recipe_app_compose.core.navigation.CategoryScreen
 import com.example.recipe_app_compose.core.navigation.NavigationItem
 import com.example.recipe_app_compose.core.navigation.RecipeApp
 import com.example.recipe_app_compose.core.navigation.navigateToPrimaryDestination
+import com.example.recipe_app_compose.core.onboarding.OnboardingPreferences
 import com.example.recipe_app_compose.core.util.connectivity.ConnectivityStatus
 import com.example.recipe_app_compose.core.util.connectivity.openNetworkSettings
 import com.example.recipe_app_compose.core.util.connectivity.rememberConnectivityMonitor
+import com.example.recipe_app_compose.features.onboarding.presentation.OnboardingCompletionOverlay
 import com.example.recipe_app_compose.ui.theme.AppTheme
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    companion object {
+        internal const val EXTRA_SHOW_ONBOARDING_COMPLETION =
+            "com.example.recipe_app_compose.extra.SHOW_ONBOARDING_COMPLETION"
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +83,11 @@ class MainActivity : ComponentActivity() {
             val isConnected = connectionState == ConnectivityStatus.Available
 
             val navController = rememberNavController()
+            var showOnboardingCompletion by rememberSaveable {
+                mutableStateOf(
+                    intent.getBooleanExtra(EXTRA_SHOW_ONBOARDING_COMPLETION, false)
+                )
+            }
 
             if (!isConnected) {
                 AppTheme {
@@ -265,6 +281,22 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     }
+                }
+            }
+
+            if (showOnboardingCompletion) {
+                AppTheme {
+                    OnboardingCompletionOverlay(
+                        onFinished = {
+                            lifecycleScope.launch {
+                                runCatching {
+                                    OnboardingPreferences(this@MainActivity).markCompleted()
+                                }
+                                intent.removeExtra(EXTRA_SHOW_ONBOARDING_COMPLETION)
+                                showOnboardingCompletion = false
+                            }
+                        },
+                    )
                 }
             }
         }
